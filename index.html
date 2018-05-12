@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8">
+    <title>python-faerun</title>
+    <script src="https://unpkg.com/lore-engine@1.0.7/dist/lore.js"></script>
+    <script src="https://unpkg.com/smiles-drawer@1.0.2/dist/smiles-drawer.min.js"></script>
+    <style>
+      body { margin: 0px; padding: 0px; height: 100%; user-select: none; }
+      #lore { position: absolute; width: 100%; height: 100%; }
+      #tip-image-container { position: absolute; z-index: 9999; width: 250px; height: 250px; background-color: rgba(255, 255, 255, 0.75); border-radius: 50%; pointer-events: none; opacity: 0.0; transition: opacity 0.1s ease-out; }
+      #tip-image-container.show { opacity: 1.0; transition: opacity 0.1s ease-out; }
+      #tip-image { pointer-events: none; filter: drop-shadow(0px 0px 5px rgba(255, 255, 255, 1.0)); }
+    </style>
+  </head>
+  <body>
+    <div  id="tip-image-container">
+      <img id="tip-image" />
+    </div>
+    <canvas id="lore"></canvas>
+    <script>
+      let smilesDrawer = new SmilesDrawer.Drawer({ width: 250, height: 250 });
+      let lore = Lore.init('lore', { clearColor: '#222222' });
+    </script>
+  </body>
+</html>
