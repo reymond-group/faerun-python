@@ -89,7 +89,6 @@ class Faerun(object):
 
     return indent(doc.getvalue())
 
-
 data = {
   'x': [10, 50, 100],
   'y': [20, 10, 60],
