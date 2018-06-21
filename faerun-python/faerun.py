@@ -4,15 +4,16 @@ from yattag import Doc, indent
 class Faerun(object):
   """ The faerun class
   """
-  def __init__(self, title='python-faerun', point_size=10, clear_color='#222222'):
+  def __init__(self, title='python-faerun', point_size=10, tree_hue=0.5, clear_color='#222222'):
     self.title = title
     self.point_size = point_size
+    self.tree_hue = tree_hue
     self.clear_color = clear_color
   
-  def plot(self, path, data):
-    print(faerun.create_html(data))
+  def plot(self, path, data, tree = None):
+    print(self.create_html(data, tree))
     with open(path, 'w') as f:
-      f.write(faerun.create_html(data))
+      f.write(self.create_html(data, tree))
   
   def get_css(self):
     return """
@@ -24,8 +25,8 @@ class Faerun(object):
       #tip-image { pointer-events: none; filter: drop-shadow(0px 0px 5px rgba(255, 255, 255, 1.0)); }
     """
   
-  def get_js(self):
-    return """
+  def get_js(self, tree):
+    output = """
       let smilesDrawer = new SmilesDrawer.Drawer({{ width: 250, height: 250 }});
       let lore = Lore.init('lore', {{ clearColor: '{}' }});
       let pointHelper = new Lore.Helpers.PointHelper(lore, 'python-lore', 'sphere');
@@ -52,18 +53,43 @@ class Faerun(object):
       }});
     """.format(self.clear_color, self.point_size)
 
-  def get_data(self, data):
+    if tree:
+      output += """
+        let treeHelper = new Lore.Helpers.TreeHelper(lore, 'TreeGeometry', 'tree')
+        treeHelper.setPositionsXYZHSS(edgeX, edgeY, edgeZ, {:f}, 1.0, 0.5)
+      """.format(self.tree_hue)
+
+    return output
+
+  def get_data(self, data, tree):
     output = ''
 
     for key, value in data.items():
       if key == 'smiles':
-        output += 'let ' + key + ' = [' + str(value)[1:-1] + '];'
+        output += 'let ' + key + ' = [' + str(value)[1:-1] + '];\n'
       else:
-        output += 'let ' + key + ' = [' + ','.join(map(str,value)) + '];'
+        output += 'let ' + key + ' = [' + ','.join(map(str, value)) + '];\n'
+
+    if tree is not None:
+      x = []
+      y = []
+      z = []
+
+      for pair in tree:
+        x.append(data['x'][pair[0]])
+        x.append(data['x'][pair[1]])
+        y.append(data['y'][pair[0]])
+        y.append(data['y'][pair[1]])
+        z.append(data['z'][pair[0]])
+        z.append(data['z'][pair[1]])
+
+      output += 'let edgeX = [' + ','.join(map(str, x)) + '];\n'
+      output += 'let edgeY = [' + ','.join(map(str, y)) + '];\n'
+      output += 'let edgeZ = [' + ','.join(map(str, z)) + '];\n'
 
     return output
 
-  def create_html(self, data):
+  def create_html(self, data, tree = None):
     # Create the HTML file
     doc, tag, text, line = Doc().ttl()
 
@@ -72,7 +98,7 @@ class Faerun(object):
       with tag('head'):
         doc.asis('<meta charset="UTF-8">')
         line('title', self.title)
-        line('script', '', src='https://unpkg.com/lore-engine@1.0.7/dist/lore.js')
+        line('script', '', src='https://unpkg.com/lore-engine@1.0.9/dist/lore.js')
         line('script', '', src='https://unpkg.com/smiles-drawer@1.0.2/dist/smiles-drawer.min.js')
         with tag('style'):
           text(self.get_css())
@@ -83,9 +109,9 @@ class Faerun(object):
           doc.stag('img', id='tip-image')
         line('canvas', '', id='lore')
         with tag('script'):
-          text(self.get_data(data))
+          text(self.get_data(data, tree))
         with tag('script'):
-          text(self.get_js())
+          text(self.get_js(tree is not None))
 
     return indent(doc.getvalue())
 
@@ -99,4 +125,4 @@ data = {
 }
   
 faerun = Faerun()
-faerun.plot('index.html', data)
+faerun.plot('index.html', data, [(0, 1), (0, 2)])
