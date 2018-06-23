@@ -12,29 +12,39 @@
       #tip-image-container { position: absolute; z-index: 9999; width: 250px; height: 250px; background-color: rgba(255, 255, 255, 0.75); border-radius: 50%; pointer-events: none; opacity: 0.0; transition: opacity 0.1s ease-out; }
       #tip-image-container.show { opacity: 1.0; transition: opacity 0.1s ease-out; }
       #tip-image { pointer-events: none; filter: drop-shadow(0px 0px 5px rgba(255, 255, 255, 1.0)); }
+      #selected { position: absolute; z-index: 9998; left: 5px; right: 5px; bottom: 5px; height: 100px; padding: 5px;
+                  border: 2px solid rgba(255, 255, 255, 0.1); background-color: rgba(0, 0, 0, 0.9); 
+                  overflow-y: auto; overflow-x: hidden; color: #eeeeee;
+                  font-family: Consolas, monaco, monospace; font-size: 0.8em;
+                  user-select: text }
     </style>
   </head>
   <body>
     <canvas id="smiles-canvas"></canvas>
+    <div id="selected"></div>
+    <div  id="controls">
+      <a id="download" href="#">Save Snapshot</a>
+    </div>
     <div  id="tip-image-container">
       <img id="tip-image" />
     </div>
     <canvas id="lore"></canvas>
     <script>let x = [10,50,100];
-    let y = [20,10,60];
-    let z = [50,20,80];
-    let c = [0.1,0.5,0.7];
-    let smiles = ['C1CCCC1', 'CNCNC(=O)C', 'CCCCCC'];
-    let edgeX = [10,50,10,100];
-    let edgeY = [20,10,20,60];
-    let edgeZ = [50,20,50,80];
-    </script>
+let y = [20,10,60];
+let z = [50,20,80];
+let c = [0.1,0.5,0.7];
+let smiles = ['C1CCCC1', 'CNCNC(=O)C', 'CCCCCC'];
+let edgeX = [10,50,10,100];
+let edgeY = [20,10,20,60];
+let edgeZ = [50,20,50,80];
+</script>
     <script>
       let smilesDrawer = new SmilesDrawer.Drawer({ width: 250, height: 250 });
       let lore = Lore.init('lore', { clearColor: '#222222' });
       let pointHelper = new Lore.Helpers.PointHelper(lore, 'python-lore', 'sphere');
+      let currentPoint = null;
       pointHelper.setPositionsXYZHSS(x, y, z, c, 1.0, 1.0);
-      pointHelper.setPointScale(10.0);
+      pointHelper.setPointScale(10.000000);
       lore.controls.setLookAt(pointHelper.getCenter());
       lore.controls.setRadius(pointHelper.getMaxRadius());
 
@@ -45,19 +55,54 @@
 
       octreeHelper.addEventListener('hoveredchanged', function(e) {
         if (e.e) {
+          currentPoint = { index: e.e.index, smiles: smiles[e.e.index] }
           SmilesDrawer.parse(smiles[e.e.index], function(tree) {
             smilesDrawer.draw(tree, 'smiles-canvas', 'light', false);
             tipImage.src = canvas.toDataURL();
             tip.classList.add('show');
           });
         } else {
+          currentPoint = null;
           tip.classList.remove('show');
         }
       });
     
         let treeHelper = new Lore.Helpers.TreeHelper(lore, 'TreeGeometry', 'tree')
         treeHelper.setPositionsXYZHSS(edgeX, edgeY, edgeZ, 0.500000, 1.0, 0.5)
-      </script>
+      
+      document.addEventListener('mousemove', function (event) {
+        let tip = document.getElementById('tip-image-container');
+
+        let x = event.clientX;
+        let y = event.clientY - 48;
+
+        if (x > window.innerWidth - 300) {
+          x -= 250;
+        }
+
+        if (y > window.innerHeight - 300) {
+          y -= 250;
+        }
+
+        if (tip) {
+          tip.style.top = y + 'px';
+          tip.style.left = x + 'px';
+        }
+      });
+    
+      let selected = document.getElementById('selected');
+      document.addEventListener('dblclick', function (event) {
+        if (currentPoint) {
+          selected.innerHTML += currentPoint.smiles + '<br />';
+        }
+      });
+    
+      let download = document.getElementById('download');
+
+      download.addEventListener('click', function(event) {
+        download.href = document.getElementById('lore').toDataURL();
+        download.download = "faerun-snapshot.png";
+      }, false);
     </script>
   </body>
 </html>

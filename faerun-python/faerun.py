@@ -23,6 +23,11 @@ class Faerun(object):
       #tip-image-container { position: absolute; z-index: 9999; width: 250px; height: 250px; background-color: rgba(255, 255, 255, 0.75); border-radius: 50%; pointer-events: none; opacity: 0.0; transition: opacity 0.1s ease-out; }
       #tip-image-container.show { opacity: 1.0; transition: opacity 0.1s ease-out; }
       #tip-image { pointer-events: none; filter: drop-shadow(0px 0px 5px rgba(255, 255, 255, 1.0)); }
+      #selected { position: absolute; z-index: 9998; left: 5px; right: 5px; bottom: 5px; height: 100px; padding: 5px;
+                  border: 2px solid rgba(255, 255, 255, 0.1); background-color: rgba(0, 0, 0, 0.9); 
+                  overflow-y: auto; overflow-x: hidden; color: #eeeeee;
+                  font-family: Consolas, monaco, monospace; font-size: 0.8em;
+                  user-select: text }
     """
   
   def get_js(self, tree):
@@ -30,6 +35,7 @@ class Faerun(object):
       let smilesDrawer = new SmilesDrawer.Drawer({{ width: 250, height: 250 }});
       let lore = Lore.init('lore', {{ clearColor: '{}' }});
       let pointHelper = new Lore.Helpers.PointHelper(lore, 'python-lore', 'sphere');
+      let currentPoint = null;
       pointHelper.setPositionsXYZHSS(x, y, z, c, 1.0, 1.0);
       pointHelper.setPointScale({:f});
       lore.controls.setLookAt(pointHelper.getCenter());
@@ -42,12 +48,14 @@ class Faerun(object):
 
       octreeHelper.addEventListener('hoveredchanged', function(e) {{
         if (e.e) {{
+          currentPoint = {{ index: e.e.index, smiles: smiles[e.e.index] }}
           SmilesDrawer.parse(smiles[e.e.index], function(tree) {{
             smilesDrawer.draw(tree, 'smiles-canvas', 'light', false);
             tipImage.src = canvas.toDataURL();
             tip.classList.add('show');
           }});
         }} else {{
+          currentPoint = null;
           tip.classList.remove('show');
         }}
       }});
@@ -58,6 +66,47 @@ class Faerun(object):
         let treeHelper = new Lore.Helpers.TreeHelper(lore, 'TreeGeometry', 'tree')
         treeHelper.setPositionsXYZHSS(edgeX, edgeY, edgeZ, {:f}, 1.0, 0.5)
       """.format(self.tree_hue)
+
+    
+    output += """
+      document.addEventListener('mousemove', function (event) {
+        let tip = document.getElementById('tip-image-container');
+
+        let x = event.clientX;
+        let y = event.clientY - 48;
+
+        if (x > window.innerWidth - 300) {
+          x -= 250;
+        }
+
+        if (y > window.innerHeight - 300) {
+          y -= 250;
+        }
+
+        if (tip) {
+          tip.style.top = y + 'px';
+          tip.style.left = x + 'px';
+        }
+      });
+    """
+
+    output += """
+      let selected = document.getElementById('selected');
+      document.addEventListener('dblclick', function (event) {
+        if (currentPoint) {
+          selected.innerHTML += currentPoint.smiles + '<br />';
+        }
+      });
+    """
+
+    output += """
+      let download = document.getElementById('download');
+
+      download.addEventListener('click', function(event) {
+        download.href = document.getElementById('lore').toDataURL();
+        download.download = "faerun-snapshot.png";
+      }, false);
+    """
 
     return output
 
@@ -105,13 +154,16 @@ class Faerun(object):
 
       with tag('body'):
         line('canvas', '', id='smiles-canvas')
+        line('div', '', id='selected')
+        with tag('div', '', id='controls'):
+          line('a', 'Save Snapshot', id='download', href='#')
         with tag('div', '', id='tip-image-container'):
           doc.stag('img', id='tip-image')
         line('canvas', '', id='lore')
         with tag('script'):
-          text(self.get_data(data, tree))
+          doc.asis(self.get_data(data, tree))
         with tag('script'):
-          text(self.get_js(tree is not None))
+          doc.asis(self.get_js(tree is not None))
 
     return indent(doc.getvalue())
 
