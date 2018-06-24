@@ -23,11 +23,16 @@ class Faerun(object):
       #tip-image-container { position: absolute; z-index: 9999; width: 250px; height: 250px; background-color: rgba(255, 255, 255, 0.75); border-radius: 50%; pointer-events: none; opacity: 0.0; transition: opacity 0.1s ease-out; }
       #tip-image-container.show { opacity: 1.0; transition: opacity 0.1s ease-out; }
       #tip-image { pointer-events: none; filter: drop-shadow(0px 0px 5px rgba(255, 255, 255, 1.0)); }
-      #selected { position: absolute; z-index: 9998; left: 5px; right: 5px; bottom: 5px; height: 100px; padding: 5px;
+      #selected { position: absolute; z-index: 9997; left: 5px; right: 5px; bottom: 5px; height: 100px; padding: 5px;
                   border: 2px solid rgba(255, 255, 255, 0.1); background-color: rgba(0, 0, 0, 0.9); 
                   overflow-y: auto; overflow-x: hidden; color: #eeeeee;
                   font-family: Consolas, monaco, monospace; font-size: 0.8em;
                   user-select: text }
+      #controls { position: absolute; z-index: 9998; left: 5px; right: 5px; bottom: 120px;
+                  text-align: right; font-size: 0.7em;
+                  font-family: Verdana, sans-serif; }
+      #controls a { padding: 5px; color: #ccc; text-decoration: none; }
+      #controls a:hover { color: #fff }
     """
   
   def get_js(self, tree):
@@ -95,17 +100,35 @@ class Faerun(object):
       document.addEventListener('dblclick', function (event) {
         if (currentPoint) {
           selected.innerHTML += currentPoint.smiles + '<br />';
+          selected.scrollTop = selected.scrollHeight;
         }
       });
     """
 
     output += """
-      let download = document.getElementById('download');
-
-      download.addEventListener('click', function(event) {
-        download.href = document.getElementById('lore').toDataURL();
-        download.download = "faerun-snapshot.png";
+      let clear = document.getElementById('clear');
+      clear.addEventListener('click', function(event) {
+        event.preventDefault();
+        selected.innerHTML = '';
       }, false);
+    """
+
+    # Register shortcuts
+    output += """
+      let hide = document.getElementById('hide');
+      let toggleConsole = function () {
+        selected.style.display = selected.style.display == 'none' ? 'block' : 'none';
+        controls.style.display = controls.style.display == 'none' ? 'block' : 'none';
+      }
+
+      let controls = document.getElementById('controls');
+      document.addEventListener('keypress', function(event) {
+        if (event.keyCode === 67 || event.keyCode === 99) {
+          toggleConsole();
+        }
+      });
+      hide.addEventListener('click', toggleConsole);
+
     """
 
     return output
@@ -156,7 +179,9 @@ class Faerun(object):
         line('canvas', '', id='smiles-canvas')
         line('div', '', id='selected')
         with tag('div', '', id='controls'):
-          line('a', 'Save Snapshot', id='download', href='#')
+          doc.asis('<a href="#" id="clear">&#8416;&nbsp;&nbsp;CLEAR</a>')
+          doc.asis('<a href="#" id="hide" title="Press c to toggle visibility of the console">&times;&nbsp;HIDE</a>')
+          doc.asis('<a href="https://github.com/reymond-group/faerun-python" id="clear">?&nbsp;HELP</a>')
         with tag('div', '', id='tip-image-container'):
           doc.stag('img', id='tip-image')
         line('canvas', '', id='lore')
