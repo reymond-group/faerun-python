@@ -23,6 +23,16 @@ class Faerun(object):
       #tip-image-container { position: absolute; z-index: 9999; width: 250px; height: 250px; background-color: rgba(255, 255, 255, 0.75); border-radius: 50%; pointer-events: none; opacity: 0.0; transition: opacity 0.1s ease-out; }
       #tip-image-container.show { opacity: 1.0; transition: opacity 0.1s ease-out; }
       #tip-image { pointer-events: none; filter: drop-shadow(0px 0px 5px rgba(255, 255, 255, 1.0)); }
+      #selected { position: absolute; z-index: 9997; left: 5px; right: 5px; bottom: 5px; height: 100px; padding: 5px;
+                  border: 2px solid rgba(255, 255, 255, 0.1); background-color: rgba(0, 0, 0, 0.9); 
+                  overflow-y: auto; overflow-x: hidden; color: #eeeeee;
+                  font-family: Consolas, monaco, monospace; font-size: 0.8em;
+                  user-select: text }
+      #controls { position: absolute; z-index: 9998; left: 5px; right: 5px; bottom: 120px;
+                  text-align: right; font-size: 0.7em;
+                  font-family: Verdana, sans-serif; }
+      #controls a { padding: 5px; color: #ccc; text-decoration: none; }
+      #controls a:hover { color: #fff }
     """
   
   def get_js(self, tree):
@@ -30,6 +40,7 @@ class Faerun(object):
       let smilesDrawer = new SmilesDrawer.Drawer({{ width: 250, height: 250 }});
       let lore = Lore.init('lore', {{ clearColor: '{}' }});
       let pointHelper = new Lore.Helpers.PointHelper(lore, 'python-lore', 'sphere');
+      let currentPoint = null;
       pointHelper.setPositionsXYZHSS(x, y, z, c, 1.0, 1.0);
       pointHelper.setPointScale({:f});
       lore.controls.setLookAt(pointHelper.getCenter());
@@ -42,12 +53,14 @@ class Faerun(object):
 
       octreeHelper.addEventListener('hoveredchanged', function(e) {{
         if (e.e) {{
+          currentPoint = {{ index: e.e.index, smiles: smiles[e.e.index] }}
           SmilesDrawer.parse(smiles[e.e.index], function(tree) {{
             smilesDrawer.draw(tree, 'smiles-canvas', 'light', false);
             tipImage.src = canvas.toDataURL();
             tip.classList.add('show');
           }});
         }} else {{
+          currentPoint = null;
           tip.classList.remove('show');
         }}
       }});
@@ -58,6 +71,65 @@ class Faerun(object):
         let treeHelper = new Lore.Helpers.TreeHelper(lore, 'TreeGeometry', 'tree')
         treeHelper.setPositionsXYZHSS(edgeX, edgeY, edgeZ, {:f}, 1.0, 0.5)
       """.format(self.tree_hue)
+
+    
+    output += """
+      document.addEventListener('mousemove', function (event) {
+        let tip = document.getElementById('tip-image-container');
+
+        let x = event.clientX;
+        let y = event.clientY - 48;
+
+        if (x > window.innerWidth - 300) {
+          x -= 250;
+        }
+
+        if (y > window.innerHeight - 300) {
+          y -= 250;
+        }
+
+        if (tip) {
+          tip.style.top = y + 'px';
+          tip.style.left = x + 'px';
+        }
+      });
+    """
+
+    output += """
+      let selected = document.getElementById('selected');
+      document.addEventListener('dblclick', function (event) {
+        if (currentPoint) {
+          selected.innerHTML += currentPoint.smiles + '<br />';
+          selected.scrollTop = selected.scrollHeight;
+        }
+      });
+    """
+
+    output += """
+      let clear = document.getElementById('clear');
+      clear.addEventListener('click', function(event) {
+        event.preventDefault();
+        selected.innerHTML = '';
+      }, false);
+    """
+
+    # Register shortcuts
+    output += """
+      let hide = document.getElementById('hide');
+      let toggleConsole = function () {
+        selected.style.display = selected.style.display == 'none' ? 'block' : 'none';
+        controls.style.display = controls.style.display == 'none' ? 'block' : 'none';
+      }
+
+      let controls = document.getElementById('controls');
+      document.addEventListener('keypress', function(event) {
+        if (event.keyCode === 67 || event.keyCode === 99) {
+          toggleConsole();
+        }
+      });
+      hide.addEventListener('click', toggleConsole);
+
+    """
 
     return output
 
@@ -105,13 +177,18 @@ class Faerun(object):
 
       with tag('body'):
         line('canvas', '', id='smiles-canvas')
+        line('div', '', id='selected')
+        with tag('div', '', id='controls'):
+          doc.asis('<a href="#" id="clear">&#8416;&nbsp;&nbsp;CLEAR</a>')
+          doc.asis('<a href="#" id="hide" title="Press c to toggle visibility of the console">&times;&nbsp;HIDE</a>')
+          doc.asis('<a href="https://github.com/reymond-group/faerun-python" id="clear">?&nbsp;HELP</a>')
         with tag('div', '', id='tip-image-container'):
           doc.stag('img', id='tip-image')
         line('canvas', '', id='lore')
         with tag('script'):
-          text(self.get_data(data, tree))
+          doc.asis(self.get_data(data, tree))
         with tag('script'):
-          text(self.get_js(tree is not None))
+          doc.asis(self.get_js(tree is not None))
 
     return indent(doc.getvalue())
 
