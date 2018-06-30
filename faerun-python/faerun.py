@@ -4,11 +4,12 @@ from yattag import Doc, indent
 class Faerun(object):
   """ The faerun class
   """
-  def __init__(self, title='python-faerun', point_size=10, tree_hue=0.5, clear_color='#222222'):
+  def __init__(self, title='python-faerun', point_size=10, tree_hue=0.5, clear_color='#222222', fog_intensity=6.0):
     self.title = title
     self.point_size = point_size
     self.tree_hue = tree_hue
     self.clear_color = clear_color
+    self.fog_intensity = fog_intensity
   
   def plot(self, path, data, tree = None):
     print(self.create_html(data, tree))
@@ -37,12 +38,17 @@ class Faerun(object):
   
   def get_js(self, tree):
     output = """
+      let clearColor = '{}';
       let smilesDrawer = new SmilesDrawer.Drawer({{ width: 250, height: 250 }});
-      let lore = Lore.init('lore', {{ clearColor: '{}' }});
+      let lore = Lore.init('lore', {{ clearColor: clearColor }});
       let pointHelper = new Lore.Helpers.PointHelper(lore, 'python-lore', 'sphere');
       let currentPoint = null;
       pointHelper.setPositionsXYZHSS(x, y, z, c, 1.0, 1.0);
       pointHelper.setPointScale({:f});
+
+      let cc = Lore.Core.Color.fromHex(clearColor);
+      pointHelper.setFog([cc.components[0], cc.components[1], cc.components[2], cc.components[3]], {:f})
+
       lore.controls.setLookAt(pointHelper.getCenter());
       lore.controls.setRadius(pointHelper.getMaxRadius());
 
@@ -64,7 +70,7 @@ class Faerun(object):
           tip.classList.remove('show');
         }}
       }});
-    """.format(self.clear_color, self.point_size)
+    """.format(self.clear_color, self.point_size, self.fog_intensity)
 
     if tree:
       output += """

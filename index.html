@@ -46,12 +46,18 @@ let edgeY = [20,10,20,60];
 let edgeZ = [50,20,50,80];
 </script>
     <script>
+      let clearColor = '#222222';
       let smilesDrawer = new SmilesDrawer.Drawer({ width: 250, height: 250 });
-      let lore = Lore.init('lore', { clearColor: '#222222' });
+      let lore = Lore.init('lore', { clearColor: clearColor });
       let pointHelper = new Lore.Helpers.PointHelper(lore, 'python-lore', 'sphere');
       let currentPoint = null;
       pointHelper.setPositionsXYZHSS(x, y, z, c, 1.0, 1.0);
       pointHelper.setPointScale(10.000000);
+
+      let cc = Lore.Core.Color.fromHex(clearColor);
+      console.log(cc);
+      pointHelper.setFog([cc.components[0], cc.components[1], cc.components[2], cc.components[3]], 6.000000)
+
       lore.controls.setLookAt(pointHelper.getCenter());
       lore.controls.setRadius(pointHelper.getMaxRadius());
 
@@ -88,7 +94,7 @@ let edgeZ = [50,20,50,80];
         }
 
         if (y > window.innerHeight - 300) {
-          y -= 202;
+          y -= 250;
         }
 
         if (tip) {
