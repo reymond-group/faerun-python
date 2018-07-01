@@ -22,10 +22,14 @@
                   font-family: Verdana, sans-serif; }
       #controls a { padding: 5px; color: #ccc; text-decoration: none; }
       #controls a:hover { color: #fff }
+      #hover-indicator { display: none; position: absolute; z-index: 999; border: 1px solid #fff; 
+                         background-color: rgba(255, 255, 255, 0.25); border-radius: 50%; pointer-events: none; }
+      #hover-indicator.show { display: block !important }
     </style>
   </head>
   <body>
     <canvas id="smiles-canvas"></canvas>
+    <div id="hover-indicator"></div>
     <div id="selected"></div>
     <div  id="controls">
       <a href="#" id="clear">&#8416;&nbsp;&nbsp;CLEAR</a>
@@ -55,7 +59,6 @@ let edgeZ = [50,20,50,80];
       pointHelper.setPointScale(10.000000);
 
       let cc = Lore.Core.Color.fromHex(clearColor);
-      console.log(cc);
       pointHelper.setFog([cc.components[0], cc.components[1], cc.components[2], cc.components[3]], 6.000000)
 
       lore.controls.setLookAt(pointHelper.getCenter());
@@ -65,6 +68,7 @@ let edgeZ = [50,20,50,80];
       let tip = document.getElementById('tip-image-container');
       let tipImage = document.getElementById('tip-image');
       let canvas = document.getElementById('smiles-canvas');
+      let hoverIndicator = document.getElementById('hover-indicator');
 
       octreeHelper.addEventListener('hoveredchanged', function(e) {
         if (e.e) {
@@ -74,9 +78,21 @@ let edgeZ = [50,20,50,80];
             tipImage.src = canvas.toDataURL();
             tip.classList.add('show');
           });
+
+          let pointSize = pointHelper.getPointSize();
+          let x = octreeHelper.hovered.screenPosition[0];
+          let y = octreeHelper.hovered.screenPosition[1];
+
+          hoverIndicator.style.width = pointSize + 'px';
+          hoverIndicator.style.height = pointSize + 'px';
+          hoverIndicator.style.left = (x - pointSize / 2.0 - 2) + 'px';
+          hoverIndicator.style.top = (y - pointSize / 2.0 - 2) + 'px';
+
+          hoverIndicator.classList.add('show');
         } else {
           currentPoint = null;
           tip.classList.remove('show');
+          hoverIndicator.classList.remove('show');
         }
       });
     

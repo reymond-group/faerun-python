@@ -34,6 +34,9 @@ class Faerun(object):
                   font-family: Verdana, sans-serif; }
       #controls a { padding: 5px; color: #ccc; text-decoration: none; }
       #controls a:hover { color: #fff }
+      #hover-indicator { display: none; position: absolute; z-index: 999; border: 1px solid #fff; 
+                         background-color: rgba(255, 255, 255, 0.25); border-radius: 50%; pointer-events: none; }
+      #hover-indicator.show { display: block !important }
     """
   
   def get_js(self, tree):
@@ -56,6 +59,7 @@ class Faerun(object):
       let tip = document.getElementById('tip-image-container');
       let tipImage = document.getElementById('tip-image');
       let canvas = document.getElementById('smiles-canvas');
+      let hoverIndicator = document.getElementById('hover-indicator');
 
       octreeHelper.addEventListener('hoveredchanged', function(e) {{
         if (e.e) {{
@@ -65,9 +69,21 @@ class Faerun(object):
             tipImage.src = canvas.toDataURL();
             tip.classList.add('show');
           }});
+
+          let pointSize = pointHelper.getPointSize();
+          let x = octreeHelper.hovered.screenPosition[0];
+          let y = octreeHelper.hovered.screenPosition[1];
+
+          hoverIndicator.style.width = pointSize + 'px';
+          hoverIndicator.style.height = pointSize + 'px';
+          hoverIndicator.style.left = (x - pointSize / 2.0 - 2) + 'px';
+          hoverIndicator.style.top = (y - pointSize / 2.0 - 2) + 'px';
+
+          hoverIndicator.classList.add('show');
         }} else {{
           currentPoint = null;
           tip.classList.remove('show');
+          hoverIndicator.classList.remove('show');
         }}
       }});
     """.format(self.clear_color, self.point_size, self.fog_intensity)
@@ -166,7 +182,6 @@ class Faerun(object):
       output += 'let edgeZ = [' + ','.join(map(str, z)) + '];\n'
 
     return output
-
   def create_html(self, data, tree = None):
     # Create the HTML file
     doc, tag, text, line = Doc().ttl()
@@ -183,6 +198,7 @@ class Faerun(object):
 
       with tag('body'):
         line('canvas', '', id='smiles-canvas')
+        line('div', '', id='hover-indicator')
         line('div', '', id='selected')
         with tag('div', '', id='controls'):
           doc.asis('<a href="#" id="clear">&#8416;&nbsp;&nbsp;CLEAR</a>')
