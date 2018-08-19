@@ -105,3 +105,6 @@ venv.bak/
 
 # Index
 index.html
+
+# Data
+data.js
