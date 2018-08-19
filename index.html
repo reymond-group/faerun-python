@@ -48,12 +48,13 @@
       let pointHelper = new Lore.Helpers.PointHelper(lore, 'python-lore', 'sphere');
       let currentPoint = null;
       pointHelper.setXYZHS(data.x, data.y, data.z, data.c, 1.0);
-      pointHelper.setPointScale(10.000000);
+      pointHelper.setPointScale(5.000000);
 
       let cc = Lore.Core.Color.fromHex(clearColor);
       pointHelper.setFog([cc.components[0], cc.components[1], cc.components[2], cc.components[3]], 6.000000)
 
       lore.controls.setLookAt(pointHelper.getCenter());
+      console.log(pointHelper.getMaxRadius());
       lore.controls.setRadius(pointHelper.getMaxRadius());
 
       let octreeHelper = new Lore.Helpers.OctreeHelper(lore, 'OctreeGeometry', 'tree', pointHelper);

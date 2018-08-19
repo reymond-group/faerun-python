@@ -1,11 +1,12 @@
 import random
+import math
 import numpy as np
 from yattag import Doc, indent
 
 class Faerun(object):
   """ The faerun class
   """
-  def __init__(self, title='python-faerun', point_size=10, tree_hue={ 'r': 132, 'g': 184, 'b': 217 }, clear_color='#222222', fog_intensity=6.0):
+  def __init__(self, title='python-faerun', point_size=5, tree_hue={ 'r': 132, 'g': 184, 'b': 217 }, clear_color='#222222', fog_intensity=6.0):
     self.title = title
     self.point_size = point_size
     self.tree_hue = tree_hue
@@ -56,6 +57,7 @@ class Faerun(object):
       pointHelper.setFog([cc.components[0], cc.components[1], cc.components[2], cc.components[3]], {:f})
 
       lore.controls.setLookAt(pointHelper.getCenter());
+      console.log(pointHelper.getMaxRadius());
       lore.controls.setRadius(pointHelper.getMaxRadius());
 
       let octreeHelper = new Lore.Helpers.OctreeHelper(lore, 'OctreeGeometry', 'tree', pointHelper);
@@ -161,6 +163,21 @@ class Faerun(object):
   def create_data(self, data, tree = None):
     output = 'const data = {\n'
 
+    # Normalize the data
+    s = 600
+
+    min_x = min(data['x'])
+    diff_x = max(data['x'])- min_x
+    data['x'] = [s * (x - min_x) / diff_x for x in data['x']]
+
+    min_y = min(data['y'])
+    diff_y = max(data['y'])- min_y
+    data['y'] = [s * (y - min_y) / diff_y for y in data['y']]
+
+    min_z = min(data['z'])
+    diff_z = max(data['z'])- min_z
+    data['z'] = [s * (z - min_z) / diff_z for z in data['z']]
+
     for key, value in data.items():
       if key == 'smiles':
         output += key + ': [' + str(value)[1:-1] + '],\n'
@@ -237,10 +254,10 @@ z = []
 c = []
 smiles = []
 
-for i in range(1000000):
-  x.append(random.random() * 500)
-  y.append(random.random() * 500)
-  z.append(random.random() * 500)
+for i in range(10000):
+  x.append(math.sin(random.gauss(0, 0.25)) * 750)
+  y.append(math.sin(random.gauss(0, 0.25)) * 750)
+  z.append(math.sin(random.gauss(0, 0.25)) * 750)
   c.append(random.random())
   smiles.append('C1CCCCC1CC(=O)C')
 
