@@ -1,10 +1,11 @@
+import random
 import numpy as np
 from yattag import Doc, indent
 
 class Faerun(object):
   """ The faerun class
   """
-  def __init__(self, title='python-faerun', point_size=10, tree_hue=0.5, clear_color='#222222', fog_intensity=6.0):
+  def __init__(self, title='python-faerun', point_size=10, tree_hue={ 'r': 132, 'g': 184, 'b': 217 }, clear_color='#222222', fog_intensity=6.0):
     self.title = title
     self.point_size = point_size
     self.tree_hue = tree_hue
@@ -12,9 +13,11 @@ class Faerun(object):
     self.fog_intensity = fog_intensity
   
   def plot(self, path, data, tree = None):
-    print(self.create_html(data, tree))
-    with open(path, 'w') as f:
-      f.write(self.create_html(data, tree))
+    print(self.create_html(tree))
+    with open(path + 'index.html', 'w') as f:
+      f.write(self.create_html(tree))
+    with open(path + 'data.js', 'w') as f:
+      f.write(self.create_data(data, tree))
   
   def get_css(self):
     return """
@@ -46,7 +49,7 @@ class Faerun(object):
       let lore = Lore.init('lore', {{ clearColor: clearColor }});
       let pointHelper = new Lore.Helpers.PointHelper(lore, 'python-lore', 'sphere');
       let currentPoint = null;
-      pointHelper.setPositionsXYZHSS(x, y, z, c, 1.0, 1.0);
+      pointHelper.setXYZHS(data.x, data.y, data.z, data.c, 1.0);
       pointHelper.setPointScale({:f});
 
       let cc = Lore.Core.Color.fromHex(clearColor);
@@ -63,8 +66,8 @@ class Faerun(object):
 
       octreeHelper.addEventListener('hoveredchanged', function(e) {{
         if (e.e) {{
-          currentPoint = {{ index: e.e.index, smiles: smiles[e.e.index] }}
-          SmilesDrawer.parse(smiles[e.e.index], function(tree) {{
+          currentPoint = {{ index: e.e.index, smiles: data.smiles[e.e.index] }}
+          SmilesDrawer.parse(data.smiles[e.e.index], function(tree) {{
             smilesDrawer.draw(tree, 'smiles-canvas', 'light', false);
             tipImage.src = canvas.toDataURL();
             tip.classList.add('show');
@@ -91,8 +94,8 @@ class Faerun(object):
     if tree:
       output += """
         let treeHelper = new Lore.Helpers.TreeHelper(lore, 'TreeGeometry', 'tree')
-        treeHelper.setPositionsXYZHSS(edgeX, edgeY, edgeZ, {:f}, 1.0, 0.5)
-      """.format(self.tree_hue)
+        treeHelper.setPositionsXYZHSS(data.edgeX, data.edgeY, data.edgeZ, Lore.Core.Color.rgbToFloat({:f}, {:f}, {:f}), 1.0, 0.5)
+      """.format(self.tree_hue['r'], self.tree_hue['g'], self.tree_hue['b'])
 
     
     output += """
@@ -155,14 +158,14 @@ class Faerun(object):
 
     return output
 
-  def get_data(self, data, tree):
-    output = ''
+  def create_data(self, data, tree = None):
+    output = 'const data = {\n'
 
     for key, value in data.items():
       if key == 'smiles':
-        output += 'let ' + key + ' = [' + str(value)[1:-1] + '];\n'
+        output += key + ': [' + str(value)[1:-1] + '],\n'
       else:
-        output += 'let ' + key + ' = [' + ','.join(map(str, value)) + '];\n'
+        output += key + ': [' + ','.join(map(str, value)) + '],\n'
 
     if tree is not None:
       x = []
@@ -177,12 +180,15 @@ class Faerun(object):
         z.append(data['z'][pair[0]])
         z.append(data['z'][pair[1]])
 
-      output += 'let edgeX = [' + ','.join(map(str, x)) + '];\n'
-      output += 'let edgeY = [' + ','.join(map(str, y)) + '];\n'
-      output += 'let edgeZ = [' + ','.join(map(str, z)) + '];\n'
+      output += 'edgeX: [' + ','.join(map(str, x)) + '],\n'
+      output += 'edgeY: [' + ','.join(map(str, y)) + '],\n'
+      output += 'edgeZ: [' + ','.join(map(str, z)) + '],\n'
+
+    output += '};\n'
 
     return output
-  def create_html(self, data, tree = None):
+
+  def create_html(self, tree = None):
     # Create the HTML file
     doc, tag, text, line = Doc().ttl()
 
@@ -191,7 +197,7 @@ class Faerun(object):
       with tag('head'):
         doc.asis('<meta charset="UTF-8">')
         line('title', self.title)
-        line('script', '', src='https://unpkg.com/lore-engine@1.0.9/dist/lore.js')
+        line('script', '', src='https://unpkg.com/lore-engine@1.0.17/dist/lore.js')
         line('script', '', src='https://unpkg.com/smiles-drawer@1.0.2/dist/smiles-drawer.min.js')
         with tag('style'):
           text(self.get_css())
@@ -207,20 +213,43 @@ class Faerun(object):
         with tag('div', '', id='tip-image-container'):
           doc.stag('img', id='tip-image')
         line('canvas', '', id='lore')
-        with tag('script'):
-          doc.asis(self.get_data(data, tree))
+        line('script', '', src='data.js')
         with tag('script'):
           doc.asis(self.get_js(tree is not None))
 
     return indent(doc.getvalue())
-
-data = {
-  'x': [10, 50, 100],
-  'y': [20, 10, 60],
-  'z': [50, 20, 80],
-  'c': [0.1, 0.5, 0.7],
-  'smiles': ['C1CCCC1', 'CNCNC(=O)C', 'CCCCCC']
-}
   
 faerun = Faerun()
-faerun.plot('index.html', data, [(0, 1), (0, 2)])
+
+# data = {
+#   'x': [10, 50, 100],
+#   'y': [20, 10, 60],
+#   'z': [50, 20, 80],
+#   'c': [0.1, 0.5, 0.7],
+#   'smiles': ['C1CCCC1', 'CNCNC(=O)C', 'CCCCCC']
+# }
+# faerun.plot('', data, [(0, 1), (0, 2)])
+
+
+x = []
+y = []
+z = []
+c = []
+smiles = []
+
+for i in range(1000000):
+  x.append(random.random() * 500)
+  y.append(random.random() * 500)
+  z.append(random.random() * 500)
+  c.append(random.random())
+  smiles.append('C1CCCCC1CC(=O)C')
+
+data = {
+  'x': x,
+  'y': y,
+  'z': z,
+  'c': c,
+  'smiles': smiles
+}
+
+faerun.plot('', data)

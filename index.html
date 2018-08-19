@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8">
     <title>python-faerun</title>
-    <script src="https://unpkg.com/lore-engine@1.0.9/dist/lore.js"></script>
+    <script src="https://unpkg.com/lore-engine@1.0.17/dist/lore.js"></script>
     <script src="https://unpkg.com/smiles-drawer@1.0.2/dist/smiles-drawer.min.js"></script>
     <style>
       body { margin: 0px; padding: 0px; height: 100%; user-select: none; }
@@ -40,22 +40,14 @@
       <img id="tip-image" />
     </div>
     <canvas id="lore"></canvas>
-    <script>let x = [10,50,100];
-let y = [20,10,60];
-let z = [50,20,80];
-let c = [0.1,0.5,0.7];
-let smiles = ['C1CCCC1', 'CNCNC(=O)C', 'CCCCCC'];
-let edgeX = [10,50,10,100];
-let edgeY = [20,10,20,60];
-let edgeZ = [50,20,50,80];
-</script>
+    <script src="data.js"></script>
     <script>
       let clearColor = '#222222';
       let smilesDrawer = new SmilesDrawer.Drawer({ width: 250, height: 250 });
       let lore = Lore.init('lore', { clearColor: clearColor });
       let pointHelper = new Lore.Helpers.PointHelper(lore, 'python-lore', 'sphere');
       let currentPoint = null;
-      pointHelper.setPositionsXYZHSS(x, y, z, c, 1.0, 1.0);
+      pointHelper.setXYZHS(data.x, data.y, data.z, data.c, 1.0);
       pointHelper.setPointScale(10.000000);
 
       let cc = Lore.Core.Color.fromHex(clearColor);
@@ -72,8 +64,8 @@ let edgeZ = [50,20,50,80];
 
       octreeHelper.addEventListener('hoveredchanged', function(e) {
         if (e.e) {
-          currentPoint = { index: e.e.index, smiles: smiles[e.e.index] }
-          SmilesDrawer.parse(smiles[e.e.index], function(tree) {
+          currentPoint = { index: e.e.index, smiles: data.smiles[e.e.index] }
+          SmilesDrawer.parse(data.smiles[e.e.index], function(tree) {
             smilesDrawer.draw(tree, 'smiles-canvas', 'light', false);
             tipImage.src = canvas.toDataURL();
             tip.classList.add('show');
@@ -96,9 +88,6 @@ let edgeZ = [50,20,50,80];
         }
       });
     
-        let treeHelper = new Lore.Helpers.TreeHelper(lore, 'TreeGeometry', 'tree')
-        treeHelper.setPositionsXYZHSS(edgeX, edgeY, edgeZ, 0.500000, 1.0, 0.5)
-      
       document.addEventListener('mousemove', function (event) {
         let tip = document.getElementById('tip-image-container');
 
