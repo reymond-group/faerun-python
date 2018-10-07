@@ -6,12 +6,16 @@ from yattag import Doc, indent
 class Faerun(object):
   """ The faerun class
   """
-  def __init__(self, title='python-faerun', point_size=5, tree_hue={ 'r': 132, 'g': 184, 'b': 217 }, clear_color='#222222', fog_intensity=6.0):
+  def __init__(self, title='python-faerun', point_size=5, tree_color='#aaaaaa', clear_color='#111111', fog_intensity=6.0, coords=True, coords_color='#888888', view='free', shader='circle'):
     self.title = title
     self.point_size = point_size
-    self.tree_hue = tree_hue
+    self.tree_color = tree_color
     self.clear_color = clear_color
     self.fog_intensity = fog_intensity
+    self.coords = coords
+    self.coords_color = coords_color
+    self.view = view
+    self.shader = shader
   
   def plot(self, path, data, tree = None):
     print(self.create_html(tree))
@@ -22,18 +26,18 @@ class Faerun(object):
   
   def get_css(self):
     return """
-      body { margin: 0px; padding: 0px; height: 100%; user-select: none; }
+      body { margin: 0px; padding: 0px; height: 100%; user-select: none; overflow: hidden; }
       #lore { position: absolute; width: 100%; height: 100%; }
       #smiles-canvas { position: absolute; z-index: 9999; left: -999px; top: -999px; width: 250px; height: 250px; }
       #tip-image-container { position: absolute; z-index: 9999; width: 250px; height: 250px; background-color: rgba(255, 255, 255, 0.75); border-radius: 50%; pointer-events: none; opacity: 0.0; transition: opacity 0.1s ease-out; }
       #tip-image-container.show { opacity: 1.0; transition: opacity 0.1s ease-out; }
       #tip-image { pointer-events: none; filter: drop-shadow(0px 0px 5px rgba(255, 255, 255, 1.0)); }
-      #selected { position: absolute; z-index: 9997; left: 5px; right: 5px; bottom: 5px; height: 100px; padding: 5px;
+      #selected { position: absolute; z-index: 9997; left: 5px; right: 5px; bottom: 25px; height: 100px; padding: 5px;
                   border: 2px solid rgba(255, 255, 255, 0.1); background-color: rgba(0, 0, 0, 0.9); 
                   overflow-y: auto; overflow-x: hidden; color: #eeeeee;
                   font-family: Consolas, monaco, monospace; font-size: 0.8em;
                   user-select: text }
-      #controls { position: absolute; z-index: 9998; left: 5px; right: 5px; bottom: 120px;
+      #controls { position: absolute; z-index: 9998; left: 5px; right: 5px; bottom: 5px;
                   text-align: right; font-size: 0.7em;
                   font-family: Verdana, sans-serif; }
       #controls a { padding: 5px; color: #ccc; text-decoration: none; }
@@ -46,9 +50,19 @@ class Faerun(object):
   def get_js(self, tree):
     output = """
       let clearColor = '{}';
+      let shader = '{}';
+      let alphaBlending = false;
+
+      if (shader == 'circle') {{
+        shader = 'smoothCircle';
+        alphaBlending = true;
+      }} else if (shader === 'legacyCircle') {{
+        shader == 'circle';
+      }}
+
       let smilesDrawer = new SmilesDrawer.Drawer({{ width: 250, height: 250 }});
-      let lore = Lore.init('lore', {{ clearColor: clearColor }});
-      let pointHelper = new Lore.Helpers.PointHelper(lore, 'python-lore', 'sphere');
+      let lore = Lore.init('lore', {{ clearColor: clearColor, alphaBlending: alphaBlending }});
+      let pointHelper = new Lore.Helpers.PointHelper(lore, 'python-lore', shader);
       let currentPoint = null;
       pointHelper.setXYZHS(data.x, data.y, data.z, data.c, 1.0);
       pointHelper.setPointScale({:f});
@@ -57,8 +71,7 @@ class Faerun(object):
       pointHelper.setFog([cc.components[0], cc.components[1], cc.components[2], cc.components[3]], {:f})
 
       lore.controls.setLookAt(pointHelper.getCenter());
-      console.log(pointHelper.getMaxRadius());
-      lore.controls.setRadius(pointHelper.getMaxRadius());
+      lore.controls.setRadius(pointHelper.getMaxRadius() + 100);
 
       let octreeHelper = new Lore.Helpers.OctreeHelper(lore, 'OctreeGeometry', 'tree', pointHelper);
       let tip = document.getElementById('tip-image-container');
@@ -91,13 +104,45 @@ class Faerun(object):
           hoverIndicator.classList.remove('show');
         }}
       }});
-    """.format(self.clear_color, self.point_size, self.fog_intensity)
+    """.format(self.clear_color, self.shader, self.point_size, self.fog_intensity)
+
+    if self.view == 'front':
+      output += "lore.controls.setFrontView();\n"
+    elif self.view == 'back':
+      output += "lore.controls.setBackView();\n"
+    elif self.view == 'left':
+      output += "lore.controls.setLeftView();\n"
+    elif self.view == 'right':
+      output += "lore.controls.setRightView();\n"
+    elif self.view == 'bottom':
+      output += "lore.controls.setBottomView();\n"
+    elif self.view == 'top':
+      output += "lore.controls.setTopView();\n"
+
+    if self.coords:
+      output += """
+      let coord_options = {{ 
+        axis: {{
+          x: {{ color: Lore.Core.Color.fromHex('{}') }},
+          y: {{ color: Lore.Core.Color.fromHex('{}') }},
+          z: {{ color: Lore.Core.Color.fromHex('{}') }}
+        }},
+        ticks: {{
+          x: {{ color: Lore.Core.Color.fromHex('{}') }},
+          y: {{ color: Lore.Core.Color.fromHex('{}') }},
+          z: {{ color: Lore.Core.Color.fromHex('{}') }}
+        }},
+        box: {{ enabled: false }}
+      }}
+
+        coordinateHelper = Lore.Helpers.CoordinatesHelper.fromPointHelper(pointHelper, coord_options)
+      """.format(self.coords_color, self.coords_color, self.coords_color, self.coords_color, self.coords_color, self.coords_color)
 
     if tree:
       output += """
         let treeHelper = new Lore.Helpers.TreeHelper(lore, 'TreeGeometry', 'tree')
-        treeHelper.setPositionsXYZHSS(data.edgeX, data.edgeY, data.edgeZ, Lore.Core.Color.rgbToFloat({:f}, {:f}, {:f}), 1.0, 0.5)
-      """.format(self.tree_hue['r'], self.tree_hue['g'], self.tree_hue['b'])
+        treeHelper.setPositionsXYZHSS(data.edgeX, data.edgeY, data.edgeZ, Lore.Core.Color.hexToFloat('{}'), 1.0, 0.5)
+      """.format(self.tree_color)
 
     
     output += """
@@ -145,7 +190,7 @@ class Faerun(object):
       let hide = document.getElementById('hide');
       let toggleConsole = function () {
         selected.style.display = selected.style.display == 'none' ? 'block' : 'none';
-        controls.style.display = controls.style.display == 'none' ? 'block' : 'none';
+        // controls.style.display = controls.style.display == 'none' ? 'block' : 'none';
       }
 
       let controls = document.getElementById('controls');
@@ -155,7 +200,7 @@ class Faerun(object):
         }
       });
       hide.addEventListener('click', toggleConsole);
-
+      hide.click();
     """
 
     return output
@@ -214,7 +259,7 @@ class Faerun(object):
       with tag('head'):
         doc.asis('<meta charset="UTF-8">')
         line('title', self.title)
-        line('script', '', src='https://unpkg.com/lore-engine@1.0.17/dist/lore.js')
+        line('script', '', src='https://unpkg.com/lore-engine@1.0.18/dist/lore.js')
         line('script', '', src='https://unpkg.com/smiles-drawer@1.0.2/dist/smiles-drawer.min.js')
         with tag('style'):
           text(self.get_css())
@@ -225,7 +270,7 @@ class Faerun(object):
         line('div', '', id='selected')
         with tag('div', '', id='controls'):
           doc.asis('<a href="#" id="clear">&#8416;&nbsp;&nbsp;CLEAR</a>')
-          doc.asis('<a href="#" id="hide" title="Press c to toggle visibility of the console">&times;&nbsp;HIDE</a>')
+          doc.asis('<a href="#" id="hide" title="Press c to toggle visibility of the console">_&nbsp;CONSOLE</a>')
           doc.asis('<a href="https://github.com/reymond-group/faerun-python" id="clear">?&nbsp;HELP</a>')
         with tag('div', '', id='tip-image-container'):
           doc.stag('img', id='tip-image')
@@ -236,7 +281,7 @@ class Faerun(object):
 
     return indent(doc.getvalue())
   
-faerun = Faerun()
+faerun = Faerun(view='free', shader='circle')
 
 # data = {
 #   'x': [10, 50, 100],
@@ -254,7 +299,7 @@ z = []
 c = []
 smiles = []
 
-for i in range(10000):
+for i in range(9000):
   x.append(math.sin(random.gauss(0, 0.25)) * 750)
   y.append(math.sin(random.gauss(0, 0.25)) * 750)
   z.append(math.sin(random.gauss(0, 0.25)) * 750)
