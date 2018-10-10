@@ -28,6 +28,8 @@ c = np.cos(np.pi * t)
 faerun.plot({ 'x': t, 'y': s, 'z': c, 'c': t / max(t) })
 ```
 
+The code above writes two files to the current directory: `index.html` and `data.js`. These files can be used locally or be moved to a (even minimalistic) web server.
+
 ## TODO
 - [ ] Add the abilty to draw shapes as well as colours
 - [ ] Make output templatable
@@ -58,6 +60,7 @@ Faerun.plot(path, data, x='x', y='y', z='z', c='c', colormap='plasma', smiles='s
 | x | `y` | The name of the column containing the y-coordinates. |
 | x | `z` | The name of the column containing the z-coordinates. |
 | c | `c` | The name of the column containing the values by which the points are coloured. **Has to be normalized between 0.0 and 1.0** |
+| colormap | `'plasma'` | The colour map to be used. Valid values are [matplotlib colormap names](https://matplotlib.org/examples/color/colormaps_reference.html). |
 | smiles | `smiles` | The name of the column containing the SMILES strings with which the points are annotated. |
 | path | `''` | The path to which the HTML and data files will be written. |
 | tree | `None` | Not yet implemented. |
