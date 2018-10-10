@@ -1,5 +1,4 @@
-import random
-import math
+import os
 import numpy as np
 import matplotlib.pyplot as plt
 from yattag import Doc, indent
@@ -23,9 +22,12 @@ class Faerun(object):
         if view != 'free':
             self.fog_intensity = 0.0
 
-    def plot(self, data, x='x', y='y', z='z', c='c', colormap='plasma', smiles='smiles', path='', tree=None):
-        
-        # print(self.create_html(tree))
+    def plot(self, data, x='x', y='y', z='z', c='c', colormap='plasma', smiles='smiles', path='./', tree=None):
+        if path == '':
+            raise ValueError('Please provide a valid value for argument "path".')
+
+        path = os.path.join(path, '')
+
         with open(path + 'index.html', 'w') as f:
             f.write(self.create_html(tree))
         with open(path + 'data.js', 'w') as f:

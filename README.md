@@ -14,18 +14,45 @@ The code of the examples shown above for creating interactive 2D and 3D maps fro
 import numpy as np
 from faerun import Faerun
 
-
 faerun = Faerun(view='free', shader='circle')
 
 t = np.linspace(0, 12.0, 326)
 s = np.sin(np.pi * t)
 c = np.cos(np.pi * t)
  
-data = { 'x': t, 'y': s, 'z': c, 'c': t / max(t) }
-
-faerun.plot(data)
+faerun.plot({ 'x': t, 'y': s, 'z': c, 'c': t / max(t) })
 ```
 
 ## TODO
 - [ ] Add the abilty to draw shapes as well as colours
 - [ ] Make output templatable
+
+## Documentation
+```Python
+Faerun(title='python-faerun', point_size=5, tree_color='#aaaaaa', clear_color='#111111', fog_intensity=2.6, coords=True, coords_color='#888888', view='free', shader='circle')
+```
+| Parameter | Default | Description |
+|---|---|---|
+| title | `'python-faerun'` | The title of the HTML document. |
+| point_size | `5` | The size of the points. |
+| tree_color | `'#aaaaaa'` | Not yet implemented. |
+| clear_color | `'#111111'` | The clear colour,  or background colour is used to clear the canvas after each rendering step. |
+| fog_intensity | `2.6` | Fog is used to darken / lighten far away points depending on the `clear_color`. This is a visual cue helpful for depth perception in orthogonal projections. |
+| coords | `True` | Whether or not to draw the coordinate axes. |
+| coords_color | `'#888888'` | The colour used to draw the coordinate axes. |
+| view | `'free'` | The view mode. Available options: `free`, `front`, `back`, `left`, `right`, `bottom`, `top` |
+| shader | `circle` | The name of the shader used to draw the points. Available options: `circle`, `legacyCircle`, `sphere` |
+
+```Python
+Faerun.plot(path, data, x='x', y='y', z='z', c='c', colormap='plasma', smiles='smiles', tree=None)
+```
+| Parameter | Default | Description |
+|---|---|---|
+| data | | A `dict` or a Pandas `DataFrame` containing the data. |
+| x | `x` | The name of the column containing the x-coordinates. |
+| x | `y` | The name of the column containing the y-coordinates. |
+| x | `z` | The name of the column containing the z-coordinates. |
+| c | `c` | The name of the column containing the values by which the points are coloured. **Has to be normalized between 0.0 and 1.0** |
+| smiles | `smiles` | The name of the column containing the SMILES strings with which the points are annotated. |
+| path | `''` | The path to which the HTML and data files will be written. |
+| tree | `None` | Not yet implemented. |
