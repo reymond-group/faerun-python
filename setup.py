@@ -9,7 +9,7 @@ from datetime import datetime
 with open('README.md', 'r') as fh:
     LONG_DESCRIPTION = fh.read()
 
-NAME = 'faerun-python'
+NAME = 'faerun'
 VERSION = '0.1'
 AUTHOR = 'Daniel Probst'
 DESCRIPTION = 'A python package for generating interactive views of chemical spaces.'
