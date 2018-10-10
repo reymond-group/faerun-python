@@ -5,6 +5,11 @@ Faerun (Python) is based on the [Lore.js](https://github.com/reymond-group/lore)
 
 <img alt="Faerun Python" src="http://doc.gdb.tools/faerun-python/intro.png"></img>
 
+## Installation
+```Bash
+pip install faerun
+```
+
 ## Examples
 - **[Drugbank 3D](http://doc.gdb.tools/faerun-python/example3d)**
 - **[Drugbank 2D](http://doc.gdb.tools/faerun-python/example2d)**
