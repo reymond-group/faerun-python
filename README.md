@@ -1,7 +1,9 @@
 # Faerun (Python)
-Faerun (Python) is based on the [Lore.js](https://github.com/reymond-group/lore) 3D WebGL engine for interactive big data rendering and the [FUn](http://doc.gdb.tools/fun/) project. It facilitates the creation of interactive (2D and 3D) HTML plots of chemical data (or chemical spaces).
-
+Faerun (Python) is based on the [Lore.js](https://github.com/reymond-group/lore) 3D WebGL engine for interactive big data rendering and the [FUn](http://doc.gdb.tools/fun/) project. It facilitates the creation of interactive (2D and 3D) HTML plots of chemical data (or chemical spaces). Molecular structures are rendered using [SmilesDrawer](https://github.com/reymond-group/smilesDrawer).
+ 
 **Associated Publication**: https://academic.oup.com/bioinformatics/article/34/8/1433/4657075
+
+<img alt="Faerun Python" src="http://doc.gdb.tools/faerun-python/intro.png"></img>
 
 ## Examples
 - **[Drugbank 3D](http://doc.gdb.tools/faerun-python/example3d)**
