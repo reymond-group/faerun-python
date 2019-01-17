@@ -38,15 +38,21 @@ def load():
 coords, mqns, smiles = load()
 
 data = {
-    'x': coords[:, 0],
-    'y': coords[:, 1],
-    'z': coords[:, 2],
-    'c': 1.0 - mqns[:, 22] / max(mqns[22]),
-    'smiles': smiles
+    'x': np.random.normal(0.0, 6.0, len(smiles) * 150),
+    'y': np.random.normal(0.0, 6.0, len(smiles) * 150),
+    'z': np.random.normal(0.0, 6.0, len(smiles) * 150),
+    'c': np.random.normal(0.0, 6.0, len(smiles) * 150),
+    'smiles': smiles * 150
 }
+
+print(len(data['x']))
+print(len(data['y']))
+print(len(data['z']))
+print(len(data['c']))
+print(len(data['smiles']))
 
 df = pd.DataFrame.from_dict(data)
 
 
 faerun = Faerun(view='free', shader='sphere')
-faerun.plot(df, colormap='gist_rainbow')
+faerun.plot(df, colormap='viridis')

@@ -258,9 +258,9 @@ class Faerun(object):
                 z.append(data['z'][pair[0]])
                 z.append(data['z'][pair[1]])
 
-            output += 'edgeX: [' + ','.join(map(str, x)) + '],\n'
-            output += 'edgeY: [' + ','.join(map(str, y)) + '],\n'
-            output += 'edgeZ: [' + ','.join(map(str, z)) + '],\n'
+            output += 'edgeX: [' + ','.join(map(str, [round(s * (x - min_all) / diff_all, 3) for x in data[mapping['x']]])) + '],\n'
+            output += 'edgeY: [' + ','.join(map(str, [round(s * (y - min_all) / diff_all, 3) for y in data[mapping['y']]])) + '],\n'
+            output += 'edgeZ: [' + ','.join(map(str, [round(s * (z - min_all) / diff_all, 3) for z in data[mapping['z']]])) + '],\n'
 
         output += '};\n'
 
