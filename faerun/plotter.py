@@ -246,21 +246,21 @@ class Faerun(object):
             output += 'b: [' + ','.join(map(str, colors[:,2])) + '],\n'
 
         if tree is not None:
-            x = []
-            y = []
-            z = []
+            x_t = []
+            y_t = []
+            z_t = []
 
             for pair in tree:
-                x.append(data['x'][pair[0]])
-                x.append(data['x'][pair[1]])
-                y.append(data['y'][pair[0]])
-                y.append(data['y'][pair[1]])
-                z.append(data['z'][pair[0]])
-                z.append(data['z'][pair[1]])
+                x_t.append(data[mapping['x']][pair[0]])
+                x_t.append(data[mapping['x']][pair[1]])
+                y_t.append(data[mapping['y']][pair[0]])
+                y_t.append(data[mapping['y']][pair[1]])
+                z_t.append(data[mapping['z']][pair[0]])
+                z_t.append(data[mapping['z']][pair[1]])
 
-            output += 'edgeX: [' + ','.join(map(str, [round(s * (x - min_all) / diff_all, 3) for x in data[mapping['x']]])) + '],\n'
-            output += 'edgeY: [' + ','.join(map(str, [round(s * (y - min_all) / diff_all, 3) for y in data[mapping['y']]])) + '],\n'
-            output += 'edgeZ: [' + ','.join(map(str, [round(s * (z - min_all) / diff_all, 3) for z in data[mapping['z']]])) + '],\n'
+            output += 'edgeX: [' + ','.join(map(str, [round(s * (x - min_all) / diff_all, 3) for x in x_t])) + '],\n'
+            output += 'edgeY: [' + ','.join(map(str, [round(s * (y - min_all) / diff_all, 3) for y in y_t])) + '],\n'
+            output += 'edgeZ: [' + ','.join(map(str, [round(s * (z - min_all) / diff_all, 3) for z in z_t])) + '],\n'
 
         output += '};\n'
 
