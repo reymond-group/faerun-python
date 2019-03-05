@@ -22,15 +22,17 @@ class Faerun(object):
         if view != 'free':
             self.fog_intensity = 0.0
 
-    def plot(self, data, x='x', y='y', z='z', c='c', colormap='plasma', smiles='smiles', path='./', tree=None):
+    def plot(self, data, x='x', y='y', z='z', c='c', colormap='plasma', smiles='smiles', path='./', file_name='', tree=None):
         if path == '':
             raise ValueError('Please provide a valid value for argument "path".')
 
         path = os.path.join(path, '')
 
-        with open(path + 'index.html', 'w') as f:
-            f.write(self.create_html(tree))
-        with open(path + 'data.js', 'w') as f:
+        if file_name == '': file_name = 'index'
+
+        with open(path + file_name + '.html', 'w') as f:
+            f.write(self.create_html(file_name, tree))
+        with open(path + file_name + '.js', 'w') as f:
             f.write(self.create_data(data, { 'x': x, 'y': y, 'z': z, 'c': c, 'smiles': smiles }, colormap, tree))
 
     def get_css(self):
@@ -266,7 +268,7 @@ class Faerun(object):
 
         return output
 
-    def create_html(self, tree = None):
+    def create_html(self, file_name = '', tree = None):
         # Create the HTML file
         doc, tag, text, line = Doc().ttl()
 
@@ -291,7 +293,7 @@ class Faerun(object):
                 with tag('div', '', id='tip-image-container'):
                     doc.stag('img', id='tip-image')
                 line('canvas', '', id='lore')
-                line('script', '', src='data.js')
+                line('script', '', src=file_name + '.js')
                 with tag('script'):
                     doc.asis(self.get_js(tree is not None))
 
