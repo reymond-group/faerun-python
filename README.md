@@ -51,7 +51,7 @@ Faerun(title='python-faerun', point_size=5, tree_color='#aaaaaa', clear_color='#
 | shader | `circle` | The name of the shader used to draw the points. Available options: `circle`, `legacyCircle`, `sphere` |
 
 ```Python
-Faerun.plot(path, data, x='x', y='y', z='z', c='c', colormap='plasma', smiles='smiles', tree=None)
+Faerun.plot(path, data, x='x', y='y', z='z', c='c', colormap='plasma', smiles='smiles', path='./', file_name='', tree=None)
 ```
 | Parameter | Default | Description |
 |---|---|---|
@@ -62,5 +62,6 @@ Faerun.plot(path, data, x='x', y='y', z='z', c='c', colormap='plasma', smiles='s
 | c | `c` | The name of the column containing the values by which the points are coloured. **Has to be normalized between 0.0 and 1.0** |
 | colormap | `'plasma'` | The colour map to be used. Valid values are [matplotlib colormap names](https://matplotlib.org/examples/color/colormaps_reference.html). |
 | smiles | `smiles` | The name of the column containing the SMILES strings with which the points are annotated. |
-| path | `''` | The path to which the HTML and data files will be written. |
+| path | `'./'` | The path to which the HTML and data files will be written. |
+| file_name | `''` | The file name that is given to both the html and js file. |
 | tree | `None` | Not yet implemented. |
