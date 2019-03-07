@@ -14,9 +14,8 @@ VERSION = '0.1.10'
 AUTHOR = 'Daniel Probst'
 DESCRIPTION = 'A python package for generating interactive views of chemical spaces.'
 URL = 'https://github.com/reymond-group/faerun-python'
-REQUIRED_PYTHON_VERSION = (3, 0)
 PACKAGES = ['faerun']
-INSTALL_DEPENDENCIES = []
+INSTALL_DEPENDENCIES = ['yattag']
 SETUP_DEPENDENCIES = [
 ]
 TEST_DEPENDENCIES = [
@@ -27,9 +26,6 @@ EXTRA_DEPENDENCIES = {
         'pytest'
     ]
 }
-
-if sys.version_info < REQUIRED_PYTHON_VERSION:
-    sys.exit('Python >= 3.0 is required. Your version:\n'+sys.version)
 
 
 class PyTest(TestCommand):
