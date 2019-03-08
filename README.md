@@ -57,9 +57,10 @@ Faerun.plot(path, data, x='x', y='y', z='z', c='c', colormap='plasma', smiles='s
 |---|---|---|
 | data | | A `dict` or a Pandas `DataFrame` containing the data. |
 | x | `x` | The name of the column containing the x-coordinates. |
-| x | `y` | The name of the column containing the y-coordinates. |
-| x | `z` | The name of the column containing the z-coordinates. |
-| c | `c` | The name of the column containing the values by which the points are coloured. **Has to be normalized between 0.0 and 1.0** |
+| y | `y` | The name of the column containing the y-coordinates. |
+| z | `z` | The name of the column containing the z-coordinates. |
+| c | `c` | The name of the column containing the values by which the points are coloured. **Has to be normalized between 0.0 and 1.0 or (categorical) integers** |
+| s | `s` | The name of the column containing the point size values. |
 | colormap | `'plasma'` | The colour map to be used. Valid values are [matplotlib colormap names](https://matplotlib.org/examples/color/colormaps_reference.html). |
 | smiles | `smiles` | The name of the column containing the SMILES strings with which the points are annotated. |
 | path | `'./'` | The path to which the HTML and data files will be written. |

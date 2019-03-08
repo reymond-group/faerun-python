@@ -22,7 +22,7 @@ class Faerun(object):
         if view != 'free':
             self.fog_intensity = 0.0
 
-    def plot(self, data, x='x', y='y', z='z', c='c', colormap='plasma', smiles='smiles', path='./', file_name='', tree=None):
+    def plot(self, data, x='x', y='y', z='z', c='c', s='s', colormap='plasma', smiles='smiles', path='./', file_name='', tree=None):
         if path == '':
             raise ValueError('Please provide a valid value for argument "path".')
 
@@ -33,7 +33,7 @@ class Faerun(object):
         with open(path + file_name + '.html', 'w') as f:
             f.write(self.create_html(file_name, tree))
         with open(path + file_name + '.js', 'w') as f:
-            f.write(self.create_data(data, { 'x': x, 'y': y, 'z': z, 'c': c, 'smiles': smiles }, colormap, tree))
+            f.write(self.create_data(data, { 'x': x, 'y': y, 'z': z, 'c': c, 's': s, 'smiles': smiles }, colormap, tree))
 
     def get_css(self):
         return """
@@ -73,11 +73,16 @@ class Faerun(object):
             antialiasing = true;
         }}
 
+        // If no sizes are supplied, set all to 1
+        if (typeof s === 'undefined') {{
+            s = 1.0;
+        }}
+
         let smilesDrawer = new SmilesDrawer.Drawer({{ width: 250, height: 250 }});
         let lore = Lore.init('lore', {{ antialiasing: antialiasing, clearColor: clearColor, alphaBlending: alphaBlending }});
         let pointHelper = new Lore.Helpers.PointHelper(lore, 'python-lore', shader);
         let currentPoint = null;
-        pointHelper.setXYZRGBS(data.x, data.y, data.z, data.r, data.g, data.b);
+        pointHelper.setXYZRGBS(data.x, data.y, data.z, data.r, data.g, data.b, data.s);
         pointHelper.setPointScale({:f});
 
         let cc = Lore.Core.Color.fromHex(clearColor);
@@ -239,6 +244,9 @@ class Faerun(object):
         
         if mapping['smiles'] in data:
             output += 'smiles: [' + ','.join('\'{0}\''.format(s) for s in data[mapping['smiles']]) + '],\n'
+
+        if mapping['s'] in data:
+            output += 's: [' + ','.join(map(str, data[mapping['s']])) + '],\n'
         
         if mapping['c'] in data:
             colors = np.array([plt.cm.get_cmap(colormap)(x) for x in data[mapping['c']]])
