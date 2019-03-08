@@ -80,6 +80,16 @@ class Faerun(object):
 
         let smilesDrawer = new SmilesDrawer.Drawer({{ width: 250, height: 250 }});
         let lore = Lore.init('lore', {{ antialiasing: antialiasing, clearColor: clearColor, alphaBlending: alphaBlending }});
+        """.format(self.clear_color, self.shader)
+
+        if tree:
+            output += """
+        let treeHelper = new Lore.Helpers.TreeHelper(lore, 'TreeGeometry', 'tree')
+        treeHelper.setPositionsXYZHSS(
+            data.edgeX, data.edgeY, data.edgeZ, Lore.Core.Color.hexToFloat('{}'), 1.0, 0.5)
+        """.format(self.tree_color)
+
+        output += """
         let pointHelper = new Lore.Helpers.PointHelper(lore, 'python-lore', shader);
         let currentPoint = null;
         pointHelper.setXYZRGBS(data.x, data.y, data.z, data.r, data.g, data.b, data.s);
@@ -123,7 +133,7 @@ class Faerun(object):
                 hoverIndicator.classList.remove('show');
             }}
         }});
-        """.format(self.clear_color, self.shader, self.point_size, self.fog_intensity)
+        """.format(self.point_size, self.fog_intensity)
 
         if self.view == 'front':
             output += "lore.controls.setFrontView();\n"
@@ -157,13 +167,6 @@ class Faerun(object):
         coordinateHelper = Lore.Helpers.CoordinatesHelper.fromPointHelper(
             pointHelper, coord_options)
       """.format(self.coords_color, self.coords_color, self.coords_color, self.coords_color, self.coords_color, self.coords_color)
-
-        if tree:
-            output += """
-        let treeHelper = new Lore.Helpers.TreeHelper(lore, 'TreeGeometry', 'tree')
-        treeHelper.setPositionsXYZHSS(
-            data.edgeX, data.edgeY, data.edgeZ, Lore.Core.Color.hexToFloat('{}'), 1.0, 0.5)
-      """.format(self.tree_color)
 
         output += """
       document.addEventListener('mousemove', function (event) {
