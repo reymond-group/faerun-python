@@ -84,9 +84,9 @@ class Faerun(object):
 
         if tree:
             output += """
-        let treeHelper = new Lore.Helpers.TreeHelper(lore, 'TreeGeometry', 'tree')
-        treeHelper.setPositionsXYZHSS(
-            data.edgeX, data.edgeY, data.edgeZ, Lore.Core.Color.hexToFloat('{}'), 1.0, 0.5)
+        let treeHelper = new Lore.Helpers.TreeHelper(lore, 'TreeGeometry', 'tree');
+        treeHelper.setXYZHexS(
+            data.edgeX, data.edgeY, data.edgeZ, '{}');
         """.format(self.tree_color)
 
         output += """
@@ -96,11 +96,12 @@ class Faerun(object):
         pointHelper.setPointScale({:f});
 
         let cc = Lore.Core.Color.fromHex(clearColor);
-        pointHelper.setFog([cc.components[0], cc.components[1], cc.components[2], cc.components[3]], {:f})
+        pointHelper.setFog([cc.components[0], cc.components[1], cc.components[2], cc.components[3]], {:f});
+        treeHelper.setFog([cc.components[0], cc.components[1], cc.components[2], cc.components[3]], {:f});
 
         lore.controls.setLookAt(pointHelper.getCenter());
         lore.controls.setRadius(pointHelper.getMaxRadius() + 100);
-        lore.controls.setView(0.9, -0.5)
+        lore.controls.setView(0.9, -0.5);
 
         let octreeHelper = new Lore.Helpers.OctreeHelper(lore, 'OctreeGeometry', 'tree', pointHelper);
         let tip = document.getElementById('tip-image-container');
@@ -133,7 +134,7 @@ class Faerun(object):
                 hoverIndicator.classList.remove('show');
             }}
         }});
-        """.format(self.point_size, self.fog_intensity)
+        """.format(self.point_size, self.fog_intensity, self.fog_intensity)
 
         if self.view == 'front':
             output += "lore.controls.setFrontView();\n"
@@ -288,7 +289,7 @@ class Faerun(object):
             with tag('head'):
                 doc.asis('<meta charset="UTF-8">')
                 line('title', self.title)
-                line('script', '', src='https://unpkg.com/lore-engine@1.0.18/dist/lore.js')
+                line('script', '', src='https://unpkg.com/lore-engine@1.0.19/dist/lore.js')
                 line('script', '', src='https://unpkg.com/smiles-drawer@1.0.2/dist/smiles-drawer.min.js')
                 with tag('style'):
                     text(self.get_css())
