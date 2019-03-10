@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="UTF-8">
+  <title>{{title}}</title>
+  <script src="../lore/dist/lore.js"></script>
+  <script src="https://unpkg.com/smiles-drawer@1.0.2/dist/smiles-drawer.min.js"></script>
+  <style>
+    body {
+      margin: 0px;
+      padding: 0px;
+      height: 100%;
+      user-select: none;
+      overflow: hidden;
+    }
+
+    #lore {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+    }
+
+    #smiles-canvas {
+      position: absolute;
+      z-index: 9999;
+      left: -999px;
+      top: -999px;
+      width: 250px;
+      height: 250px;
+    }
+
+    #tip-image-container {
+      position: absolute;
+      z-index: 9999;
+      width: 250px;
+      height: 250px;
+      background-color: rgba(255, 255, 255, 0.75);
+      border-radius: 50%;
+      pointer-events: none;
+      opacity: 0.0;
+      transition: opacity 0.1s ease-out;
+    }
+
+    #tip-image-container.show {
+      opacity: 1.0;
+      transition: opacity 0.1s ease-out;
+    }
+
+    #tip-image {
+      pointer-events: none;
+      filter: drop-shadow(0px 0px 5px rgba(255, 255, 255, 1.0));
+    }
+
+    #selected {
+      position: absolute;
+      z-index: 9997;
+      left: 5px;
+      right: 5px;
+      bottom: 25px;
+      height: 100px;
+      padding: 5px;
+      border: 2px solid rgba(255, 255, 255, 0.1);
+      background-color: rgba(0, 0, 0, 0.9);
+      overflow-y: auto;
+      overflow-x: hidden;
+      color: #eeeeee;
+      font-family: Consolas, monaco, monospace;
+      font-size: 0.8em;
+      user-select: text
+    }
+
+    #controls {
+      position: absolute;
+      z-index: 9998;
+      left: 5px;
+      right: 5px;
+      bottom: 5px;
+      text-align: right;
+      font-size: 0.7em;
+      font-family: Verdana, sans-serif;
+    }
+
+    #controls a {
+      padding: 5px;
+      color: #ccc;
+      text-decoration: none;
+    }
+
+    #controls a:hover {
+      color: #fff
+    }
+
+    #hover-indicator {
+      display: none;
+      position: absolute;
+      z-index: 999;
+      border: 1px solid #fff;
+      background-color: rgba(255, 255, 255, 0.25);
+      border-radius: 50%;
+      pointer-events: none;
+    }
+
+    #hover-indicator.show {
+      display: block !important
+    }
+  </style>
+</head>
+
+<body>
+  <canvas id="smiles-canvas"></canvas>
+  <div id="hover-indicator"></div>
+  <div id="selected"></div>
+  <div id="controls">
+    <a href="#" id="clear">&#8416;&nbsp;&nbsp;CLEAR</a>
+    <a href="#" id="hide" title="Press c to toggle visibility of the console">_&nbsp;CONSOLE</a>
+    <a href="https://github.com/reymond-group/faerun-python" id="clear">?&nbsp;HELP</a>
+  </div>
+  <div id="tip-image-container">
+    <img id="tip-image" />
+  </div>
+  <canvas id="lore"></canvas>
+  <script src="{{file_name}}"></script>
+  <script>
+    let clearColor = '{{clear_color|safe}}';
+    let cc = Lore.Core.Color.fromHex(clearColor);
+    let currentPoint = null;
+
+    let smilesDrawer = new SmilesDrawer.Drawer({
+      width: 250,
+      height: 250
+    });
+
+    let lore = Lore.init('lore', {
+      antialiasing: true,
+      clearColor: clearColor,
+      alphaBlending: false
+    });
+
+    // Tree plots
+    let treeHelpers = [];
+    let th = null;
+    let thName = null;
+    {% for tree_helper in tree_helpers %}
+    thName = '{{tree_helper["name"]|safe}}';
+    treeHelpers.push(new Lore.Helpers.TreeHelper(lore, thName, 'tree'));
+    th = treeHelpers[treeHelpers.length - 1];
+    th.setXYZHexS(data[thName].x, data[thName].y, data[thName].z, '{{tree_helper["color"]|safe}}');
+    th.setFog([cc.components[0], cc.components[1], cc.components[2], cc.components[3]], parseFloat('{{tree_helper["fog_intensity"]}}'))
+    {% endfor %}
+
+    // Scatter plots
+    let pointHelpers = [];
+    let octreeHelpers = [];
+    let ph = null;
+    let phName = null;
+    {% for point_helper in point_helpers %}
+    phName = '{{point_helper["name"]|safe}}';
+    pointHelpers.push(new Lore.Helpers.PointHelper(lore, phName, '{{point_helper["shader"]|safe}}', { maxPointSize: parseFloat('{{point_helper["max_point_size"]}}') }));
+    ph = pointHelpers[pointHelpers.length - 1];
+    ph.setXYZRGBS(data[phName].x, data[phName].y, data[phName].z, data[phName].r, data[phName].g, data[phName].b, data[phName].s);
+    ph.setPointScale(parseFloat('{{point_helper["point_scale"]}}'));
+    ph.setFog([cc.components[0], cc.components[1], cc.components[2], cc.components[3]], parseFloat('{{point_helper["fog_intensity"]}}'))
+    {% if point_helper['interactive'] %}
+    octreeHelpers.push(new Lore.Helpers.OctreeHelper(lore, 'Octree_' + phName, 'tree', ph));
+    {% endif %}
+    {% endfor %}
+
+    // Coordinates
+    {% if coords %}
+    let coord_options = {
+      axis: {
+        x: { color: Lore.Core.Color.fromHex('{{coords_color}}') },
+        y: { color: Lore.Core.Color.fromHex('{{coords_color}}') },
+        z: { color: Lore.Core.Color.fromHex('{{coords_color}}') }
+      },
+      ticks: {
+        x: { color: Lore.Core.Color.fromHex('{{coords_color}}') },
+        y: { color: Lore.Core.Color.fromHex('{{coords_color}}') },
+        z: { color: Lore.Core.Color.fromHex('{{coords_color}}') }
+      },
+      {% if coords_box %}
+      box: { enabled: true }
+      {% else %}
+      box: { enabled: false }
+      {% endif %}
+    }
+    coordinateHelper = Lore.Helpers.CoordinatesHelper.fromPointHelper(pointHelpers[0], coord_options)
+    {% endif %}
+
+    // TODO: Get overall center and max radius
+    lore.controls.setLookAt(pointHelpers[0].getCenter());
+    lore.controls.setRadius(pointHelpers[0].getMaxRadius() + 100);
+    lore.controls.setView(0.9, -0.5)
+
+    let tip = document.getElementById('tip-image-container');
+    let tipImage = document.getElementById('tip-image');
+    let canvas = document.getElementById('smiles-canvas');
+    let hoverIndicator = document.getElementById('hover-indicator');
+
+    Lore.Helpers.OctreeHelper.joinHoveredChanged(octreeHelpers, function (e) {
+      if (e.e) {
+        currentPoint = {
+          index: e.e.index,
+          smiles: data.smiles[e.e.index]
+        }
+        SmilesDrawer.parse(data.smiles[e.e.index], function (tree) {
+          smilesDrawer.draw(tree, 'smiles-canvas', 'light', false);
+          tipImage.src = canvas.toDataURL();
+          tip.classList.add('show');
+        });
+
+        let pointSize = pointHelpers[e.source].getPointSize();
+        let x = e.e.screenPosition[0];
+        let y = e.e.screenPosition[1];
+
+        hoverIndicator.style.width = pointSize + 'px';
+        hoverIndicator.style.height = pointSize + 'px';
+        hoverIndicator.style.left = (x - pointSize / 2.0 - 1) + 'px';
+        hoverIndicator.style.top = (y - pointSize / 2.0 - 1) + 'px';
+
+        hoverIndicator.classList.add('show');
+      } else {
+        currentPoint = null;
+        tip.classList.remove('show');
+        hoverIndicator.classList.remove('show');
+      }
+    });
+
+    {% if view == 'front' %}
+    lore.controls.setFrontView();
+    {% endif %}
+    {% if view == 'back' %}
+    lore.controls.setBackView();
+    {% endif %}
+    {% if view == 'left' %}
+    lore.controls.setLeftView();
+    {% endif %}
+    {% if view == 'right' %}
+    lore.controls.setRightView();
+    {% endif %}
+    {% if view == 'top' %}
+    lore.controls.setTopView();
+    {% endif %}
+    {% if view == 'bottom' %}
+    lore.controls.setBottomView();
+    {% endif %}
+
+
+    document.addEventListener('mousemove', function (event) {
+      let tip = document.getElementById('tip-image-container');
+
+      let x = event.clientX;
+      let y = event.clientY - 48;
+
+      if (x > window.innerWidth - 300) {
+        x -= 250;
+      }
+
+      if (y > window.innerHeight - 300) {
+        y -= 250;
+      }
+
+      if (tip) {
+        tip.style.top = y + 'px';
+        tip.style.left = x + 'px';
+      }
+    });
+
+    let selected = document.getElementById('selected');
+    document.addEventListener('dblclick', function (event) {
+      if (currentPoint) {
+        selected.innerHTML += currentPoint.smiles + '<br />';
+        selected.scrollTop = selected.scrollHeight;
+      }
+    });
+
+    let clear = document.getElementById('clear');
+    clear.addEventListener('click', function (event) {
+      event.preventDefault();
+      selected.innerHTML = '';
+    }, false);
+
+    let hide = document.getElementById('hide');
+    let toggleConsole = function () {
+      selected.style.display = selected.style.display == 'none' ? 'block' : 'none';
+      // controls.style.display = controls.style.display == 'none' ? 'block' : 'none';
+    }
+
+    let controls = document.getElementById('controls');
+    document.addEventListener('keypress', function (event) {
+      if (event.keyCode === 67 || event.keyCode === 99) {
+        toggleConsole();
+      }
+    });
+    hide.addEventListener('click', toggleConsole);
+    hide.click();
+  </script>
+</body>
+
+</html>
