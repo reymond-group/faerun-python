@@ -29,7 +29,7 @@ class Faerun(object):
             data[mapping['z']] = [0] * len(data[mapping['x']])
 
         self.trees[name] = {
-            'name': name, 'color': color, fog_intensity: 0.0,
+            'name': name, 'color': color, 'fog_intensity': 0.0,
             'mapping': mapping, 'colormap': colormap, 'point_helper': point_helper
         }
         self.trees_data[name] = data

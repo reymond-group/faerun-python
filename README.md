@@ -79,9 +79,10 @@ Faerun.add_tree(self, name, data, mapping={'form': 'form', 'to': 'to', 'x': 'x',
 | point_helper | `None` | Using coordinates from a point helper (specified by name) via indices. |
 
 ```Python
-Faerun.plot(file_name='index', path='./')
+Faerun.plot(file_name='index', path='./', template='default')
 ```
 | Parameter | Default | Description |
 |---|---|---|
 | file_name | `'index'` | The file name that is given to both the html and js file. |
 | path | `'./'` | The path to which the HTML and data files will be written. |
+| template | `'default'` | The HTML template to use. Currently the following templates are available: `'default'`, `'url_image'`, and `'smiles'` |
