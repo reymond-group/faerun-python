@@ -140,9 +140,11 @@
     // Tree plots
     let treeHelpers = [];
     let th = null;
+    let thNames = [];
     let thName = null;
     {% for tree_helper in tree_helpers %}
-    thName = '{{tree_helper["name"]|safe}}';
+    thNames.push('{{tree_helper["name"]|safe}}')
+    thName = thNames[thNames.length - 1];
     treeHelpers.push(new Lore.Helpers.TreeHelper(lore, thName, 'tree'));
     th = treeHelpers[treeHelpers.length - 1];
     th.setXYZHexS(data[thName].x, data[thName].y, data[thName].z, '{{tree_helper["color"]|safe}}');
@@ -153,9 +155,12 @@
     let pointHelpers = [];
     let octreeHelpers = [];
     let ph = null;
+    let phNames = [];
+    let ohIndexToPhName = [];
     let phName = null;
     {% for point_helper in point_helpers %}
-    phName = '{{point_helper["name"]|safe}}';
+    phNames.push('{{point_helper["name"]|safe}}')
+    phName = phNames[phNames.length - 1];
     pointHelpers.push(new Lore.Helpers.PointHelper(lore, phName, '{{point_helper["shader"]|safe}}', { maxPointSize: parseFloat('{{point_helper["max_point_size"]}}') }));
     ph = pointHelpers[pointHelpers.length - 1];
     ph.setXYZRGBS(data[phName].x, data[phName].y, data[phName].z, data[phName].r, data[phName].g, data[phName].b, data[phName].s);
@@ -163,6 +168,7 @@
     ph.setFog([cc.components[0], cc.components[1], cc.components[2], cc.components[3]], parseFloat('{{point_helper["fog_intensity"]}}'))
     {% if point_helper['interactive'] %}
     octreeHelpers.push(new Lore.Helpers.OctreeHelper(lore, 'Octree_' + phName, 'tree', ph));
+    ohIndexToPhName.push(phName);
     {% endif %}
     {% endfor %}
 
@@ -199,12 +205,12 @@
     let hoverIndicator = document.getElementById('hover-indicator');
 
     Lore.Helpers.OctreeHelper.joinHoveredChanged(octreeHelpers, function (e) {
-      if (e.e) {
+      if (e.e && data[ohIndexToPhName[e.source]].labels) {
         currentPoint = {
           index: e.e.index,
-          smiles: data.smiles[e.e.index]
+          smiles: data[ohIndexToPhName[e.source]].labels[e.e.index]
         }
-        SmilesDrawer.parse(data.smiles[e.e.index], function (tree) {
+        SmilesDrawer.parse(currentPoint.smiles, function (tree) {
           smilesDrawer.draw(tree, 'smiles-canvas', 'light', false);
           tipImage.src = canvas.toDataURL();
           tip.classList.add('show');
