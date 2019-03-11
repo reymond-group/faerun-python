@@ -19,13 +19,14 @@ The code of the examples shown above for creating interactive 2D and 3D maps fro
 import numpy as np
 from faerun import Faerun
 
-faerun = Faerun(view='free', shader='circle')
+faerun = Faerun(view='free')
 
 t = np.linspace(0, 12.0, 326)
 s = np.sin(np.pi * t)
 c = np.cos(np.pi * t)
- 
-faerun.plot({ 'x': t, 'y': s, 'z': c, 'c': t / max(t) })
+
+faerun.add_scatter('my_scatter',  { 'x': t, 'y': s, 'z': c, 'c': t / max(t) })
+faerun.plot()
 ```
 
 The code above writes two files to the current directory: `index.html` and `data.js`. These files can be used locally or be moved to a (even minimalistic) web server.
@@ -36,33 +37,51 @@ The code above writes two files to the current directory: `index.html` and `data
 
 ## Documentation
 ```Python
-Faerun(title='python-faerun', point_size=5, tree_color='#aaaaaa', clear_color='#111111', fog_intensity=2.6, coords=True, coords_color='#888888', view='free', shader='circle')
+Faerun(title='python-faerun', clear_color='#111111', coords=True, coords_color='#888888', view='free', shader='circle')
 ```
 | Parameter | Default | Description |
 |---|---|---|
 | title | `'python-faerun'` | The title of the HTML document. |
-| point_size | `5` | The size of the points. |
-| tree_color | `'#aaaaaa'` | Not yet implemented. |
 | clear_color | `'#111111'` | The clear colour,  or background colour is used to clear the canvas after each rendering step. |
-| fog_intensity | `2.6` | Fog is used to darken / lighten far away points depending on the `clear_color`. This is a visual cue helpful for depth perception in orthogonal projections. |
 | coords | `True` | Whether or not to draw the coordinate axes. |
 | coords_color | `'#888888'` | The colour used to draw the coordinate axes. |
+| coords_box | `False` | Whether or not to show an encosing box as part of the coordinates. |
 | view | `'free'` | The view mode. Available options: `free`, `front`, `back`, `left`, `right`, `bottom`, `top` |
-| shader | `circle` | The name of the shader used to draw the points. Available options: `circle`, `legacyCircle`, `sphere` |
 
 ```Python
-Faerun.plot(path, data, x='x', y='y', z='z', c='c', colormap='plasma', smiles='smiles', path='./', file_name='', tree=None)
+Faerun.add_scatter(self, name, data, mapping={'x': 'x', 'y': 'y', 'z': 'z', 'c': 'c', 's': 's', 'labels': 'labels'},
+                   colormap='plasma', shader='sphere', point_scale=1.0, max_point_size=100, fog_intensity=0.0, interactive=True)
 ```
 | Parameter | Default | Description |
 |---|---|---|
+| name | | The name of the plot (has to be unique, if another plot with the same name is added, the existing one will be overwritten). |
 | data | | A `dict` or a Pandas `DataFrame` containing the data. |
-| x | `x` | The name of the column containing the x-coordinates. |
-| y | `y` | The name of the column containing the y-coordinates. |
-| z | `z` | The name of the column containing the z-coordinates. |
-| c | `c` | The name of the column containing the values by which the points are coloured. **Has to be normalized between 0.0 and 1.0 or (categorical) integers** |
-| s | `s` | The name of the column containing the point size values. |
+| mapping | `{'x': 'x', 'y': 'y', 'z': 'z', 'c': 'c', 's': 's', 'labels': 'labels'}` | The mapping from the `dict` or `DataFrame` to the plot attributes. |
 | colormap | `'plasma'` | The colour map to be used. Valid values are [matplotlib colormap names](https://matplotlib.org/examples/color/colormaps_reference.html). |
-| smiles | `smiles` | The name of the column containing the SMILES strings with which the points are annotated. |
+| shader | `circle` | The name of the shader used to draw the points. Available options: `circle`, `smoothCircle`, `sphere` |
+| point_scale | `1.0` | The scale of the points, which is also the radius for raycaster intersections. |
+| max_point_size | `100` | The maximum size of a point when zooming in. |
+| fog_intensity | `0.0` | The intensity of the fog (points further away fade to the background colour). |
+| interactive | `True` | Whether the points are interactive (can be hovered). |
+
+```Python
+Faerun.add_tree(self, name, data, mapping={'form': 'form', 'to': 'to', 'x': 'x', 'y': 'y', 'z': 'z', 'c': 'c'},
+                color='#666666', colormap='plasma', fog_intensity=0.0, point_helper=None)
+```
+| Parameter | Default | Description |
+|---|---|---|
+| name | | The name of the plot (has to be unique, if another plot with the same name is added, the existing one will be overwritten). |
+| data | | A `dict` or a Pandas `DataFrame` containing the data. |
+| mapping | `{'form': 'form', 'to': 'to', 'x': 'x', 'y': 'y', 'z': 'z', 'c': 'c', 's': 's', 'labels': 'labels'}` | The mapping from the `dict` or `DataFrame` to the plot attributes. |
+| color | `'#666666'` | The default colour used when no colour values are supplied. |
+| colormap | `'plasma'` | The colour map to be used. Valid values are [matplotlib colormap names](https://matplotlib.org/examples/color/colormaps_reference.html). |
+| fog_intensity | `0.0` | The intensity of the fog (points further away fade to the background colour). |
+| point_helper | `None` | Using coordinates from a point helper (specified by name) via indices. |
+
+```Python
+Faerun.plot(file_name='index', path='./')
+```
+| Parameter | Default | Description |
+|---|---|---|
+| file_name | `'index'` | The file name that is given to both the html and js file. |
 | path | `'./'` | The path to which the HTML and data files will be written. |
-| file_name | `''` | The file name that is given to both the html and js file. |
-| tree | `None` | Not yet implemented. |
