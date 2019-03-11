@@ -33,7 +33,7 @@ The code above writes two files to the current directory: `index.html` and `data
 
 ## TODO
 - [ ] Add the abilty to draw shapes as well as colours
-- [ ] Make output templatable
+- [x] Make output templatable
 
 ## Documentation
 ```Python
@@ -63,7 +63,7 @@ Faerun.add_scatter(self, name, data, mapping={'x': 'x', 'y': 'y', 'z': 'z', 'c':
 | max_point_size | `100` | The maximum size of a point when zooming in. |
 | fog_intensity | `0.0` | The intensity of the fog (points further away fade to the background colour). |
 | interactive | `True` | Whether the points are interactive (can be hovered). |
-
+, shader='circle'
 ```Python
 Faerun.add_tree(self, name, data, mapping={'form': 'form', 'to': 'to', 'x': 'x', 'y': 'y', 'z': 'z', 'c': 'c'},
                 color='#666666', colormap='plasma', fog_intensity=0.0, point_helper=None)
