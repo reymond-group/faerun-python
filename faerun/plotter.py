@@ -22,7 +22,7 @@ class Faerun(object):
         self.scatters = {}
         self.scatters_data = {}
 
-    def add_tree(self, name, data, mapping={'form': 'form', 'to': 'to', 'x': 'x', 'y': 'y', 'z': 'z', 'c': 'c'},
+    def add_tree(self, name, data, mapping={'from': 'from', 'to': 'to', 'x': 'x', 'y': 'y', 'z': 'z', 'c': 'c'},
                  color='#666666', colormap='plasma', fog_intensity=0.0, point_helper=None):
         
         if point_helper == None and mapping['z'] not in data:
@@ -50,7 +50,7 @@ class Faerun(object):
 
 
 
-    def plot(self, file_name='index', path='./'):
+    def plot(self, file_name='index', path='./', template='default'):
         script_path = os.path.dirname(os.path.abspath(__file__))
         html_path = os.path.join(path, file_name + '.html')
         js_path = os.path.join(path, file_name + '.js')
@@ -68,7 +68,7 @@ class Faerun(object):
             'point_helpers': list(self.scatters.values()) 
         }
 
-        output_text = jenv.get_template('template.j2').render(model)
+        output_text = jenv.get_template('template_' + template + '.j2').render(model)
 
         with open(html_path, "w") as result_file:
             result_file.write(output_text)
@@ -108,7 +108,7 @@ class Faerun(object):
 
 
         for name, data in self.trees_data.items():
-            if self.trees[name].point_helper == None:
+            if self.trees[name]['point_helper'] == None:
                 mapping = self.trees[name]['mapping']
                 min_x = float('inf')
                 min_y = float('inf') 
@@ -171,7 +171,7 @@ class Faerun(object):
             
             output += '},\n'
 
-        for name, data in self.trees_data:
+        for name, data in self.trees_data.items():
             mapping = self.trees[name]['mapping']
             point_helper = self.trees[name]['point_helper']
 

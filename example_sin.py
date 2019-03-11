@@ -23,7 +23,8 @@ data2 = {
     'y': c,
     'z': s,
     'c': t / max(t),
-    's': sizes
+    's': sizes,
+    'labels': sizes
 }
 
 df = pd.DataFrame.from_dict(data)
@@ -32,4 +33,4 @@ df2 = pd.DataFrame.from_dict(data2)
 faerun.add_scatter('sinus', df, shader='circle', point_scale=5.0)
 faerun.add_scatter('cosinus', df2, shader='sphere', point_scale=5.0)
 
-faerun.plot()
+faerun.plot(template='default')
