@@ -2,20 +2,19 @@ import os
 import jinja2
 import numpy as np
 import matplotlib.pyplot as plt
-from yattag import Doc, indent
-
 
 class Faerun(object):
     """ The faerun class
     """
 
-    def __init__(self, title='python-faerun', clear_color='#111111', coords=True, coords_color='#888888', coords_box=False, view='free'):
+    def __init__(self, title='python-faerun', clear_color='#111111', coords=True, coords_color='#888888', coords_box=False, view='free', scale=750):
         self.title = title
         self.clear_color = clear_color
         self.coords = coords
         self.coords_color = coords_color
         self.coords_box = False
         self.view = view
+        self.scale = scale
 
         self.trees = {}
         self.trees_data = {}
@@ -47,8 +46,6 @@ class Faerun(object):
             'mapping': mapping, 'colormap': colormap
         }
         self.scatters_data[name] = data
-
-
 
     def plot(self, file_name='index', path='./', template='default'):
         script_path = os.path.dirname(os.path.abspath(__file__))
@@ -135,10 +132,80 @@ class Faerun(object):
         return minimum, maximum
 
 
+    def create_python_data(self):
+        s = self.scale
+        minimum, maximum = self.get_min_max()
+        diff = maximum - minimum
 
+        output = {}
+        
+        # Create the data for the scatters
+        for name, data in self.scatters_data.items(): 
+            mapping = self.scatters[name]['mapping']
+            colormap = self.scatters[name]['colormap']
+            
+            output[name] = {}
+
+            output[name]['x'] = np.array([s * (x - minimum) / diff for x in data[mapping['x']]], dtype=np.float32)
+            output[name]['y'] = np.array([s * (y - minimum) / diff for y in data[mapping['y']]], dtype=np.float32)
+            output[name]['z'] = np.array([s * (z - minimum) / diff for z in data[mapping['z']]], dtype=np.float32)
+                
+            
+            if mapping['labels'] in data:
+                output[name]['labels'] = data[mapping['labels']]
+
+            if mapping['s'] in data:
+                output[name]['s'] = np.array(data[mapping['s']], dtype=np.float32)
+            
+            if mapping['c'] in data:
+                colors = np.array([plt.cm.get_cmap(colormap)(x) for x in data[mapping['c']]])
+                colors = np.round(colors * 255.0)
+                output[name]['r'] = np.array(colors[:,0], dtype=np.float32)
+                output[name]['g'] = np.array(colors[:,1], dtype=np.float32)
+                output[name]['b'] = np.array(colors[:,2], dtype=np.float32)
+
+        for name, data in self.trees_data.items():
+            mapping = self.trees[name]['mapping']
+            point_helper = self.trees[name]['point_helper']
+
+            output[name] = {}
+
+            if point_helper != None and point_helper in self.scatters_data:  
+                scatter = self.scatters_data[point_helper]
+                scatter_mapping = self.scatters[point_helper]['mapping']
+
+                x_t = []
+                y_t = []
+                z_t = []
+
+                for i in range(len(data[mapping['from']])):
+                    x_t.append(scatter[scatter_mapping['x']][data[mapping['from']][i]])
+                    x_t.append(scatter[scatter_mapping['x']][data[mapping['to']][i]])
+                    y_t.append(scatter[scatter_mapping['y']][data[mapping['from']][i]])
+                    y_t.append(scatter[scatter_mapping['y']][data[mapping['to']][i]])
+                    z_t.append(scatter[scatter_mapping['z']][data[mapping['from']][i]])
+                    z_t.append(scatter[scatter_mapping['z']][data[mapping['to']][i]])
+
+                output[name]['x'] = np.array([s * (x - minimum) / diff for x in x_t], dtype=np.float32)
+                output[name]['y'] = np.array([s * (y - minimum) / diff for y in y_t], dtype=np.float32)
+                output[name]['z'] = np.array([s * (z - minimum) / diff for z in z_t], dtype=np.float32)
+            else:
+                output[name]['x'] = np.array([s * (x - minimum) / diff for x in data[mapping['x']]], dtype=np.float32)
+                output[name]['y'] = np.array([s * (y - minimum) / diff for y in data[mapping['y']]], dtype=np.float32)
+                output[name]['z'] = np.array([s * (z - minimum) / diff for z in data[mapping['z']]], dtype=np.float32)
+
+            if mapping['c'] in data:
+                colormap = self.trees[name]['colormap']
+                colors = np.array([plt.cm.get_cmap(colormap)(x) for x in data[mapping['c']]])
+                colors = np.round(colors * 255.0)
+                output[name]['r'] = np.array(colors[:,0], dtype=np.float32)
+                output[name]['g'] = np.array(colors[:,1], dtype=np.float32)
+                output[name]['b'] = np.array(colors[:,2], dtype=np.float32)
+
+        return output
 
     def create_data(self):
-        s = 750
+        s = self.scale
         minimum, maximum = self.get_min_max()
         diff = maximum - minimum
 
