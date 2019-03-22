@@ -34,24 +34,70 @@ class Faerun(object):
         self.trees_data[name] = data
 
     def add_scatter(self, name, data, mapping={'x': 'x', 'y': 'y', 'z': 'z', 'c': 'c', 's': 's', 'labels': 'labels'},
-                    colormap='plasma', shader='sphere', point_scale=1.0, max_point_size=100, fog_intensity=0.0, interactive=True):
+                    colormap='plasma', shader='sphere', point_scale=1.0, max_point_size=100, fog_intensity=0.0, 
+                    categorical=False, interactive=True, has_legend=False,  legend_title=None, legend_labels=None):
 
         if mapping['z'] not in data:
             data[mapping['z']] = [0] * len(data[mapping['x']])
+
+        min_c = min(data['c'])
+        max_c = max(data['c'])
+
+        if legend_title is None:
+            legend_title = name
+
+
+        # Prepare the legend
+        legend = []
+        if has_legend:
+            legend_values = []
+            if categorical:
+                if legend_labels:
+                    legend_values = legend_labels  
+                else:
+                    legend_values = [(i, str(i)) for i in sorted(set(data['c']))]
+            else:
+                if legend_labels:
+                    legend_labels.reverse()
+                    for value, label in legend_labels:
+                        legend_values.append(( (value - min_c) / (max_c - min_c), label ))     
+                else:
+                    legend_values = [(1.0, '1.0'), (0.0, '0.0')]
+            
+            for value, label in legend_values:
+                legend.append((plt.cm.get_cmap(colormap)(value), label))
+            
+
+
+        # Normalize the data to later get the correct colour maps
+        if not categorical:
+            data['c'] = np.array(data['c'])
+            data['c'] = (data['c'] - min_c) / (max_c - min_c)
 
         self.scatters[name] = {
             'name': name, 'shader': shader, 
             'point_scale': point_scale, 'max_point_size': max_point_size,
             'fog_intensity': fog_intensity, 'interactive': interactive,
-            'mapping': mapping, 'colormap': colormap
+            'categorical': categorical, 'mapping': mapping, 'colormap': colormap,
+            'has_legend': has_legend, 'legend_title': legend_title,
+            'legend': legend,
+            'min_c': min_c, 'max_c': max_c
         }
+        
         self.scatters_data[name] = data
 
-    def plot(self, file_name='index', path='./', template='default'):
+    def plot(self, file_name='index', path='./', template='default', legend_title='Legend'):
         script_path = os.path.dirname(os.path.abspath(__file__))
         html_path = os.path.join(path, file_name + '.html')
         js_path = os.path.join(path, file_name + '.js')
         jenv = jinja2.Environment(loader=jinja2.FileSystemLoader(script_path))
+
+        has_legend = False
+
+        for _, value in self.scatters.items():
+            if value['has_legend']:
+                has_legend = True
+                break
 
         model = { 
             'title': self.title,
@@ -62,7 +108,9 @@ class Faerun(object):
             'coords_color': self.coords_color,
             'coords_box': self.coords_box,
             'tree_helpers': list(self.trees.values()),
-            'point_helpers': list(self.scatters.values()) 
+            'point_helpers': list(self.scatters.values()),
+            'has_legend': has_legend,
+            'legend_title': legend_title
         }
 
         output_text = jenv.get_template('template_' + template + '.j2').render(model)
