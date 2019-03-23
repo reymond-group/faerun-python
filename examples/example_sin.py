@@ -45,7 +45,7 @@ df2 = pd.DataFrame.from_dict(data2)
 df3 = pd.DataFrame.from_dict(data3)
 
 faerun.add_scatter('sinus', df, shader='circle', point_scale=5.0, has_legend=True, legend_labels=[(0.0, 'Low'), (50.0, 'Inbetween'), (df['c'].max(), 'High')])
-faerun.add_scatter('cosinus', df2, shader='sphere', point_scale=5.0, colormap='rainbow', has_legend=True)
+faerun.add_scatter('cosinus', df2, shader='sphere', point_scale=5.0, colormap='jet', has_legend=True)
 faerun.add_scatter('categorical', df3, shader='sphere', point_scale=5.0, colormap='Set1', has_legend=True, categorical=True, legend_labels=legend_labels)
 
 with open('index.pickle', 'wb+') as handle:
@@ -55,4 +55,4 @@ file = open('index.pickle', 'rb')
 obj = pickle.load(file)
 file.close()
 
-faerun.plot(template='smiles')
+faerun.plot(template='default')
