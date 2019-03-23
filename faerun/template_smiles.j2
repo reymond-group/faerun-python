@@ -179,11 +179,13 @@
     let ph = null;
     let phNames = [];
     let ohIndexToPhName = [];
+    let phNameToPhIndex = {};
     let phName = null;
     {% for point_helper in point_helpers %}
     phNames.push('{{point_helper["name"]|safe}}')
     phName = phNames[phNames.length - 1];
     pointHelpers.push(new Lore.Helpers.PointHelper(lore, phName, '{{point_helper["shader"]|safe}}', { maxPointSize: parseFloat('{{point_helper["max_point_size"]}}') }));
+    phNameToPhIndex[phName] = pointHelpers.length - 1;
     ph = pointHelpers[pointHelpers.length - 1];
     ph.setXYZRGBS(data[phName].x, data[phName].y, data[phName].z, data[phName].r, data[phName].g, data[phName].b, data[phName].s);
     ph.setPointScale(parseFloat('{{point_helper["point_scale"]}}'));
@@ -279,14 +281,18 @@
       let tip = document.getElementById('tip-image-container');
 
       let x = event.clientX;
-      let y = event.clientY - 48;
+      let y = event.clientY;
 
-      if (x > window.innerWidth - 300) {
-        x -= 250;
+      if (x > window.innerWidth - tip.offsetWidth - 20) {
+        x -= tip.offsetWidth;
+      } else {
+        x += 10;
       }
 
-      if (y > window.innerHeight - 300) {
-        y -= 250;
+      if (y > window.innerHeight - tip.offsetHeight - 20) {
+        y -= tip.offsetHeight;
+      } else {
+        y += 10;
       }
 
       if (tip) {

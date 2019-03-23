@@ -25,10 +25,11 @@
       z-index: 9999;
       width: 250px;
       height: 250px;
-      background-color: rgba(255, 255, 255, 0.75);
+      background-color: rgba(255, 255, 255, 1.0);
       pointer-events: none;
       opacity: 0.0;
       transition: opacity 0.1s ease-out;
+      filter: drop-shadow(0px 0px 10px rgba(0, 0, 0, 1.0));
     }
 
     #tip-image-container.show {
@@ -40,46 +41,6 @@
       width: 250px;
       height: 250px;
       pointer-events: none;
-      filter: drop-shadow(0px 0px 5px rgba(255, 255, 255, 1.0));
-    }
-
-    #selected {
-      position: absolute;
-      z-index: 9997;
-      left: 5px;
-      right: 5px;
-      bottom: 25px;
-      height: 100px;
-      padding: 5px;
-      border: 2px solid rgba(255, 255, 255, 0.1);
-      background-color: rgba(0, 0, 0, 0.9);
-      overflow-y: auto;
-      overflow-x: hidden;
-      color: #eeeeee;
-      font-family: Consolas, monaco, monospace;
-      font-size: 0.8em;
-      user-select: text
-    }
-
-    #controls {
-      position: absolute;
-      z-index: 9998;
-      left: 5px;
-      right: 5px;
-      bottom: 5px;
-      text-align: right;
-      font-size: 0.7em;
-      font-family: Verdana, sans-serif;
-    }
-
-    #controls a {
-      padding: 5px;
-      color: #ccc;
-      text-decoration: none;
-    }
-
-    #controls a:hover {
-      color: #fff
     }
 
     #hover-indicator {
@@ -95,21 +56,81 @@
     #hover-indicator.show {
       display: block !important
     }
+
+    #legend {
+      position: absolute;
+      bottom: 10px;
+      right: 10px;
+      padding: 10px;
+      border: 1px solid #262626;
+      background-color: #111111;
+      filter: drop-shadow(0px 0px 10px rgba(0, 0, 0, 0.5));
+      color: #eee;
+      font-family: 'Open Sans'
+    }
+
+    #legend h2 {
+      font-size: 1em;
+      font-weight: 600;
+      padding-top: 0;
+      margin-top: 0;
+      margin-bottom: 0px;
+    }
+
+    #legend h3 {
+      font-size: 0.7em;
+      margin-top: 6px;
+      margin-bottom: 5px;
+    }
+
+    #legend .legend-element {
+      display: flex;
+      flex: auto;
+      align-items: flex-start;
+      padding-bottom: 2px;
+    }
+
+    #legend .color-box {
+      width: 15px;
+      height: 15px;
+    }
+
+    #legend .legend-label {
+      height: 15px;
+      font-size: 0.7em;
+      padding-left: 5px;
+    }
   </style>
 </head>
 
 <body>
   <div id="hover-indicator"></div>
-  <div id="selected"></div>
-  <div id="controls">
-    <a href="#" id="clear">&#8416;&nbsp;&nbsp;CLEAR</a>
-    <a href="#" id="hide" title="Press c to toggle visibility of the console">_&nbsp;CONSOLE</a>
-    <a href="https://github.com/reymond-group/faerun-python" id="clear">?&nbsp;HELP</a>
-  </div>
   <div id="tip-image-container">
     <img id="tip-image" />
   </div>
   <canvas id="lore"></canvas>
+
+  {% if has_legend is not none %}
+  <div id="legend">
+    {% if legend_title %}
+    <h2>{{legend_title}}</h2>
+    {% for point_helper in point_helpers %}
+    {% if point_helper.has_legend %}
+    <div id="legend-{{point_helper.name}}" class="legend-section" data-name="{{point_helper.name}}">
+      <h3 onclick="toggleLegendSection('{{point_helper.name}}')">{{point_helper.legend_title}}</h3>
+    {% for value, label in point_helper.legend %}
+      <div class="legend-element">
+        <div class="color-box" style="background-color:rgba({{value[0] * 255}}, {{value[1] * 255}}, {{value[2] * 255}}, {{value[3]}})"></div>
+        <div class="legend-label">{{label}}</div>
+      </div>
+    {% endfor %}
+    </div>
+    {% endif %}
+    {% endfor %}
+    {% endif %}
+  </div>
+  {% endif %}
+
   <script src="{{file_name}}"></script>
   <script>
     let clearColor = '{{clear_color|safe}}';
@@ -142,11 +163,13 @@
     let ph = null;
     let phNames = [];
     let ohIndexToPhName = [];
+    let phNameToPhIndex = {};
     let phName = null;
     {% for point_helper in point_helpers %}
     phNames.push('{{point_helper["name"]|safe}}')
     phName = phNames[phNames.length - 1];
     pointHelpers.push(new Lore.Helpers.PointHelper(lore, phName, '{{point_helper["shader"]|safe}}', { maxPointSize: parseFloat('{{point_helper["max_point_size"]}}') }));
+    phNameToPhIndex[phName] = pointHelpers.length - 1;
     ph = pointHelpers[pointHelpers.length - 1];
     ph.setXYZRGBS(data[phName].x, data[phName].y, data[phName].z, data[phName].r, data[phName].g, data[phName].b, data[phName].s);
     ph.setPointScale(parseFloat('{{point_helper["point_scale"]}}'));
@@ -241,16 +264,16 @@
       let x = event.clientX;
       let y = event.clientY;
 
-      if (x > window.innerWidth - 300) {
-        x -= 275;
+      if (x > window.innerWidth - tip.offsetWidth - 20) {
+        x -= tip.offsetWidth;
       } else {
-        x += 25;
+        x += 10;
       }
 
-      if (y > window.innerHeight - 300) {
-        y -= 275;
+      if (y > window.innerHeight - tip.offsetHeight - 20) {
+        y -= tip.offsetHeight;
       } else {
-        y += 25;
+        y += 10;
       }
 
       if (tip) {
@@ -259,34 +282,20 @@
       }
     });
 
-    let selected = document.getElementById('selected');
-    document.addEventListener('dblclick', function (event) {
-      if (currentPoint) {
-        selected.innerHTML += currentPoint.label + '<br />';
-        selected.scrollTop = selected.scrollHeight;
+    // Legend
+    function toggleLegendSection(name) {
+      let section = document.getElementById('legend-' + name);
+      let geometry = pointHelpers[phNameToPhIndex[name]].geometry;
+      let isVisible = geometry.isVisible;
+
+      if (isVisible) {
+        geometry.isVisible = false;
+        section.style.opacity = 0.5;
+      } else {
+        geometry.isVisible = true;
+        section.style.opacity = 1.0;
       }
-    });
-
-    let clear = document.getElementById('clear');
-    clear.addEventListener('click', function (event) {
-      event.preventDefault();
-      selected.innerHTML = '';
-    }, false);
-
-    let hide = document.getElementById('hide');
-    let toggleConsole = function () {
-      selected.style.display = selected.style.display == 'none' ? 'block' : 'none';
-      // controls.style.display = controls.style.display == 'none' ? 'block' : 'none';
     }
-
-    let controls = document.getElementById('controls');
-    document.addEventListener('keypress', function (event) {
-      if (event.keyCode === 67 || event.keyCode === 99) {
-        toggleConsole();
-      }
-    });
-    hide.addEventListener('click', toggleConsole);
-    hide.click();
   </script>
 </body>
 

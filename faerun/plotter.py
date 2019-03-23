@@ -1,5 +1,7 @@
 import os
 import jinja2
+import math
+
 import numpy as np
 import matplotlib.pyplot as plt
 
@@ -42,6 +44,9 @@ class Faerun(object):
 
         min_c = min(data['c'])
         max_c = max(data['c'])
+        len_c = len(data['c'])
+
+        is_range = False
 
         if legend_title is None:
             legend_title = name
@@ -62,7 +67,9 @@ class Faerun(object):
                     for value, label in legend_labels:
                         legend_values.append(( (value - min_c) / (max_c - min_c), label ))     
                 else:
-                    legend_values = [(1.0, '1.0'), (0.0, '0.0')]
+                    is_range = True
+                    for i, val in enumerate(np.linspace(0.0, 1.0, 99)):
+                        legend_values.append((val, str(data['c'][int(math.floor(len_c / 100 * i))])))
             
             for value, label in legend_values:
                 legend.append((plt.cm.get_cmap(colormap)(value), label))
@@ -80,7 +87,7 @@ class Faerun(object):
             'fog_intensity': fog_intensity, 'interactive': interactive,
             'categorical': categorical, 'mapping': mapping, 'colormap': colormap,
             'has_legend': has_legend, 'legend_title': legend_title,
-            'legend': legend,
+            'legend': legend, 'is_range': is_range,
             'min_c': min_c, 'max_c': max_c
         }
         
