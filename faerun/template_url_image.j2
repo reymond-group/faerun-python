@@ -5,6 +5,7 @@
   <meta charset="UTF-8">
   <title>{{title}}</title>
   <script src="https://unpkg.com/lore-engine@1.0.20/dist/lore.min.js"></script>
+  <link href="https://fonts.googleapis.com/css?family=Open+Sans:400,600" rel="stylesheet">
   <style>
     body {
       margin: 0px;
@@ -62,11 +63,29 @@
       bottom: 10px;
       right: 10px;
       padding: 10px;
-      border: 1px solid #262626;
+      border: 1px solid #111;
+      border-radius: 2px;
       background-color: #111111;
       filter: drop-shadow(0px 0px 10px rgba(0, 0, 0, 0.5));
       color: #eee;
       font-family: 'Open Sans'
+    }
+
+    #legend .container {
+      display: flex;
+      flex: auto;
+      align-items: flex-start;
+      {% if legend_orientation == 'vertical' %}
+      flex-direction: column;
+      {% else %}
+      flex-direction: row;
+      {% endif %}
+    }
+
+    #legend .legend-section:not(:first-child) {
+      {% if legend_orientation == 'horizontal' %}
+      margin-left: 20px;
+      {% endif %}
     }
 
     #legend h2 {
@@ -74,16 +93,18 @@
       font-weight: 600;
       padding-top: 0;
       margin-top: 0;
-      margin-bottom: 0px;
+      margin-bottom: 5px;
+      text-align: center;
     }
 
     #legend h3 {
-      font-size: 0.7em;
-      margin-top: 6px;
-      margin-bottom: 5px;
+      font-size: 0.8em;
+      margin-top: 10px;
+      margin-bottom: 6px;
     }
 
-    #legend .legend-element {
+    #legend .legend-element, #legend .legend-element-range {
+      position: relative;
       display: flex;
       flex: auto;
       align-items: flex-start;
@@ -95,10 +116,31 @@
       height: 15px;
     }
 
+    #legend .legend-element-range {
+      flex-direction: column;
+    }
+
+    #legend .color-stripe {
+      width: 15px;
+      height: 1px;
+    }
+
     #legend .legend-label {
       height: 15px;
       font-size: 0.7em;
       padding-left: 5px;
+    }
+
+    #legend .legend-label.max {
+      position: absolute;
+      top: 0px;
+      margin-left: 15px;
+    }
+
+    #legend .legend-label.min {
+      position: absolute;
+      bottom: 2px;
+      margin-left: 15px;
     }
   </style>
 </head>
@@ -110,24 +152,36 @@
   </div>
   <canvas id="lore"></canvas>
 
-  {% if has_legend is not none %}
+  {% if has_legend %}
   <div id="legend">
     {% if legend_title %}
     <h2>{{legend_title}}</h2>
+    {% endif %}
+    <div class='container'>
     {% for point_helper in point_helpers %}
-    {% if point_helper.has_legend %}
-    <div id="legend-{{point_helper.name}}" class="legend-section" data-name="{{point_helper.name}}">
-      <h3 onclick="toggleLegendSection('{{point_helper.name}}')">{{point_helper.legend_title}}</h3>
-    {% for value, label in point_helper.legend %}
-      <div class="legend-element">
-        <div class="color-box" style="background-color:rgba({{value[0] * 255}}, {{value[1] * 255}}, {{value[2] * 255}}, {{value[3]}})"></div>
-        <div class="legend-label">{{label}}</div>
+      {% if point_helper.has_legend %}
+      <div id="legend-{{point_helper.name}}" class="legend-section" data-name="{{point_helper.name}}">
+        <h3 onclick="toggleLegendSection('{{point_helper.name}}')">{{point_helper.legend_title}}</h3>
+        {% if not point_helper.is_range %}
+        {% for value, label in point_helper.legend %}
+        <div class="legend-element">
+          <div class="color-box" style="background-color:rgba({{value[0] * 255}}, {{value[1] * 255}}, {{value[2] * 255}}, {{value[3]}})"></div>
+          <div class="legend-label">{{label}}</div>
+        </div>
+        {% endfor %}
+        {% else %}
+        <div class="legend-element-range">
+          {% for value, label in point_helper.legend %}
+          <div class="color-stripe" style="background-color:rgba({{value[0] * 255}}, {{value[1] * 255}}, {{value[2] * 255}}, {{value[3]}})"></div>
+          {% endfor %}
+          <div class="legend-label max">{{point_helper.max_c}}</div>
+          <div class="legend-label min">{{point_helper.min_c}}</div>
+        </div>
+        {% endif %}
       </div>
+      {% endif %}
     {% endfor %}
     </div>
-    {% endif %}
-    {% endfor %}
-    {% endif %}
   </div>
   {% endif %}
 
