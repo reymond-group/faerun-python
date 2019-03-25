@@ -85,7 +85,8 @@ class Faerun(object):
             data[mapping['cs']] = np.array(data[mapping['cs']])
             min_cs = min(data[mapping['cs']])
             max_cs = max(data[mapping['cs']])
-            data[mapping['cs']] = (data[mapping['cs']] - min_cs) / (max_cs - min_cs)
+            # Avoid zero saturation by limiting the lower bound to 0.1
+            data[mapping['cs']] = 1.0 - np.maximum(0.2, np.array((data[mapping['cs']] - min_cs) / (max_cs - min_cs)))
 
         self.scatters[name] = {
             'name': name, 'shader': shader, 
@@ -223,9 +224,9 @@ class Faerun(object):
                 colors = np.array([plt.cm.get_cmap(colormap)(x) for x in data[mapping['c']]])
                 
                 for i, c in enumerate(colors):
-                    hsl = colour.rgb2hsl(c)
-                    hsl[2] = hsl[2] - hsl[2] * mapping['cs'][i]
-                    colors[i] = np.array(colour.hsl2rgb(hsl))
+                    hsl = np.array(colour.rgb2hsl(c[:3]))
+                    hsl[1] = hsl[1] - hsl[1] * data[mapping['cs']][i]
+                    colors[i] = np.append(np.array(colour.hsl2rgb(hsl)), 1.0)
 
                 colors = np.round(colors * 255.0)
 
@@ -305,12 +306,27 @@ class Faerun(object):
             if mapping['s'] in data:
                 output += 's: [' + ','.join(map(str, data[mapping['s']])) + '],\n'
             
-            if mapping['c'] in data:
+
+            if mapping['c'] in data and mapping['cs'] in data:
+                colors = np.array([plt.cm.get_cmap(colormap)(x) for x in data[mapping['c']]])
+                
+                for i, c in enumerate(colors):
+                    hsl = np.array(colour.rgb2hsl(c[:3]))
+                    hsl[1] = hsl[1] - hsl[1] * data[mapping['cs']][i]
+                    colors[i] = np.append(np.array(colour.hsl2rgb(hsl)), 1.0)
+
+                colors = np.round(colors * 255.0)
+
+                output += 'r: [' + ','.join(map(str, colors[:,0])) + '],\n'
+                output += 'g: [' + ','.join(map(str, colors[:,1])) + '],\n'
+                output += 'b: [' + ','.join(map(str, colors[:,2])) + '],\n'
+            elif mapping['c'] in data:
                 colors = np.array([plt.cm.get_cmap(colormap)(x) for x in data[mapping['c']]])
                 colors = np.round(colors * 255.0)
                 output += 'r: [' + ','.join(map(str, colors[:,0])) + '],\n'
                 output += 'g: [' + ','.join(map(str, colors[:,1])) + '],\n'
                 output += 'b: [' + ','.join(map(str, colors[:,2])) + '],\n'
+                
             
             output += '},\n'
 

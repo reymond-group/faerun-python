@@ -10,7 +10,7 @@ with open('README.md', 'r') as fh:
     LONG_DESCRIPTION = fh.read()
 
 NAME = 'faerun'
-VERSION = '0.1.26'
+VERSION = '0.1.30'
 AUTHOR = 'Daniel Probst'
 DESCRIPTION = 'A python package for generating interactive views of chemical spaces.'
 URL = 'https://github.com/reymond-group/faerun-python'

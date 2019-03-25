@@ -35,6 +35,7 @@ data3 = {
     'y': np.random.rand(len(x)) - 0.5,
     'z': np.random.rand(len(x)) - 0.5,
     'c': c,
+    'cs': np.random.rand(len(x)),
     'labels': c
 }
 
@@ -55,4 +56,4 @@ file = open('index.pickle', 'rb')
 obj = pickle.load(file)
 file.close()
 
-faerun.plot(template='default')
+faerun.plot(template='default', legend_orientation='horizontal')
