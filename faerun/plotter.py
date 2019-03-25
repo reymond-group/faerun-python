@@ -39,7 +39,6 @@ class Faerun(object):
     def add_scatter(self, name, data, mapping={'x': 'x', 'y': 'y', 'z': 'z', 'c': 'c', 'cs': 'cs', 's': 's', 'labels': 'labels'},
                     colormap='plasma', shader='sphere', point_scale=1.0, max_point_size=100, fog_intensity=0.0, 
                     categorical=False, interactive=True, has_legend=False,  legend_title=None, legend_labels=None):
-
         if mapping['z'] not in data:
             data[mapping['z']] = [0] * len(data[mapping['x']])
 
@@ -100,7 +99,7 @@ class Faerun(object):
         
         self.scatters_data[name] = data
 
-    def plot(self, file_name='index', path='./', template='default', legend_title='Legend'):
+    def plot(self, file_name='index', path='./', template='default', legend_title='Legend', legend_orientation='vertical'):
         script_path = os.path.dirname(os.path.abspath(__file__))
         html_path = os.path.join(path, file_name + '.html')
         js_path = os.path.join(path, file_name + '.js')
@@ -124,7 +123,8 @@ class Faerun(object):
             'tree_helpers': list(self.trees.values()),
             'point_helpers': list(self.scatters.values()),
             'has_legend': has_legend,
-            'legend_title': legend_title
+            'legend_title': legend_title,
+            'legend_orientation': legend_orientation
         }
 
         output_text = jenv.get_template('template_' + template + '.j2').render(model)
