@@ -1,6 +1,7 @@
 import os
 import jinja2
 import math
+import colour
 
 import numpy as np
 import matplotlib.pyplot as plt
@@ -35,16 +36,16 @@ class Faerun(object):
         }
         self.trees_data[name] = data
 
-    def add_scatter(self, name, data, mapping={'x': 'x', 'y': 'y', 'z': 'z', 'c': 'c', 's': 's', 'labels': 'labels'},
+    def add_scatter(self, name, data, mapping={'x': 'x', 'y': 'y', 'z': 'z', 'c': 'c', 'cs': 'cs', 's': 's', 'labels': 'labels'},
                     colormap='plasma', shader='sphere', point_scale=1.0, max_point_size=100, fog_intensity=0.0, 
                     categorical=False, interactive=True, has_legend=False,  legend_title=None, legend_labels=None):
 
         if mapping['z'] not in data:
             data[mapping['z']] = [0] * len(data[mapping['x']])
 
-        min_c = min(data['c'])
-        max_c = max(data['c'])
-        len_c = len(data['c'])
+        min_c = min(data[mapping['c']])
+        max_c = max(data[mapping['c']])
+        len_c = len(data[mapping['c']])
 
         is_range = False
 
@@ -78,8 +79,14 @@ class Faerun(object):
 
         # Normalize the data to later get the correct colour maps
         if not categorical:
-            data['c'] = np.array(data['c'])
-            data['c'] = (data['c'] - min_c) / (max_c - min_c)
+            data[mapping['c']] = np.array(data[mapping['c']])
+            data[mapping['c']] = (data[mapping['c']] - min_c) / (max_c - min_c)
+
+        if mapping['cs'] in data:
+            data[mapping['cs']] = np.array(data[mapping['cs']])
+            min_cs = min(data[mapping['cs']])
+            max_cs = max(data[mapping['cs']])
+            data[mapping['cs']] = (data[mapping['cs']] - min_cs) / (max_cs - min_cs)
 
         self.scatters[name] = {
             'name': name, 'shader': shader, 
@@ -212,12 +219,26 @@ class Faerun(object):
             if mapping['s'] in data:
                 output[name]['s'] = np.array(data[mapping['s']], dtype=np.float32)
             
-            if mapping['c'] in data:
+            if mapping['c'] in data and mapping['cs'] in data:
+                colors = np.array([plt.cm.get_cmap(colormap)(x) for x in data[mapping['c']]])
+                
+                for i, c in enumerate(colors):
+                    hsl = colour.rgb2hsl(c)
+                    hsl[2] = hsl[2] - hsl[2] * mapping['cs'][i]
+                    colors[i] = np.array(colour.hsl2rgb(hsl))
+
+                colors = np.round(colors * 255.0)
+
+                output[name]['r'] = np.array(colors[:,0], dtype=np.float32)
+                output[name]['g'] = np.array(colors[:,1], dtype=np.float32)
+                output[name]['b'] = np.array(colors[:,2], dtype=np.float32)
+            elif mapping['c'] in data:
                 colors = np.array([plt.cm.get_cmap(colormap)(x) for x in data[mapping['c']]])
                 colors = np.round(colors * 255.0)
                 output[name]['r'] = np.array(colors[:,0], dtype=np.float32)
                 output[name]['g'] = np.array(colors[:,1], dtype=np.float32)
                 output[name]['b'] = np.array(colors[:,2], dtype=np.float32)
+            
 
         for name, data in self.trees_data.items():
             mapping = self.trees[name]['mapping']
