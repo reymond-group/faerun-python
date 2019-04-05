@@ -37,7 +37,7 @@ class Faerun(object):
         self.trees_data[name] = data
 
     def add_scatter(self, name, data, mapping={'x': 'x', 'y': 'y', 'z': 'z', 'c': 'c', 'cs': 'cs', 's': 's', 'labels': 'labels'},
-                    colormap='plasma', shader='sphere', point_scale=1.0, max_point_size=100, fog_intensity=0.0, 
+                    colormap='plasma', shader='sphere', point_scale=1.0, max_point_size=100, fog_intensity=0.0, saturation_limit=0.2,
                     categorical=False, interactive=True, has_legend=False,  legend_title=None, legend_labels=None):
         if mapping['z'] not in data:
             data[mapping['z']] = [0] * len(data[mapping['x']])
@@ -86,7 +86,7 @@ class Faerun(object):
             min_cs = min(data[mapping['cs']])
             max_cs = max(data[mapping['cs']])
             # Avoid zero saturation by limiting the lower bound to 0.1
-            data[mapping['cs']] = 1.0 - np.maximum(0.2, np.array((data[mapping['cs']] - min_cs) / (max_cs - min_cs)))
+            data[mapping['cs']] = 1.0 - np.maximum(saturation_limit, np.array((data[mapping['cs']] - min_cs) / (max_cs - min_cs)))
 
         self.scatters[name] = {
             'name': name, 'shader': shader, 
@@ -208,6 +208,8 @@ class Faerun(object):
             colormap = self.scatters[name]['colormap']
             
             output[name] = {}
+            output[name]['meta'] = self.scatters[name]
+            output[name]['type'] = 'scatter'
 
             output[name]['x'] = np.array([s * (x - minimum) / diff for x in data[mapping['x']]], dtype=np.float32)
             output[name]['y'] = np.array([s * (y - minimum) / diff for y in data[mapping['y']]], dtype=np.float32)
@@ -246,6 +248,8 @@ class Faerun(object):
             point_helper = self.trees[name]['point_helper']
 
             output[name] = {}
+            output[name]['meta'] = self.trees[name]
+            output[name]['type'] = 'tree'
 
             if point_helper != None and point_helper in self.scatters_data:  
                 scatter = self.scatters_data[point_helper]
