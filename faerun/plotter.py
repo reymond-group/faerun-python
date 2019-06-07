@@ -16,7 +16,7 @@ class Faerun(object):
         self.clear_color = clear_color
         self.coords = coords
         self.coords_color = coords_color
-        self.coords_box = False
+        self.coords_box = coords_box
         self.view = view
         self.scale = scale
 
