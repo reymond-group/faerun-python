@@ -1,0 +1,735 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>title</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css"> -->
+    <link href="https://fonts.googleapis.com/css?family=Source+Sans+Pro" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css?family=Open+Sans:400,600" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+
+    <style>
+        html, body { height: 100%; }
+        body { margin: 0px; padding: 0px; user-select: none; overflow: hidden; font-family: 'Source Sans Pro'; 
+               background-color: #111111; color: #eee; }
+        #loader { position: absolute; z-index:9999; width: 100%; height: 100%; background-color: #1f1f1f; 
+                  color: #eee; font-weight: bold; display: flex; align-items: center; justify-content: center; }
+        #info { position: absolute; z-index:9999; width: 100%; height: 100%; background-color: rgba(255, 255, 255, 0.95); 
+                color: #222; display: none; }
+        #info #info-content { margin: 50px; }
+        #hide-info-container { position: absolute; z-index:99999; top: 10px; right: 10px; display: none }
+        #hide-info-container a { color: #ff0000 }
+
+        #lore { position: absolute; z-index:95; width: 100%; height: 100%; }
+
+        /* Indicator and Label elements */
+        #smiles-canvas { position: absolute; z-index: 97; left: -999px; top: -999px; width: 250px; height: 250px; }
+        #tip-image-container { position: absolute; z-index: 97; width: 250px; height: 250px;
+                               background-color: rgba(255, 255, 255, 1.0); filter: drop-shadow(0px 0px 10px rgba(0, 0, 0, 1.0));
+                               pointer-events: none; opacity: 0.0; transition: opacity 1.0s ease-out; }
+        #tip-image-container.smiles { border-radius: 500px; border: 5px solid #fff; }
+        #tip-image-container.urlimage { border: 5px solid #fff; }
+        #tip-image-container.default { padding: 5px; background-color: rgba(255, 255, 255, 1.0); border-radius: 2px;
+                                       border: 2px solid #eee; width: auto; height: auto; max-width: 500px; max-height: 500px;
+                                       color: #222222; font-family: 'Open Sans'; font-size: 0.75em;
+                                       text-overflow: ellipsis; white-space: nowrap; overflow: hidden; }
+        #tip-image-container.show { opacity: 1.0; transition: opacity 0.1s ease-out; }
+        #tip-image { width: 250px; height: 250px; pointer-events: none; filter: drop-shadow(0px 0px 5px rgba(255, 255, 255, 1.0)); }
+        #hover-indicator { display: none; position: absolute; z-index: 97; border: 1px solid #fff; 
+                           background-color: rgba(255, 255, 255, 0.25); border-radius: 50%; pointer-events: none; }
+        #hover-indicator.show { display: block !important }
+        
+        /* Search */
+        #search-container { position: absolute; z-index:98; top: 20px; left: 0px; opacity: 0.75; transition: opacity 0.1s ease-out; }
+        #search-container:hover { opacity: 1.0; transition: opacity 0.1s ease-out; }
+        #search-text { display: block; width: 250px; padding: 10px 20px; font-size: 1.0em; border: 0px;
+                       border-top-right-radius: 500px; border-bottom-right-radius: 500px; outline: none;
+                       background-color: #fff; font-family: 'Source Sans Pro'; }
+        #search-text:focus { filter: drop-shadow(0px 0px 3px #3498db) }
+        #search-button { position: absolute; display: block; top: 4px; right: 5px; width: 32px; height: 32px;
+                         line-height: 32px; background-color: #fff; border-radius: 50%; font-size: 1.25em; }
+        #search-button i { margin-top: 5px; margin-left: 5px; color: #222; }
+        #search-button:hover i { color: #3498db; }
+
+        /* Controls */
+        #controls-container { position: absolute; z-index:98; top: 65px; left: 0px;
+                              color: #fff; padding: 5px; font-size: 1.0em; border: 0px; }
+
+        #controls-container a { opacity: 0.75; transition: opacity 0.1s ease-out; padding: 5px; }
+        #controls-container a:hover { opacity: 1.0; transition: opacity 0.1s ease-out; }
+        
+        /* Annotations */
+        .annotation { position: absolute; z-index: 96; background: #fff; border-radius: 2px; padding: 5px;
+                      filter: drop-shadow(0px 0px 5px rgba(0, 0, 0, 1.0));
+                      font-size: 0.75em; color: #222222; top: 200px; left: 200px;
+                      color: #222222; font-family: 'Open Sans';
+                      user-select: none; pointer-events: none; }
+
+        .annotation:after { content: ''; position: absolute; bottom: 0; left: 50%; width: 0; height: 0;
+                            border: 12px solid transparent; border-top-color: #fff; border-bottom: 0;
+                            margin-left: -12px; margin-bottom: -12px; }
+
+        
+        #legend { position: absolute; z-index: 96; bottom: 10px; right: 10px; padding: 10px; border: 1px solid #111;
+                  border-radius: 2px; background-color: rgba(0, 0, 0, 0.75); filter: drop-shadow(0px 0px 10px rgba(0, 0, 0, 0.5));
+                  color: #eee; font-family: 'Open Sans'; }
+
+        #legend .container { display: flex; flex: auto; align-items: flex-start; flex-direction: column;
+                            /* flex-direction: row; */ }
+
+        #legend .legend-section:not(:first-child) { /* margin-left: 20px; */ }
+        
+        #legend h2 { font-size: 1em; font-weight: 600; padding-top: 0; margin-top: 0;
+                     margin-bottom: 5px; text-align: center; }
+
+        #legend h3 { font-size: 0.8em; margin-top: 10px; margin-bottom: 6px; }
+        #legend .legend-element, #legend .legend-element-range { position: relative; display: flex; flex: auto; align-items: flex-start; padding-bottom: 2px; }
+        #legend .color-box { width: 15px; height: 15px; }
+        #legend .legend-element-range { flex-direction: column; }
+        #legend .color-stripe { width: 15px; height: 1px; }
+        #legend .legend-label { height: 15px; font-size: 0.7em; padding-left: 5px; }
+        #legend .legend-label.max { position: absolute; top: 0px; margin-left: 15px; }
+        #legend .legend-label.min { position: absolute; bottom: 2px; margin-left: 15px; }
+
+        /* light theme */
+        #search-text { background-color: #000; color: #fff; }
+        #search-button { background-color: #000; }
+        #search-button i { color: #ddd; }
+        #controls-container { color: #000; }
+        #hover-indicator { border: 1px solid #000; background-color: rgba(0, 0, 0, 0.25); }
+    </style>
+</head>
+
+<body>
+    <div id="loader">
+        <div>Initializing ...</div>
+    </div>
+
+    <div id="info">
+        <div id="info-content"></div>
+    </div>
+    <div id="hide-info-container">
+        <a id="hide-info-button" href="" title="Hide Info"><i class="material-icons">close</i></a>
+    </div>
+
+    <div id="search-container">
+        <input id="search-text" type="text" placeholder="Search ...">
+        <a id="search-button" href="" title="Search"><i class="material-icons">search</i></a>
+    </div>
+
+    <div id="controls-container">
+        <a id="clear-search-results" href="" title="Clear Search Results"><i class="material-icons">delete_sweep</i></a>
+        <a id="screenshot-button" href="" title="Save as Image"><i class="material-icons">camera_alt</i></a>
+        <a id="info-button" href="" title="Show Info"><i class="material-icons">info</i></a>
+    </div>
+
+    <canvas id="smiles-canvas"></canvas>
+    <div id="hover-indicator"></div>
+    <div id="tip-image-container"><img id="tip-image" /></div>
+
+    <canvas id="lore"></canvas>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/showdown/1.9.0/showdown.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/0.18.0/axios.min.js"></script>
+    <script src="https://unpkg.com/lore-engine@1.0.29/dist/lore.js"></script>
+    <script src="https://unpkg.com/smiles-drawer@1.0.2/dist/smiles-drawer.min.js"></script>
+
+    <!-- Let's keep everything in one file, shouldn't be too much ... -->
+    <!-- Also, let's keep it "simple" for non JS experts -->
+    <!-- Keeping naming Python naming conventions for functions -->
+    <script>
+        const urlParams = new URLSearchParams(window.location.search);
+        let lore = null;
+        let cc = null;
+        let currentPoint = null;
+        let annotations = [];
+        let treeHelpers = [];
+        let pointHelpers = [];
+        let octreeHelpers = [];
+        let headers = {
+            'Accept': 'application/json',
+            'Content-Type': 'application/json'
+        }
+
+        /* Set up themes */
+        let themes = {
+            dark: { background: '#1f1f1f', grid: '#333333', controls: '#ffffff', hoverIndicator: '#ffffff' },
+            light: { background: '#ffffff', grid: '#eeeeee', controls: '#000000', hoverIndicator: '#000000' }
+        }
+
+        // This is set to a theme once meta is loaded.
+        let theme = null;
+
+        /* Make meta available for all functions */
+        let meta = null;
+
+        /* Get Elements */
+        let tip = document.getElementById('tip-image-container');
+        let tipImage = document.getElementById('tip-image');
+        let canvas = document.getElementById('smiles-canvas');
+        let hoverIndicator = document.getElementById('hover-indicator');
+        let searchText = document.getElementById('search-text');
+        let searchButton = document.getElementById('search-button');
+        let screenshotButton = document.getElementById('screenshot-button');
+        let infoButton = document.getElementById('info-button');
+        let hideInfoButton = document.getElementById('hide-info-button');
+        let clearSearchResultsButton = document.getElementById('clear-search-results');
+        let controlsContainer = document.getElementById('controls-container');
+
+        /* Initialize SmilesDrawer */
+        let smilesDrawer = new SmilesDrawer.Drawer({
+            width: 250,
+            height: 250
+        });
+
+        async function get_meta() {
+            let response = await fetch('/get_meta', {
+                responseType: 'json',
+                method: 'post',
+                headers: headers,
+                body: '{}'
+            })
+
+            return await response.json();
+        }
+
+
+        async function get_values(name, coord, dtype='float32') {
+            let response = await fetch('/get_values', {
+                responseType: 'blob',
+                method: 'post',
+                headers: headers,
+                body: JSON.stringify({ name: name, coord: coord, dtype: dtype }) 
+            })
+
+            let buffer = await response.arrayBuffer();
+            if (dtype === 'float32') {
+                return new Float32Array(buffer);
+            } else if (dtype === 'uint8') {
+                return new Uint8Array(buffer);
+            }
+        }
+
+        async function get_label(id, name) {8
+            let response = await fetch('/get_label', {
+                responseType: 'json',
+                method: 'post',
+                headers: headers,
+                body: JSON.stringify({ name: name, id: id })
+            })
+
+            return await response.json();
+        }
+
+        async function get_index(label, name) {
+            let response = await fetch('/get_index', {
+                responseType: 'json',
+                method: 'post',
+                headers: headers,
+                body: JSON.stringify({ label: label, name: name })
+            })
+
+            return await response.json();
+        }
+        
+        // Initialize / Load the data
+        async function init_data() {
+            let trees = [];
+            let treeNames = [];
+            let coordinates = [];
+            let colors = [];
+            let scatterNames = [];
+            let pointScales = [];
+            let shaders = [];
+            
+            let minX = Number.MAX_VALUE;
+            let minY = Number.MAX_VALUE;
+            let minZ = Number.MAX_VALUE;
+            let maxX = -Number.MAX_VALUE;
+            let maxY = -Number.MAX_VALUE;
+            let maxZ = -Number.MAX_VALUE;
+
+            for (let name in meta.tree) {
+                updateText('loader', 'Loading "' + name + '" ...');
+                let x = await get_values(name, 'x');
+                let y = await get_values(name, 'y');
+                let z = await get_values(name, 'z');
+                trees.push([x, y, z]);
+                treeNames.push(name);
+
+                minX = min(x, minX);
+                minY = min(y, minY);
+                minZ = min(z, minZ);
+                maxX = max(x, maxX);
+                maxY = max(y, maxY);
+                maxZ = max(z, maxZ);
+            }
+            
+            
+            for (let name in meta.scatter) {
+                updateText('loader', 'Loading Coordinates for "' + name + '" ...');
+                let x = await get_values(name, 'x');
+                let y = await get_values(name, 'y');
+                let z = await get_values(name, 'z');
+
+                minX = min(x, minX);
+                minY = min(y, minY);
+                minZ = min(z, minZ);
+                maxX = max(x, maxX);
+                maxY = max(y, maxY);
+                maxZ = max(z, maxZ);
+
+                updateText('loader', 'Loading Colours for "' + name + '" ...');
+                let r = await get_values(name, 'r', 'uint8');
+                let g = await get_values(name, 'g', 'uint8');
+                let b = await get_values(name, 'b', 'uint8');
+                coordinates.push([x, y, z]);
+                colors.push([r, g, b]);
+                scatterNames.push(name);
+                pointScales.push(meta.scatter[name].point_scale);
+                shaders.push(meta.scatter[name].shader)
+            }
+
+            updateText('loader', 'Drawing ...');
+
+            // Add a timeout to give updateText above the chance to set value
+            setTimeout(() => {
+                init_coords(minX, minY, minZ, maxX, maxY, maxZ, true, true, 100, 2.0, theme.grid, true);
+                init_trees(treeNames, trees);
+                init_scatters(scatterNames, coordinates, colors, pointScales, shaders, meta.label_type);
+
+                // Wait to return so that trees and scatters are ready
+                setTimeout(() => {
+                    hide('loader');
+                    return 0;
+                }, 5000);
+            }, 1000);
+        }
+
+        // Lore code
+        function init_lore() {
+            let clearColor = theme.background;
+            cc = Lore.Core.Color.fromHex(clearColor);
+            lore = Lore.init('lore', { 
+                antialiasing: true, 
+                alphaBlending: meta.view === 'free' ? false : true, 
+                clearColor: clearColor,
+                preserveDrawingBuffer: true
+            });
+
+            /* Update the positions of annotations */
+            lore.controls.addEventListener('updated', () => {
+                updatePositions();
+            });
+        }
+
+        // Trees
+        function init_trees(names, coords) {
+            // Tree plots
+            let th = null;
+            let thNames = [];
+            let thName = null;
+            for (let i = 0; i < coords.length; i++) {
+                thNames.push(names[i])
+                thName = thNames[thNames.length - 1];
+                treeHelpers.push(new Lore.Helpers.TreeHelper(lore, thName, 'tree'));
+                th = treeHelpers[treeHelpers.length - 1];
+                th.setXYZHexS(coords[i][0], coords[i][1], coords[i][2], '#555555');
+                th.setFog([cc.components[0], cc.components[1], cc.components[2], cc.components[3]], 0.0);
+            }
+        }
+
+        // Scatter plots
+        function init_scatters(names, coords, colors, pointScales, shaders, labelType='smiles') {
+            let ph = null;
+            let phNames = [];
+            let ohIndexToPhName = [];
+            let phName = null;
+
+            for (let i = 0; i < coords.length; i++) {
+                sizes = Array(colors[i][0].length);
+                
+                for (let j = 0; j < colors[i][0].length; j++)
+                    sizes[j] = 1;
+                
+                let phName = names[i];
+                phNames.push(phName);
+                pointHelpers.push(new Lore.Helpers.PointHelper(lore, phName, shaders[i], { maxPointSize: 20 }));
+                ph = pointHelpers[pointHelpers.length - 1];
+                ph.setXYZRGBS(coords[i][0], coords[i][1], coords[i][2], colors[i][0], colors[i][1], colors[i][2], sizes);
+                ph.setPointScale(pointScales[i]);
+                ph.setFog([cc.components[0], cc.components[1], cc.components[2], cc.components[3]], 0.0);
+                octreeHelpers.push(new Lore.Helpers.OctreeHelper(lore, 'Octree_' + phName, 'tree', ph));
+                ohIndexToPhName.push(phName);
+            }
+
+            let center = pointHelpers[0].getCenter();
+            lore.controls.setLookAt(center);
+            lore.controls.setRadius(pointHelpers[0].getMaxRadius() + 100);
+
+            switch(meta.view) {
+                case 'front':
+                    lore.controls.setFrontView(); break;
+                case 'back':
+                    lore.controls.setBackView(); break;
+                case 'top':
+                    lore.controls.setTopView(); break;
+                case 'bottom':
+                    lore.controls.setBottomView(); break;
+                case 'left':
+                    lore.controls.setLeftView(); break;
+                case 'right':
+                    lore.controls.setRightView(); break;
+                default:
+                    lore.controls.setFreeView();
+            }
+            
+
+            Lore.Helpers.OctreeHelper.joinHoveredChanged(octreeHelpers, function (e) {
+                if (e.e) {
+                    get_label(e.e.index, ohIndexToPhName[e.source]).then(label => {
+                        // TODO: replace id with link
+                        let vals = label.label.split('__');
+                        let val = vals[0];
+                        let id = (vals.length > 1) ? vals[1] : '';
+
+                        currentPoint = { index: e.e.index, label: val, id: id, link: label.link }
+
+                        let rgbColor = pointHelpers[e.source].getColor(e.e.index);
+                        let hexColor = Lore.Core.Color.rgbToHex(rgbColor[0], rgbColor[1], rgbColor[2]);
+
+                        tip.classList.remove('smiles');
+                        tip.classList.remove('urlimage');
+                        tip.classList.remove('default');
+                        
+                        if (labelType === 'smiles') {
+                            SmilesDrawer.parse(currentPoint.label, tree => {
+                                smilesDrawer.draw(tree, 'smiles-canvas', 'light', false);
+                                tipImage.src = canvas.toDataURL();
+                                tip.classList.add('show');
+                                tip.classList.add('smiles');
+                                tip.style.border = '5px solid ' + hexColor;
+                            });
+                        } else if (labelType === 'urlimage') {
+                            tipImage.src = currentPoint.label;
+                            tip.classList.add('show');
+                            tip.classList.add('urlimage');
+                            tip.style.border = '5px solid ' + hexColor;
+                        } else {
+                            tip.innerHTML = currentPoint.label;
+                            tip.classList.add('show');
+                            tip.classList.add('default');
+                            tip.style.border = '2px solid ' + hexColor;
+                        }
+
+                        let pointSize = pointHelpers[e.source].getPointSize();
+                        let x = e.e.screenPosition[0];
+                        let y = e.e.screenPosition[1];
+
+                        hoverIndicator.style.width = pointSize + 'px';
+                        hoverIndicator.style.height = pointSize + 'px';
+                        hoverIndicator.style.left = (x - pointSize / 2.0 - 1) + 'px';
+                        hoverIndicator.style.top = (y - pointSize / 2.0 - 1) + 'px';
+
+                        hoverIndicator.classList.add('show');
+                    });
+                } else {
+                    currentPoint = null;
+                    tip.classList.remove('show');
+                    hoverIndicator.classList.remove('show');
+                }
+            });
+
+            // Kick of search if coming in via search url
+            if (urlParams.has('search'))
+                search(urlParams.get('search'));
+        }
+
+        function init_coords(minX, minY, minZ, maxX, maxY, maxZ, grid=true, ticks=true, tickCount=100, tickLength=2.0, color='#eeeeee', box=true) {
+            var coordinatesHelper = new Lore.Helpers.CoordinatesHelper(lore, 'Coordinates', 'coordinates', {
+                position: new Lore.Math.Vector3f(minX, minY, minZ),
+                axis: {
+                    x: {
+                        length: maxX - minX,
+                        color: Lore.Core.Color.fromHex(color)
+                    },
+                    y: {
+                        length: maxY - minY,
+                        color: Lore.Core.Color.fromHex(color)
+                    },
+                    z: {
+                        length: maxZ - minZ,
+                        color: Lore.Core.Color.fromHex(color)
+                    }
+                },
+                ticks: {
+                    enabled: ticks,
+                    x: {
+                        length: tickLength,
+                        color: Lore.Core.Color.fromHex(color),
+                        count: tickCount
+                    },
+                    y: {
+                        length: tickLength,
+                        color: Lore.Core.Color.fromHex(color),
+                        count: tickCount
+                    },
+                    z: {
+                        length: tickLength,
+                        color: Lore.Core.Color.fromHex(color),
+                        count: tickCount
+                    }
+                },
+                box: {
+                    enabled: box,
+                    x: {
+                        color: Lore.Core.Color.fromHex(color)
+                    },
+                    y: {
+                        color: Lore.Core.Color.fromHex(color)
+                    },
+                    z: {
+                        color: Lore.Core.Color.fromHex(color)
+                    }
+                }
+            });
+        }
+
+        function init_legend() {
+            if (!meta.legend)
+                return;
+
+            let legend = document.createElement('div');
+            let legendContainer = document.createElement('div');
+
+            legend.id = 'legend';
+            legend.innerHTML = '<h2>' + meta.legend_title + '</h2>';
+
+            legendContainer.classList.add('container');
+            legend.appendChild(legendContainer);
+            
+            Object.entries(meta.scatter).forEach(([key, value]) => {
+                let legendItem = document.createElement('div');
+                
+                legendItem.id = 'legend-' + value.name;
+                legendItem.classList.add('legend-section');
+                legendItem.setAttribute('data-name', value.name);
+                legendItem.innerHTML = '<h3>' + value.legend_title + '</h3>';
+                legendContainer.appendChild(legendItem);
+                
+                if (!value.is_range) {
+                    for (let v of value.legend) {
+                        let legendElement = document.createElement('div');
+                        legendElement.classList.add('legend-element');
+                        legendElement.innerHTML += '<div class="color-box" style="background-color:rgba(' + (v[0][0] * 255) + ', ' + (v[0][1] * 255) + ', ' + (v[0][2] * 255) + ', ' + v[0][3] + ')"></div>';
+                        legendElement.innerHTML += '<div class="legend-label">' + v[1] + '</div>';
+                        legendContainer.appendChild(legendElement);
+                    }
+                } else {
+                    let legendElement = document.createElement('div');
+                    for (let v of value.legend) {
+                        legendElement.classList.add('legend-element-range');
+                        legendElement.innerHTML += '<div class="color-stripe" style="background-color:rgba(' + (v[0][0] * 255) + ', ' + (v[0][1] * 255) + ', ' + (v[0][2] * 255) + ', ' + v[0][3] + ')"></div>';
+                        legendElement.innerHTML += '<div class="legend-label max">' + value.max_c + '</div>';
+                        legendElement.innerHTML += '<div class="legend-label min">' + value.min_c + '</div>';
+                    }
+                    legendContainer.appendChild(legendElement);
+                }
+            });
+
+            document.body.appendChild(legend);
+        }
+
+        /* Handle the movment of the tip independent of the selected / hovered point */
+        document.addEventListener('mousemove', function (event) {
+            let x = event.clientX;
+            let y = event.clientY;
+
+            if (x > window.innerWidth - tip.offsetWidth - 50)
+                x -= tip.offsetWidth - 45;
+            else
+                x -= 35;
+
+            if (y > window.innerHeight - tip.offsetHeight - 20)
+                y -= tip.offsetHeight;
+            else
+                y += 10;
+
+            if (tip) {
+                tip.style.top = y + 'px';
+                tip.style.left = x + 'px';
+            }
+        });
+
+        /* Open link on double click */
+        document.addEventListener('dblclick', e => {
+            if (currentPoint) {
+                let id = currentPoint.id.toUpperCase();
+                if (id.startsWith('gdb'))
+                    window.open('http://gdb15.docking.org/substances/' + id, '_blank');
+                else if (id.startsWith('CHEMBL'))
+                    window.open('https://www.ebi.ac.uk/chembl/compound_report_card/' + id, '_blank');
+                else {
+                    if (currentPoint.link !== '')
+                        window.open(currentPoint.link, '_blank');
+                }
+            }
+        });
+
+        /* Search */
+        searchText.addEventListener('keyup', e => {
+            if (e.keyCode === 13) {
+                search(searchText.value);
+                searchText.value = '';
+            }
+        });
+
+        searchButton.addEventListener('click', e => {
+            e.preventDefault();
+            search(searchText.value);
+            searchText.value = '';
+        });
+
+        function search(value) {
+            get_index(value, Object.keys(meta.scatter)[0]).then(results => {
+                console.log(results);
+                for (result of results) {
+                    if (result[1] >= 0) {
+                        let annotation = document.createElement('div');
+                        annotation.innerHTML = result[0];
+                        annotation.setAttribute('data-index', result[1]);
+                        annotation.classList.add('annotation');
+                        document.body.appendChild(annotation);
+                        annotations.push(annotation);
+                        updatePositions();
+                    }
+                }
+            });
+        }
+
+        /* Remove the annotations for search results */
+        clearSearchResultsButton.addEventListener('click', e => {
+            e.preventDefault();
+
+            annotations = document.getElementsByClassName('annotation');
+            Array.from(annotations).forEach(annotation => {
+                annotation.remove();
+            });
+        });
+
+        /* Screenshot functionality */
+        screenshotButton.addEventListener('click', e => {
+            e.preventDefault();
+
+            let canvas = document.getElementById('lore');
+            let zoom = lore.controls.getZoom();
+
+            canvas.style.width = (canvas.width * 2) + 'px';
+            canvas.style.height = (canvas.height * 2) + 'px';
+            lore.controls.setZoom(zoom * 2);
+
+            setTimeout(() => {
+                let blob = lore.canvas.toBlob(blob => {
+                    let a = document.createElement('a');
+                    a.href = URL.createObjectURL(blob);
+                    a.setAttribute('download', 'export.png');
+                    a.click();
+                    
+                    setTimeout(() => {
+                        canvas.style.width = '100%';
+                        canvas.style.height = '100%';
+                        lore.controls.setZoom(zoom);
+                    }, 2000);
+                });
+            }, 2000);
+        });
+
+        /* Show and hide info */
+        function init_info() {
+            if (!meta.info) {
+                hide('info-button');
+                return;
+            }
+
+            let converter = new showdown.Converter(),
+            html = converter.makeHtml(meta.info);
+            updateText('info-content', html);
+        }
+
+        infoButton.addEventListener('click', e => {
+            e.preventDefault();
+            show('info');
+            show('hide-info-container');
+        });
+
+        hideInfoButton.addEventListener('click', e => {
+            e.preventDefault();
+            hide('info');
+            hide('hide-info-container');
+        });
+
+        /* Update positions of annotations */
+        function updatePositions() {
+            for (let annotation of annotations) {
+                let index = parseInt(annotation.getAttribute('data-index'));
+                let pos = octreeHelpers[0].getScreenPosition(index);
+                annotation.style.left = (pos[0] - annotation.offsetWidth / 2.0) + 'px';
+                // The last term is the width of the arrow.
+                annotation.style.top = (pos[1] - annotation.offsetHeight - 12) + 'px';
+            }
+        }
+
+        /* Update css values once the theme is loaded */
+        function setTheme() {
+            for (var i = 0; i < controlsContainer.children.length; i++)
+                controlsContainer.children[i].style.color = theme.controls;
+            
+            hoverIndicator.style.borderColor = theme.hoverIndicator;
+        }
+
+        // Small helpers
+        function hide(elementId) { document.getElementById(elementId).style.display = 'none'; }
+        function show(elementId) { document.getElementById(elementId).style.display = 'flex'; }
+        function updateText(elementId, text) { document.getElementById(elementId).innerHTML = text; }
+        function min(arr, other = Number.MAX_VALUE) { 
+            let m = Number.MAX_VALUE;
+            for (var i = 0; i < arr.length; i++)
+                if (arr[i] < m) m = arr[i];
+            if (m < other)
+                return m;
+            else
+                return other;
+        }
+        function max(arr, other = -Number.MAX_VALUE) {
+            let m = -Number.MAX_VALUE;
+            for (var i = 0; i < arr.length; i++)
+                if (arr[i] > m) m = arr[i];
+            if (m > other)
+                return m;
+            else
+                return other;
+        }
+
+        // Execute this self-executing function when the html is ready
+        // Keep this at the very bottom!
+        (function() {
+            updateText('loader', 'Loading Meta ...');
+            get_meta().then((result) => {
+                meta = result;
+                console.log(meta);
+                theme = themes[meta.theme];
+                setTheme();
+                init_info();
+                init_legend();
+                init_lore();
+                init_data().then(() => {
+                    
+                });
+            })
+        })();
+    </script>
+</body>
+
+</html>

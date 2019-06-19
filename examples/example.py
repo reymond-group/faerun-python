@@ -1,9 +1,8 @@
 import numpy as np
 import pandas as pd
-from rdkit import RDLogger
+from faerun import Faerun
 from rdkit.Chem import AllChem
 from rdkit.Chem import rdMolDescriptors as Descriptors
-from faerun import Faerun
 from sklearn.decomposition import PCA
 
 
@@ -38,21 +37,21 @@ def load():
 coords, mqns, smiles = load()
 
 data = {
-    'x': np.random.normal(0.0, 6.0, len(smiles) * 150),
-    'y': np.random.normal(0.0, 6.0, len(smiles) * 150),
-    'z': np.random.normal(0.0, 6.0, len(smiles) * 150),
-    'c': np.random.normal(0.0, 6.0, len(smiles) * 150),
-    'smiles': smiles * 150
+    'x': [],
+    'y': [],
+    'z': [],
+    'c': [],
+    'labels': smiles
 }
 
-print(len(data['x']))
-print(len(data['y']))
-print(len(data['z']))
-print(len(data['c']))
-print(len(data['smiles']))
+for i, e in enumerate(coords):
+    data['x'].append(coords[i][0])
+    data['y'].append(coords[i][1])
+    data['z'].append(coords[i][2])
+    data['c'].append(mqns[i][0])
 
 df = pd.DataFrame.from_dict(data)
 
-
-faerun = Faerun(view='free', shader='sphere')
-faerun.plot(df, colormap='viridis')
+faerun = Faerun(view='free', clear_color='#222222')
+faerun.add_scatter('drugbank', df, shader='sphere', point_scale=5.0, colormap='jet', has_legend=True)
+faerun.plot(template='smiles')

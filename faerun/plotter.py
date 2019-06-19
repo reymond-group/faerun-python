@@ -8,10 +8,21 @@ import matplotlib.pyplot as plt
 
 
 class Faerun(object):
-    """ The faerun class
+    """ The main class for generating Faerun visualizations
     """
 
     def __init__(self, title='python-faerun', clear_color='#111111', coords=True, coords_color='#888888', coords_box=False, view='free', scale=750):
+        """Constructor for Faerun
+
+        Keyword Arguments:
+            title {str} -- The title of the generated HTML file (default: {'python-faerun'})
+            clear_color {str} -- The background color of the plot (default: {'#111111'})
+            coords {bool} -- Show the coordinate axes in the plot (default: {True})
+            coords_color {str} -- The color of the coordinate axes (default: {'#888888'})
+            coords_box {bool} -- Show a box around the coordinate axes (default: {False})
+            view {str} -- The view (top, left, free ...) (default: {'free'})
+            scale {int} -- To what size to scale the coordinates (which are normalized) (default: {750})
+        """
         self.title = title
         self.clear_color = clear_color
         self.coords = coords
@@ -25,9 +36,22 @@ class Faerun(object):
         self.scatters = {}
         self.scatters_data = {}
 
-    def add_tree(self, name, data, mapping={'from': 'from', 'to': 'to', 'x': 'x', 'y': 'y', 'z': 'z', 'c': 'c'},
+    def add_tree(self, name, data,
+                 mapping={'from': 'from', 'to': 'to', 'x': 'x', 'y': 'y', 'z': 'z', 'c': 'c'},
                  color='#666666', colormap='plasma', fog_intensity=0.0, point_helper=None):
+        """Add a tree layer to the plot
 
+        Arguments:
+            name {str} -- The name of the layer
+            data {object} -- A Python  dict or Pandas DataFrame containing the data
+
+        Keyword Arguments:
+            mapping {dict} -- The keys which contain the data in the input dict or DataFrame (default: {{'from': 'from', 'to': 'to', 'x': 'x', 'y': 'y', 'z': 'z', 'c': 'c'}})
+            color {str} -- The default color of the tree (default: {'#666666'})
+            colormap {str} -- The name of the colormap (can also be a matplotlib Colormap object) (default: {'plasma'})
+            fog_intensity {float} -- The intensity of the distance fog (default: {0.0})
+            point_helper {str} -- The name of the scatter layer to associate with this tree layer (the source of the coordinates) (default: {None})
+        """
         if point_helper is None and mapping['z'] not in data:
             data[mapping['z']] = [0] * len(data[mapping['x']])
 
@@ -37,9 +61,31 @@ class Faerun(object):
         }
         self.trees_data[name] = data
 
-    def add_scatter(self, name, data, mapping={'x': 'x', 'y': 'y', 'z': 'z', 'c': 'c', 'cs': 'cs', 's': 's', 'labels': 'labels'},
-                    colormap='plasma', shader='sphere', point_scale=1.0, max_point_size=100, fog_intensity=0.0, saturation_limit=0.2,
-                    categorical=False, interactive=True, has_legend=False, legend_title=None, legend_labels=None):
+    def add_scatter(self, name, data,
+                    mapping={'x': 'x', 'y': 'y', 'z': 'z', 'c': 'c', 'cs': 'cs', 's': 's', 'labels': 'labels'},
+                    colormap='plasma', shader='sphere', point_scale=1.0, max_point_size=100, 
+                    fog_intensity=0.0, saturation_limit=0.2, categorical=False, interactive=True, 
+                    has_legend=False, legend_title=None, legend_labels=None):
+        """Add a scatter layer to the plot
+
+        Arguments:
+            name {str} -- The name of the layer
+            data {object} -- A Python dict or Pandas DataFrame containing the data
+
+        Keyword Arguments:
+            mapping {dict} -- The keys which contain the data in the input dict or DataFrame (default: {{'x': 'x', 'y': 'y', 'z': 'z', 'c': 'c', 'cs': 'cs', 's': 's', 'labels': 'labels'}})
+            colormap {str} -- The name of the colormap (can also be a matplotlib Colormap object) (default: {'plasma'})
+            shader {str} -- The name of the shader to use for the data point visualization (default: {'sphere'})
+            point_scale {float} -- The relative size of the data points (default: {1.0})
+            max_point_size {int} -- The maximum size of the data points when zooming in (default: {100})
+            fog_intensity {float} -- The intensity of the distance fog (default: {0.0})
+            saturation_limit {float} -- The minimum saturation to avoid "gray soup" (default: {0.2})
+            categorical {bool} -- Whether this scatter layer is categorical (default: {False})
+            interactive {bool} -- Whether this scatter layer is interactive (default: {True})
+            has_legend {bool} -- Whether or not to draw a legend (default: {False})
+            legend_title {str} -- The title of the legend (default: {None})
+            legend_labels {dict} -- A dict mapping values to legend labels (default: {None})
+        """
         if mapping['z'] not in data:
             data[mapping['z']] = [0] * len(data[mapping['x']])
 
@@ -108,7 +154,17 @@ class Faerun(object):
 
         self.scatters_data[name] = data
 
-    def plot(self, file_name='index', path='./', template='default', legend_title='Legend', legend_orientation='vertical'):
+    def plot(self, file_name='index', path='./', template='default', legend_title='Legend', 
+             legend_orientation='vertical'):
+        """Plots the data to an HTML / JS file
+
+        Keyword Arguments:
+            file_name {str} -- The name of the HTML / JS file (default: {'index'})
+            path {str} -- The path to which to write the HTML / JS file (default: {'./'})
+            template {str} -- The name of the template to use (default: {'default'})
+            legend_title {str} -- The legend title (default: {'Legend'})
+            legend_orientation {str} -- The orientation of the legend (vertical or horizontal) (default: {'vertical'})
+        """
         script_path = os.path.dirname(os.path.abspath(__file__))
         html_path = os.path.join(path, file_name + '.html')
         js_path = os.path.join(path, file_name + '.js')
@@ -146,6 +202,11 @@ class Faerun(object):
             f.write(self.create_data())
 
     def get_min_max(self):
+        """Get the minimum an maximum coordinates from this plotter instance
+
+        Returns:
+            tuple -- The minimum and maximum coordinates
+        """
         minimum = float('inf')
         maximum = float('-inf')
 
@@ -201,6 +262,11 @@ class Faerun(object):
         return minimum, maximum
 
     def create_python_data(self):
+        """Returns a Python dict containing the data
+
+        Returns:
+            dict -- The data defined in this Faerun instance
+        """
         s = self.scale
         minimum, maximum = self.get_min_max()
         diff = maximum - minimum
@@ -317,6 +383,11 @@ class Faerun(object):
         return output
 
     def create_data(self):
+        """Returns a JavaScript string defining a JavaScript object containing the data
+
+        Returns:
+            str -- JavaScript code defining an object containing the data
+        """
         s = self.scale
         minimum, maximum = self.get_min_max()
         diff = maximum - minimum
@@ -377,7 +448,7 @@ class Faerun(object):
 
             output += name + ': {\n'
 
-            if point_helper != None and point_helper in self.scatters_data:
+            if point_helper is not None and point_helper in self.scatters_data:
                 scatter = self.scatters_data[point_helper]
                 scatter_mapping = self.scatters[point_helper]['mapping']
 
@@ -435,9 +506,20 @@ class Faerun(object):
 
     @staticmethod
     def discrete_cmap(n_colors, base_cmap=None):
-        """Create an N-bin discrete colormap from the specified input map"""
+        """Create an N-bin discrete colormap from the specified input map
+
+        Arguments:
+            n_colors {int} -- The number of discrete colors to generate
+        
+        Keyword Arguments:
+            base_cmap {Colormap} -- The colormap on which to base tje discrete map (default: {None})
+
+        Returns:
+            Colormap -- The discrete colormap
+        """
         # https://gist.github.com/jakevdp/91077b0cae40f8f8244a
         base = plt.cm.get_cmap(base_cmap)
         color_list = base(np.linspace(0, 1, n_colors))
         cmap_name = base.name + str(n_colors)
+
         return base.from_list(cmap_name, color_list, n_colors)
