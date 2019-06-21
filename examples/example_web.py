@@ -24,7 +24,7 @@ def get_fingerprint(in_smiles):
 
 def load():
     drugbank = []
-    with open('examples/drugbank.smi') as f:
+    with open('drugbank.smi') as f:
         for line in f.readlines():
             drugbank.append(line.split()[0].strip())
 
@@ -52,7 +52,7 @@ def main():
     df = pd.DataFrame.from_dict(data)
 
     faerun = Faerun()
-    faerun.add_scatter('drugbank', df, shader='smoothCircle', point_scale=5.0, colormap='jet', has_legend=True, categorical=False)
+    faerun.add_scatter('drugbank', df, shader='smoothCircle', point_scale=2.0, colormap='jet', has_legend=True, categorical=False)
 
     with open('example.faerun', 'wb+') as f:
         pickle.dump(faerun.create_python_data(), f, protocol=pickle.HIGHEST_PROTOCOL)
@@ -68,7 +68,7 @@ def main():
             '- ...'
            )
 
-    host('example.faerun', label_type='default', legend=True, theme='dark', info='\n'.join(info))
+    host('example.faerun', label_type='smiles', legend=True, theme='light', info='\n'.join(info))
 
 if __name__ == '__main__':
     main()

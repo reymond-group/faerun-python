@@ -23,7 +23,7 @@ def get_fingerprint(in_smiles):
 
 def load():
     drugbank = []
-    with open('examples/drugbank.smi') as f:
+    with open('drugbank.smi') as f:
         for line in f.readlines():
             drugbank.append(line.split()[0].strip())
 
