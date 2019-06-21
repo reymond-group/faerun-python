@@ -1,0 +1,360 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Web &mdash; Faerun 1.0 documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+  <script type="text/javascript" src="_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script type="text/javascript" src="_static/jquery.js"></script>
+        <script type="text/javascript" src="_static/underscore.js"></script>
+        <script type="text/javascript" src="_static/doctools.js"></script>
+        <script type="text/javascript" src="_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Documentation" href="documentation.html" />
+    <link rel="prev" title="Getting Started" href="tutorial.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="index.html" class="icon icon-home"> Faerun
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="tutorial.html">Getting Started</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Web</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#introduction">Introduction</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#creating-faerun-data-files">Creating Faerun Data Files</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#starting-a-faerun-web-server">Starting a Faerun Web Server</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#formatting-labels">Formatting Labels</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#adding-hyperlinks">Adding Hyperlinks</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#searching">Searching</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#add-info-documentation">Add Info / Documentation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#complete-example">Complete Example</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="documentation.html">Documentation</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">Faerun</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="index.html">Docs</a> &raquo;</li>
+        
+      <li>Web</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="_sources/host.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="web">
+<h1>Web<a class="headerlink" href="#web" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="introduction">
+<h2>Introduction<a class="headerlink" href="#introduction" title="Permalink to this headline">¶</a></h2>
+<p>While small plots can easily be created and stored in a single HTML and JavaScript file, which are then loaded completely in the browsers memory, this is not possible for larger data sets due to browser limitations.
+In order to solve this problem, Faerun includes a small HTTP server (based on cherrypy) to serve the data to the browser.</p>
+</div>
+<div class="section" id="creating-faerun-data-files">
+<h2>Creating Faerun Data Files<a class="headerlink" href="#creating-faerun-data-files" title="Permalink to this headline">¶</a></h2>
+<p>As shown in <a class="reference internal" href="tutorial.html"><span class="doc">Getting Started</span></a>, Faerun can save data as <code class="docutils literal notranslate"><span class="pre">.faerun</span></code> data files using <code class="docutils literal notranslate"><span class="pre">pickle</span></code>.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="s1">&#39;helix.faerun&#39;</span><span class="p">,</span> <span class="s1">&#39;wb+&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">handle</span><span class="p">:</span>
+    <span class="n">pickle</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="n">f</span><span class="o">.</span><span class="n">create_python_data</span><span class="p">(),</span> <span class="n">handle</span><span class="p">,</span> <span class="n">protocol</span><span class="o">=</span><span class="n">pickle</span><span class="o">.</span><span class="n">HIGHEST_PROTOCOL</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="starting-a-faerun-web-server">
+<h2>Starting a Faerun Web Server<a class="headerlink" href="#starting-a-faerun-web-server" title="Permalink to this headline">¶</a></h2>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">faerun</span> <span class="kn">import</span> <span class="n">host</span>
+
+<span class="n">host</span><span class="p">(</span><span class="s1">&#39;helix.faerun&#39;</span><span class="p">,</span> <span class="n">label_type</span><span class="o">=</span><span class="s1">&#39;default&#39;</span><span class="p">,</span>
+     <span class="n">theme</span><span class="o">=</span><span class="s1">&#39;dark&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="formatting-labels">
+<h2>Formatting Labels<a class="headerlink" href="#formatting-labels" title="Permalink to this headline">¶</a></h2>
+<p>Labels can be formatted by defining a custom <code class="docutils literal notranslate"><span class="pre">label_formatter</span></code>. If no <code class="docutils literal notranslate"><span class="pre">label_formatter</span></code> is provided to the <code class="docutils literal notranslate"><span class="pre">host</span></code> function, the default is used:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">label_formatter</span> <span class="o">=</span> <span class="k">lambda</span> <span class="n">label</span><span class="p">,</span> <span class="n">index</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="n">label</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;__&#39;</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+</pre></div>
+</div>
+<p>This default splits the label value on <code class="docutils literal notranslate"><span class="pre">'__'</span></code> to store different labels and enable search on different values the the displayed labels. See “Searching” for details. Defining a custom label formatter is straight forward. As an example, let’s prefix each label with a string and add their index and layer name:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">custom_label_formatter</span><span class="p">(</span><span class="n">label</span><span class="p">,</span> <span class="n">index</span><span class="p">,</span> <span class="n">name</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">f</span><span class="s1">&#39;Example: {label} ({index}, {name})&#39;</span>
+
+<span class="n">host</span><span class="p">(</span><span class="s1">&#39;helix.faerun&#39;</span><span class="p">,</span> <span class="n">label_type</span><span class="o">=</span><span class="s1">&#39;default&#39;</span><span class="p">,</span>
+     <span class="n">theme</span><span class="o">=</span><span class="s1">&#39;dark&#39;</span><span class="p">,</span> <span class="n">label_formatter</span><span class="o">=</span><span class="n">custom_label_formatter</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>This function is then called whenever a label is requested from the server. In addition to the argument <code class="docutils literal notranslate"><span class="pre">label</span></code>, the arguments <code class="docutils literal notranslate"><span class="pre">index</span></code> and <code class="docutils literal notranslate"><span class="pre">name</span></code> can be used to further customize the displayed label and represent the integer index of the data point and the data layer they belong to (e.g. the name defined with <code class="docutils literal notranslate"><span class="pre">add_scatter</span></code>).</p>
+<img alt="Example of a custom label formatter." src="_images/tutorial_host_label.png" />
+</div>
+<div class="section" id="adding-hyperlinks">
+<h2>Adding Hyperlinks<a class="headerlink" href="#adding-hyperlinks" title="Permalink to this headline">¶</a></h2>
+<p>Faerun allows to link the data to an arbitrary URL which can be visited upon double-clicking a data point. In order to do this, a <code class="docutils literal notranslate"><span class="pre">link_formatter</span></code> has to be provided. This works similar to customizing the label.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">custom_link_formatter</span><span class="p">(</span><span class="n">label</span><span class="p">,</span> <span class="n">index</span><span class="p">,</span> <span class="n">name</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">f</span><span class="s1">&#39;https://www.google.com/search?q={label}&#39;</span>
+
+<span class="n">host</span><span class="p">(</span><span class="s1">&#39;helix.faerun&#39;</span><span class="p">,</span> <span class="n">label_type</span><span class="o">=</span><span class="s1">&#39;default&#39;</span><span class="p">,</span>
+     <span class="n">theme</span><span class="o">=</span><span class="s1">&#39;dark&#39;</span><span class="p">,</span> <span class="n">link_formatter</span><span class="o">=</span><span class="n">custom_link_formatter</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="searching">
+<h2>Searching<a class="headerlink" href="#searching" title="Permalink to this headline">¶</a></h2>
+<p>The hosted version of a Faerun visualization also allows for searching. As a default, the search searches for exact matches in labels (substring or regex searches are not possible at this time).</p>
+<img alt="The result of a search." src="_images/tutorial_host_search.png" />
+<p>However, the search can be customized. As described in “Formatting Labels”, additional label values can be added by separating them using <code class="docutils literal notranslate"><span class="pre">'__'</span></code>.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">c</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">randint</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">x</span><span class="p">))</span>
+<span class="n">labels</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;&#39;</span><span class="p">]</span> <span class="o">*</span> <span class="nb">len</span><span class="p">(</span><span class="n">c</span><span class="p">)</span>
+
+<span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">e</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">c</span><span class="p">):</span>
+    <span class="n">labels</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">)</span> <span class="o">+</span> <span class="s1">&#39;__&#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">i</span> <span class="o">%</span> <span class="mi">20</span><span class="p">)</span>
+
+<span class="n">data</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;x&#39;</span><span class="p">:</span> <span class="n">x</span><span class="p">,</span> <span class="s1">&#39;y&#39;</span><span class="p">:</span> <span class="n">y</span><span class="p">,</span> <span class="s1">&#39;z&#39;</span><span class="p">:</span> <span class="n">z</span><span class="p">,</span> <span class="s1">&#39;c&#39;</span><span class="p">:</span> <span class="n">c</span><span class="p">,</span> <span class="s1">&#39;labels&#39;</span><span class="p">:</span> <span class="n">labels</span><span class="p">}</span>
+</pre></div>
+</div>
+<p>The above examples adds an additional label value and as default, the second label value is then used by the search.</p>
+<img alt="The result of a custom search." src="_images/tutorial_host_search_2.png" />
+<p>If there are additional label values, the search index can be set using the <code class="docutils literal notranslate"><span class="pre">search_index</span></code> argument.</p>
+</div>
+<div class="section" id="add-info-documentation">
+<h2>Add Info / Documentation<a class="headerlink" href="#add-info-documentation" title="Permalink to this headline">¶</a></h2>
+<p>As the visualization is ready to be deployed to a publicly accessible web server, it might be of interest to add a documentation. The <code class="docutils literal notranslate"><span class="pre">host</span></code> method supports the argument <code class="docutils literal notranslate"><span class="pre">info</span></code> that accepts a (markdown formatted) string. This information is the desplayed on the generated web page.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">info</span> <span class="o">=</span> <span class="p">(</span><span class="s1">&#39;#Welcome to Fearun&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;This is a small Faerun example.&#39;</span>
+        <span class="s1">&#39;&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;Yay markdown! This means that you can easily:&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;- Add lists&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;- Build tables&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;- Insert images and links&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;- Add code examples&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;- ...&#39;</span>
+       <span class="p">)</span>
+
+<span class="n">host</span><span class="p">(</span><span class="s1">&#39;helix.faerun&#39;</span><span class="p">,</span> <span class="n">label_type</span><span class="o">=</span><span class="s1">&#39;default&#39;</span><span class="p">,</span> <span class="n">theme</span><span class="o">=</span><span class="s1">&#39;dark&#39;</span><span class="p">,</span>
+    <span class="n">label_formatter</span><span class="o">=</span><span class="n">custom_label_formatter</span><span class="p">,</span> <span class="n">link_formatter</span><span class="o">=</span><span class="n">custom_link_formatter</span><span class="p">,</span>
+    <span class="n">info</span><span class="o">=</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">info</span><span class="p">))</span>
+</pre></div>
+</div>
+<p>An info button is then shown next to the screenshot button, which upon click opens a window containing the info.</p>
+</div>
+<div class="section" id="complete-example">
+<h2>Complete Example<a class="headerlink" href="#complete-example" title="Permalink to this headline">¶</a></h2>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">pickle</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="kn">as</span> <span class="nn">np</span>
+<span class="kn">from</span> <span class="nn">faerun</span> <span class="kn">import</span> <span class="n">Faerun</span><span class="p">,</span> <span class="n">host</span>
+
+
+<span class="k">def</span> <span class="nf">main</span><span class="p">():</span>
+    <span class="n">f</span> <span class="o">=</span> <span class="n">Faerun</span><span class="p">(</span><span class="n">title</span><span class="o">=</span><span class="s1">&#39;faerun-example&#39;</span><span class="p">,</span> <span class="n">clear_color</span><span class="o">=</span><span class="s1">&#39;#222222&#39;</span><span class="p">,</span> <span class="n">coords</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span> <span class="n">view</span><span class="o">=</span><span class="s1">&#39;free&#39;</span><span class="p">)</span>
+
+    <span class="n">x</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mf">12.0</span><span class="p">,</span> <span class="mi">326</span><span class="p">)</span>
+    <span class="n">y</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">pi</span> <span class="o">*</span> <span class="n">x</span><span class="p">)</span>
+    <span class="n">z</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">pi</span> <span class="o">*</span> <span class="n">x</span><span class="p">)</span>
+    <span class="n">c</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">randint</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">x</span><span class="p">))</span>
+
+    <span class="n">labels</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;&#39;</span><span class="p">]</span> <span class="o">*</span> <span class="nb">len</span><span class="p">(</span><span class="n">c</span><span class="p">)</span>
+
+    <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">e</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">c</span><span class="p">):</span>
+        <span class="n">labels</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">)</span> <span class="o">+</span> <span class="s1">&#39;__&#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">i</span> <span class="o">%</span> <span class="mi">20</span><span class="p">)</span>
+
+    <span class="n">data</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;x&#39;</span><span class="p">:</span> <span class="n">x</span><span class="p">,</span> <span class="s1">&#39;y&#39;</span><span class="p">:</span> <span class="n">y</span><span class="p">,</span> <span class="s1">&#39;z&#39;</span><span class="p">:</span> <span class="n">z</span><span class="p">,</span> <span class="s1">&#39;c&#39;</span><span class="p">:</span> <span class="n">c</span><span class="p">,</span> <span class="s1">&#39;labels&#39;</span><span class="p">:</span> <span class="n">labels</span><span class="p">}</span>
+
+    <span class="n">f</span><span class="o">.</span><span class="n">add_scatter</span><span class="p">(</span><span class="s1">&#39;helix&#39;</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">shader</span><span class="o">=</span><span class="s1">&#39;sphere&#39;</span><span class="p">,</span> <span class="n">colormap</span><span class="o">=</span><span class="s1">&#39;Dark2&#39;</span><span class="p">,</span> <span class="n">point_scale</span><span class="o">=</span><span class="mf">5.0</span><span class="p">,</span>
+                <span class="n">categorical</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">has_legend</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">legend_labels</span><span class="o">=</span><span class="p">[(</span><span class="mi">0</span><span class="p">,</span> <span class="s1">&#39;Zero&#39;</span><span class="p">),</span> <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="s1">&#39;One&#39;</span><span class="p">)])</span>
+
+    <span class="n">f</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="s1">&#39;helix&#39;</span><span class="p">)</span>
+
+    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="s1">&#39;helix.faerun&#39;</span><span class="p">,</span> <span class="s1">&#39;wb+&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">handle</span><span class="p">:</span>
+        <span class="n">pickle</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="n">f</span><span class="o">.</span><span class="n">create_python_data</span><span class="p">(),</span> <span class="n">handle</span><span class="p">,</span> <span class="n">protocol</span><span class="o">=</span><span class="n">pickle</span><span class="o">.</span><span class="n">HIGHEST_PROTOCOL</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">custom_label_formatter</span><span class="p">(</span><span class="n">label</span><span class="p">,</span> <span class="n">index</span><span class="p">,</span> <span class="n">name</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">f</span><span class="s1">&#39;Example: {label} ({index}, {name})&#39;</span>
+
+    <span class="k">def</span> <span class="nf">custom_link_formatter</span><span class="p">(</span><span class="n">label</span><span class="p">,</span> <span class="n">index</span><span class="p">,</span> <span class="n">name</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">f</span><span class="s1">&#39;https://www.google.com/search?q={label}&#39;</span>
+
+    <span class="n">info</span> <span class="o">=</span> <span class="p">(</span><span class="s1">&#39;#Welcome to Fearun&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;This is a small Faerun example.&#39;</span>
+            <span class="s1">&#39;&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;Yay markdown! This means that you can easily:&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;- Add lists&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;- Build tables&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;- Insert images and links&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;- Add code examples&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;- ...&#39;</span>
+        <span class="p">)</span>
+
+    <span class="n">host</span><span class="p">(</span><span class="s1">&#39;helix.faerun&#39;</span><span class="p">,</span> <span class="n">label_type</span><span class="o">=</span><span class="s1">&#39;default&#39;</span><span class="p">,</span> <span class="n">theme</span><span class="o">=</span><span class="s1">&#39;dark&#39;</span><span class="p">,</span>
+        <span class="n">label_formatter</span><span class="o">=</span><span class="n">custom_label_formatter</span><span class="p">,</span> <span class="n">link_formatter</span><span class="o">=</span><span class="n">custom_link_formatter</span><span class="p">,</span>
+        <span class="n">info</span><span class="o">=</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">info</span><span class="p">))</span>
+
+
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s1">&#39;__main__&#39;</span><span class="p">:</span>
+    <span class="n">main</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="documentation.html" class="btn btn-neutral float-right" title="Documentation" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="tutorial.html" class="btn btn-neutral float-left" title="Getting Started" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2019, Daniel Probst (Reymond Group, University of Bern)
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

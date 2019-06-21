@@ -1,0 +1,313 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Getting Started &mdash; Faerun 1.0 documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+  <script type="text/javascript" src="_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script type="text/javascript" src="_static/jquery.js"></script>
+        <script type="text/javascript" src="_static/underscore.js"></script>
+        <script type="text/javascript" src="_static/doctools.js"></script>
+        <script type="text/javascript" src="_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Web" href="host.html" />
+    <link rel="prev" title="Welcome to Faerun’s documentation!" href="index.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="index.html" class="icon icon-home"> Faerun
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul class="current">
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Getting Started</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#installation">Installation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#create-a-plot-document">Create a Plot Document</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#preparing-data-for-plotting">Preparing Data for Plotting</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#adding-a-scatter-layer">Adding a Scatter Layer</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#saving-to-html">Saving to HTML</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#saving-to-faerun-data-file">Saving to Faerun Data File</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#complete-example">Complete Example</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="host.html">Web</a></li>
+<li class="toctree-l1"><a class="reference internal" href="documentation.html">Documentation</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">Faerun</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="index.html">Docs</a> &raquo;</li>
+        
+      <li>Getting Started</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="_sources/tutorial.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="getting-started">
+<h1>Getting Started<a class="headerlink" href="#getting-started" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="installation">
+<h2>Installation<a class="headerlink" href="#installation" title="Permalink to this headline">¶</a></h2>
+<p>Faerun can be installed using pip.</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>pip install faerun
+</pre></div>
+</div>
+<p>In order to use it in a script, the class <code class="docutils literal notranslate"><span class="pre">Faerun</span></code> has to be imported from the package.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">faerun</span> <span class="kn">import</span> <span class="n">Faerun</span>
+</pre></div>
+</div>
+<p>That’s it for the installation.</p>
+</div>
+<div class="section" id="create-a-plot-document">
+<h2>Create a Plot Document<a class="headerlink" href="#create-a-plot-document" title="Permalink to this headline">¶</a></h2>
+<p>In order to plot, a plot document has to be created. To do so, create an instance of the class <code class="docutils literal notranslate"><span class="pre">Faerun</span></code></p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">faerun</span> <span class="kn">import</span> <span class="n">Faerun</span>
+
+<span class="n">f</span> <span class="o">=</span> <span class="n">Faerun</span><span class="p">(</span><span class="n">title</span><span class="o">=</span><span class="s1">&#39;faerun-example&#39;</span><span class="p">,</span> <span class="n">clear_color</span><span class="o">=</span><span class="s1">&#39;#222222&#39;</span><span class="p">,</span> <span class="n">coords</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span> <span class="n">view</span><span class="o">=</span><span class="s1">&#39;free&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Here, we set the <code class="docutils literal notranslate"><span class="pre">title</span></code> of the plot document. This will be used as the title of the HTML document. The clear color of the canvas, which is the background color of the plot, is set to <code class="docutils literal notranslate"><span class="pre">'#222222'</span></code> (which is the hex-code for a dark gray).
+The drawing of coordinate axes is disabled by setting <code class="docutils literal notranslate"><span class="pre">coords=False</span></code> and since we want to draw 3D data, the argument <code class="docutils literal notranslate"><span class="pre">view</span></code> is set to <code class="docutils literal notranslate"><span class="pre">'free'</span></code> to enable the user to pan and rotate the plot.</p>
+</div>
+<div class="section" id="preparing-data-for-plotting">
+<h2>Preparing Data for Plotting<a class="headerlink" href="#preparing-data-for-plotting" title="Permalink to this headline">¶</a></h2>
+<p>The next step is to prepare the data which is to be plotted. In the tutorial, we will just generate some nice looking data using <code class="docutils literal notranslate"><span class="pre">numpy</span></code>.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">numpy</span> <span class="kn">as</span> <span class="nn">np</span>
+
+<span class="n">x</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mf">12.0</span><span class="p">,</span> <span class="mi">326</span><span class="p">)</span>
+<span class="n">y</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">pi</span> <span class="o">*</span> <span class="n">x</span><span class="p">)</span>
+<span class="n">z</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">pi</span> <span class="o">*</span> <span class="n">x</span><span class="p">)</span>
+<span class="n">c</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">randint</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">6</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">x</span><span class="p">))</span>
+</pre></div>
+</div>
+<p>This data can then be wrapped in a <code class="docutils literal notranslate"><span class="pre">dict</span></code>. In addition, <code class="docutils literal notranslate"><span class="pre">DataFrame</span></code> from the <code class="docutils literal notranslate"><span class="pre">pandas</span></code> package are also supported by faerun.
+In the example, the same values are used for the colors <code class="docutils literal notranslate"><span class="pre">c</span></code> and labels <code class="docutils literal notranslate"><span class="pre">labels</span></code>.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">data</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;x&#39;</span><span class="p">:</span> <span class="n">x</span><span class="p">,</span> <span class="s1">&#39;y&#39;</span><span class="p">:</span> <span class="n">y</span><span class="p">,</span> <span class="s1">&#39;z&#39;</span><span class="p">:</span> <span class="n">z</span><span class="p">,</span> <span class="s1">&#39;c&#39;</span><span class="p">:</span> <span class="n">c</span><span class="p">,</span> <span class="s1">&#39;labels&#39;</span><span class="p">:</span> <span class="n">c</span><span class="p">}</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="adding-a-scatter-layer">
+<h2>Adding a Scatter Layer<a class="headerlink" href="#adding-a-scatter-layer" title="Permalink to this headline">¶</a></h2>
+<p>Given the <code class="docutils literal notranslate"><span class="pre">Faerun</span></code> instance and the data, a scatter plot can be created using the method <code class="docutils literal notranslate"><span class="pre">add_scatter</span></code>.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">f</span><span class="o">.</span><span class="n">add_scatter</span><span class="p">(</span><span class="s1">&#39;helix&#39;</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">shader</span><span class="o">=</span><span class="s1">&#39;sphere&#39;</span><span class="p">,</span> <span class="n">colormap</span><span class="o">=</span><span class="s1">&#39;Dark2&#39;</span><span class="p">,</span> <span class="n">point_scale</span><span class="o">=</span><span class="mf">5.0</span><span class="p">,</span>
+              <span class="n">categorical</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">has_legend</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">legend_labels</span><span class="o">=</span><span class="p">[(</span><span class="mi">0</span><span class="p">,</span> <span class="s1">&#39;Zero&#39;</span><span class="p">),</span> <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="s1">&#39;One&#39;</span><span class="p">)])</span>
+</pre></div>
+</div>
+<p>The data is added as a scatter layer named helix. The chose shader will render the data points as
+spheres (with diffuse and specular lighting) of size 5.0 with colors from the <code class="docutils literal notranslate"><span class="pre">matplotlib</span></code> colormap <code class="docutils literal notranslate"><span class="pre">'Dark2'</span></code>.
+As the <code class="docutils literal notranslate"><span class="pre">c</span></code> is categorical, the parameter <code class="docutils literal notranslate"><span class="pre">categorical</span></code> is set to <code class="docutils literal notranslate"><span class="pre">True</span></code>, otherwise <code class="docutils literal notranslate"><span class="pre">matplotlib</span></code> will mess up the values.</p>
+<p>Finally, <code class="docutils literal notranslate"><span class="pre">has_legend=True</span></code> adds the scatter layer to the legend and <code class="docutils literal notranslate"><span class="pre">legend_labels</span></code> is a <code class="docutils literal notranslate"><span class="pre">list</span></code> of <code class="docutils literal notranslate"><span class="pre">tuple</span></code>, associating values with a label.</p>
+</div>
+<div class="section" id="saving-to-html">
+<h2>Saving to HTML<a class="headerlink" href="#saving-to-html" title="Permalink to this headline">¶</a></h2>
+<p>The faerun document can the be plotted to an HTML document with an accompanying JavaScript data file.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">f</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="s1">&#39;helix&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>This saves the plot as <code class="docutils literal notranslate"><span class="pre">helix.html`</span> <span class="pre">and</span> <span class="pre">``helix.js</span></code>. The files can be opened locally or hosted on any web server.</p>
+<img alt="A helix drawn using faerun." src="_images/tutorial.png" />
+</div>
+<div class="section" id="saving-to-faerun-data-file">
+<h2>Saving to Faerun Data File<a class="headerlink" href="#saving-to-faerun-data-file" title="Permalink to this headline">¶</a></h2>
+<p>The faerun document can also be exported to a faerun data file, which in turn can then be hosted using the <code class="docutils literal notranslate"><span class="pre">web</span></code> module.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">pickle</span>
+
+<span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="s1">&#39;helix.faerun&#39;</span><span class="p">,</span> <span class="s1">&#39;wb+&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">handle</span><span class="p">:</span>
+    <span class="n">pickle</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="n">f</span><span class="o">.</span><span class="n">create_python_data</span><span class="p">(),</span> <span class="n">handle</span><span class="p">,</span> <span class="n">protocol</span><span class="o">=</span><span class="n">pickle</span><span class="o">.</span><span class="n">HIGHEST_PROTOCOL</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="complete-example">
+<h2>Complete Example<a class="headerlink" href="#complete-example" title="Permalink to this headline">¶</a></h2>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">pickle</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="kn">as</span> <span class="nn">np</span>
+<span class="kn">from</span> <span class="nn">faerun</span> <span class="kn">import</span> <span class="n">Faerun</span>
+
+<span class="k">def</span> <span class="nf">main</span><span class="p">():</span>
+    <span class="n">f</span> <span class="o">=</span> <span class="n">Faerun</span><span class="p">(</span><span class="n">title</span><span class="o">=</span><span class="s1">&#39;faerun-example&#39;</span><span class="p">,</span> <span class="n">clear_color</span><span class="o">=</span><span class="s1">&#39;#222222&#39;</span><span class="p">,</span> <span class="n">coords</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span> <span class="n">view</span><span class="o">=</span><span class="s1">&#39;free&#39;</span><span class="p">)</span>
+
+    <span class="n">x</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mf">12.0</span><span class="p">,</span> <span class="mi">326</span><span class="p">)</span>
+    <span class="n">y</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">pi</span> <span class="o">*</span> <span class="n">x</span><span class="p">)</span>
+    <span class="n">z</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">pi</span> <span class="o">*</span> <span class="n">x</span><span class="p">)</span>
+    <span class="n">c</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">randint</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">x</span><span class="p">))</span>
+
+    <span class="n">data</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;x&#39;</span><span class="p">:</span> <span class="n">x</span><span class="p">,</span> <span class="s1">&#39;y&#39;</span><span class="p">:</span> <span class="n">y</span><span class="p">,</span> <span class="s1">&#39;z&#39;</span><span class="p">:</span> <span class="n">z</span><span class="p">,</span> <span class="s1">&#39;c&#39;</span><span class="p">:</span> <span class="n">c</span><span class="p">,</span> <span class="s1">&#39;labels&#39;</span><span class="p">:</span> <span class="n">c</span><span class="p">}</span>
+
+    <span class="n">f</span><span class="o">.</span><span class="n">add_scatter</span><span class="p">(</span><span class="s1">&#39;helix&#39;</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">shader</span><span class="o">=</span><span class="s1">&#39;sphere&#39;</span><span class="p">,</span> <span class="n">colormap</span><span class="o">=</span><span class="s1">&#39;Dark2&#39;</span><span class="p">,</span> <span class="n">point_scale</span><span class="o">=</span><span class="mf">5.0</span><span class="p">,</span>
+                <span class="n">categorical</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">has_legend</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">legend_labels</span><span class="o">=</span><span class="p">[(</span><span class="mi">0</span><span class="p">,</span> <span class="s1">&#39;Zero&#39;</span><span class="p">),</span> <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="s1">&#39;One&#39;</span><span class="p">)])</span>
+
+    <span class="n">f</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="s1">&#39;helix&#39;</span><span class="p">)</span>
+
+    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="s1">&#39;helix.faerun&#39;</span><span class="p">,</span> <span class="s1">&#39;wb+&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">handle</span><span class="p">:</span>
+        <span class="n">pickle</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="n">f</span><span class="o">.</span><span class="n">create_python_data</span><span class="p">(),</span> <span class="n">handle</span><span class="p">,</span> <span class="n">protocol</span><span class="o">=</span><span class="n">pickle</span><span class="o">.</span><span class="n">HIGHEST_PROTOCOL</span><span class="p">)</span>
+
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s1">&#39;__main__&#39;</span><span class="p">:</span>
+    <span class="n">main</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="host.html" class="btn btn-neutral float-right" title="Web" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="index.html" class="btn btn-neutral float-left" title="Welcome to Faerun’s documentation!" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2019, Daniel Probst (Reymond Group, University of Bern)
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>
