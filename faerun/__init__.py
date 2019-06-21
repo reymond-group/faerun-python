@@ -1,5 +1,5 @@
 import os
-from faerun.plotter import Faerun
+from faerun.faerun import Faerun
 from faerun.web import host
 
 _ROOT = os.path.abspath(os.path.dirname(__file__))

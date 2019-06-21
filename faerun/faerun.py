@@ -1,3 +1,9 @@
+"""
+faerun.py
+====================================
+The main module containing the Faerun class. 
+"""
+
 import os
 import jinja2
 import math
@@ -8,10 +14,11 @@ import matplotlib.pyplot as plt
 
 
 class Faerun(object):
-    """ The main class for generating Faerun visualizations
-    """
+    """Creates a faerun object which is an empty plotting surface where
+     layers such as scatter plots can be added."""
 
-    def __init__(self, title='python-faerun', clear_color='#111111', coords=True, coords_color='#888888', coords_box=False, view='free', scale=750):
+    def __init__(self, title='python-faerun', clear_color='#111111', coords=True,
+                 coords_color='#888888', coords_box=False, view='free', scale=750):
         """Constructor for Faerun
 
         Keyword Arguments:
@@ -89,8 +96,8 @@ class Faerun(object):
         if mapping['z'] not in data:
             data[mapping['z']] = [0] * len(data[mapping['x']])
 
-        min_c = min(data[mapping['c']])
-        max_c = max(data[mapping['c']])
+        min_c = float(min(data[mapping['c']]))
+        max_c = float(max(data[mapping['c']]))
         len_c = len(data[mapping['c']])
 
         is_range = False
@@ -161,7 +168,7 @@ class Faerun(object):
         Keyword Arguments:
             file_name {str} -- The name of the HTML / JS file (default: {'index'})
             path {str} -- The path to which to write the HTML / JS file (default: {'./'})
-            template {str} -- The name of the template to use (default: {'default'})
+            template {str} -- The name of the template to use. (default: {'default'})
             legend_title {str} -- The legend title (default: {'Legend'})
             legend_orientation {str} -- The orientation of the legend (vertical or horizontal) (default: {'vertical'})
         """
@@ -296,7 +303,8 @@ class Faerun(object):
                 [s * (z - minimum) / diff for z in data[mapping['z']]], dtype=np.float32)
 
             if mapping['labels'] in data:
-                output[name]['labels'] = data[mapping['labels']]
+                # Make sure that the labels are always strings
+                output[name]['labels'] = list(map(str, data[mapping['labels']]))
 
             if mapping['s'] in data:
                 output[name]['s'] = np.array(

@@ -1,5 +1,4 @@
 include faerun/template_default.j2
 include faerun/template_smiles.j2
 include faerun/template_url_image.j2
-include faerun/assets/index.html
 include faerun/assets/index_static.html

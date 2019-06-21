@@ -63,8 +63,8 @@
         .annotation { position: absolute; z-index: 96; background: #fff; border-radius: 2px; padding: 5px;
                       filter: drop-shadow(0px 0px 5px rgba(0, 0, 0, 1.0));
                       font-size: 0.75em; color: #222222; top: 200px; left: 200px;
-                      color: #222222; font-family: 'Open Sans';
-                      user-select: none; pointer-events: none; }
+                      color: #222222; font-family: 'Open Sans'; text-align: center;
+                      user-select: none; pointer-events: none; min-width: 50px; }
 
         .annotation:after { content: ''; position: absolute; bottom: 0; left: 50%; width: 0; height: 0;
                             border: 12px solid transparent; border-top-color: #fff; border-bottom: 0;
@@ -155,8 +155,10 @@
 
         /* Set up themes */
         let themes = {
-            dark: { background: '#1f1f1f', grid: '#333333', controls: '#ffffff', hoverIndicator: '#ffffff' },
-            light: { background: '#ffffff', grid: '#eeeeee', controls: '#000000', hoverIndicator: '#000000' }
+            dark: { background: '#1f1f1f', grid: '#333333', controls: '#ffffff', hoverIndicator: '#ffffff',
+                    smilesDrawerTheme: 'dark', smilesDrawerBackground: '#000000', text: '#eeeeee' },
+            light: { background: '#ffffff', grid: '#eeeeee', controls: '#000000', hoverIndicator: '#000000',
+                    smilesDrawerTheme: 'light', smilesDrawerBackground: '#ffffff', text: '#222222' }
         }
 
         // This is set to a theme once meta is loaded.
@@ -406,7 +408,7 @@
                         
                         if (labelType === 'smiles') {
                             SmilesDrawer.parse(currentPoint.label, tree => {
-                                smilesDrawer.draw(tree, 'smiles-canvas', 'light', false);
+                                smilesDrawer.draw(tree, 'smiles-canvas', theme.smilesDrawerTheme, false);
                                 tipImage.src = canvas.toDataURL();
                                 tip.classList.add('show');
                                 tip.classList.add('smiles');
@@ -596,14 +598,16 @@
             get_index(value, Object.keys(meta.scatter)[0]).then(results => {
                 console.log(results);
                 for (result of results) {
-                    if (result[1] >= 0) {
-                        let annotation = document.createElement('div');
-                        annotation.innerHTML = result[0];
-                        annotation.setAttribute('data-index', result[1]);
-                        annotation.classList.add('annotation');
-                        document.body.appendChild(annotation);
-                        annotations.push(annotation);
-                        updatePositions();
+                    if (result[1].length > 0) {
+                        for (let r of result[1]) {
+                            let annotation = document.createElement('div');
+                            annotation.innerHTML = result[0];
+                            annotation.setAttribute('data-index', r);
+                            annotation.classList.add('annotation');
+                            document.body.appendChild(annotation);
+                            annotations.push(annotation);
+                            updatePositions();
+                        }
                     }
                 }
             });
@@ -687,6 +691,8 @@
                 controlsContainer.children[i].style.color = theme.controls;
             
             hoverIndicator.style.borderColor = theme.hoverIndicator;
+            tip.style.backgroundColor = theme.smilesDrawerBackground;
+            tip.style.color = theme.text;
         }
 
         // Small helpers

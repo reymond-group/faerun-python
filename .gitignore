@@ -64,7 +64,7 @@ instance/
 .scrapy
 
 # Sphinx documentation
-docs/_build/
+# docs/_build
 
 # PyBuilder
 target/
@@ -103,8 +103,6 @@ venv.bak/
 # mypy
 .mypy_cache/
 
-# Index
-index.html
-
 # Data
 data.js
+*.faerun

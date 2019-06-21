@@ -1,4 +1,8 @@
-""" An utility module containing all that's needed to host faerun data visualizations """
+"""
+web.py
+====================================
+An utility module containing all that's needed to host faerun data visualizations.
+"""
 import os
 import pickle
 import sys
@@ -35,6 +39,7 @@ import ujson
 def json_handler(*args, **kwargs):
     """ The default cherrypy json encoder seems to be extremely slow... """
     value = cherrypy.serving.request._json_inner_handler(*args, **kwargs)
+    print(value)
     return ujson.dumps(value).encode('utf8')
 
 
@@ -42,13 +47,13 @@ class FaerunWeb():
     """ A cherrypy controller class for hosting fearun visualizations """
 
     def __init__(self, path, label_type='smiles', theme='light', label_formatter=None, link_formatter=None,
-                 info=None, legend=False, legend_title='Legend', view='front'):
+                 info=None, legend=False, legend_title='Legend', view='front', search_index=1):
         if not os.path.isfile(path):
             print('File not found: ' + path)
             sys.exit(1)
 
         if label_formatter is None:
-            label_formatter = lambda label, index, name: label
+            label_formatter = lambda label, index, name: label.split('__')[0]
 
         if link_formatter is None:
             link_formatter = lambda label, index, name: ''
@@ -63,6 +68,7 @@ class FaerunWeb():
         self.legend = legend
         self.legend_title = legend_title
         self.view = view
+        self.search_index = search_index
 
         for name in self.data:
             if self.data[name]['type'] != 'scatter':
@@ -73,13 +79,14 @@ class FaerunWeb():
             # seperated by __ in the label field
             self.ids[name] = []
 
-            if '__' in self.data[name]['labels'][0]:
+            if isinstance(self.data[name]['labels'][0], str) and '__' in self.data[name]['labels'][0]:
                 for _, label in enumerate(self.data[name]['labels']):
                     vals = label.split('__')
                     self.ids[name].append(vals[1].lower())
             else:
                 for _, label in enumerate(self.data[name]['labels']):
-                    self.ids[name].append(label.lower())
+                    self.ids[name].append(str(label).lower())
+
 
     @cherrypy.expose
     def index(self, **params):
@@ -177,16 +184,16 @@ class FaerunWeb():
         for label in labels.split(','):
             label = label.strip().lower()
             try:
-                results.append([label, self.ids[name].index(label)])
+                results.append([label, [i for i, v in enumerate(self.ids[name]) if v == label]])
             except ValueError:
-                results.append([label, -1])
+                results.append([label, []])
 
         return results
 
 
-def host(path, label_type='smiles', theme='light', label_formatter=None, link_formatter=None, 
-         info=None, legend=False, legend_title='Legend', view='front'):
-    """Start a cherrypy server hosting a faerun visualization
+def host(path, label_type='smiles', theme='light', label_formatter=None, link_formatter=None,
+         info=None, legend=False, legend_title='Legend', view='front', search_index=1):    
+    """Start a cherrypy server hosting a Faerun visualization
 
     Arguments:
         path {str} -- The path to the fearun data file
@@ -196,7 +203,12 @@ def host(path, label_type='smiles', theme='light', label_formatter=None, link_fo
         theme {str} -- The theme to use in the front-end (default: {'light'})
         label_formatter {FunctionType} -- A function used for formatting labels (default: {None})
         link_formatter {FunctionType} -- A function used for formatting links (default: {None})
+        info {str} -- A string containing markdown content that is shown as an info in the visualization (default: {None})
+        legend {bool} -- Whether or not to show the legend (default: {False})
+        legend_title {str} -- The title of the legend (default: {'Legend'})
+        view {str} -- The view type ('front', 'back', 'top', 'bottom', 'right', 'left', or 'free') (default: {'front'})
+        search_index {int} -- The index in the label values that is used for searching (default: {1})
     """
     cherrypy.quickstart(FaerunWeb(path, label_type, theme, label_formatter=label_formatter,
                                   link_formatter=link_formatter, info=info, legend=legend,
-                                  legend_title=legend_title, view=view))
+                                  legend_title=legend_title, view=view, search_index=search_index))
