@@ -6,22 +6,23 @@ An utility module containing all that's needed to host faerun data visualization
 import os
 import pickle
 import sys
+from typing import Callable, IO
 
 import cherrypy
-import faerun
 import numpy as np
 import ujson
 
+import faerun
 
 # def index_file(path, out_path):
 #     """Create an index for the faerun data file to provide quick access to labels
 
 #     Arguments:
-#         path {str} -- Path of the input faerun data file
-#         out_path {str} -- Path of the output index file
+#         path (:obj:`str`): Path of the input faerun data file
+#         out_path (:obj:`str`): Path of the output index file
 
 #     Returns:
-#         list -- The in memory index
+#         list: The in memory index
 #     """
 #     indices = []
 #     with open(out_path, 'w+') as f_out:
@@ -46,8 +47,27 @@ def json_handler(*args, **kwargs):
 class FaerunWeb():
     """ A cherrypy controller class for hosting fearun visualizations """
 
-    def __init__(self, path, label_type='smiles', theme='light', label_formatter=None, link_formatter=None,
-                 info=None, legend=False, legend_title='Legend', view='front', search_index=1):
+    def __init__(self, path: str, label_type: str = 'smiles', theme: str = 'light',
+                 label_formatter: Callable[[str, int, str], str] = None,
+                 link_formatter: Callable[[str, int, str], str] = None,
+                 info: str = None, legend: str = False, legend_title: str ='Legend',
+                 view: str = 'front', search_index: int = 1):
+        """The constructor for the Faerun web server.
+        
+        Arguments:
+            path (:obj:`str`) -- The path to the faerun data file
+        
+        Keyword Arguments:
+            label_type (:obj:`str`): The type of the labels
+            theme (:obj:`str`): The theme to use in the front-end
+            label_formatter (:obj:`Callable[[str, int, str], str]`): A function used for formatting labels
+            link_formatter (:obj:`Callable[[str, int, str], str]`): A function used for formatting links
+            info (:obj:`str`): A string containing markdown content that is shown as an info in the visualization
+            legend (:obj:`bool`): Whether or not to show the legend
+            legend_title (:obj:`str`): The title of the legend
+            view (:obj:`str`): The view type ('front', 'back', 'top', 'bottom', 'right', 'left', or 'free')
+            search_index (:obj:`int`): The index in the label values that is used for searching
+        """
         if not os.path.isfile(path):
             print('File not found: ' + path)
             sys.exit(1)
@@ -89,11 +109,11 @@ class FaerunWeb():
 
 
     @cherrypy.expose
-    def index(self, **params):
+    def index(self, **params) -> IO:
         """GET the HTML file
 
         Returns:
-            FileType -- The HTML file
+            FileType: The HTML file
         """
         return open(faerun.get_asset('index_static.html'))
 
@@ -101,11 +121,11 @@ class FaerunWeb():
     @cherrypy.tools.allow(methods=['POST'])
     @cherrypy.tools.json_out(handler=json_handler)
     @cherrypy.tools.json_in()
-    def get_meta(self):
-        """Get the meta data for the fearun visualization (layers, ...)
+    def get_meta(self) -> dict:
+        """Get the meta data for the fearun visualization (layers, ...).
 
         Returns:
-            dict -- A dict containing the meta information
+            dict: A dict containing the meta information
         """
         meta = {}
         meta['label_type'] = self.label_type
@@ -126,11 +146,11 @@ class FaerunWeb():
     @cherrypy.tools.allow(methods=['POST'])
     # @cherrypy.tools.json_out(handler=json_handler)
     @cherrypy.tools.json_in()
-    def get_values(self):
-        """Get one set of coordinates or colors (x, y, z, r, g, b) for a faerun layer
+    def get_values(self) -> bytes:
+        """Get one set of coordinates or colors (x, y, z, r, g, b) for a faerun layer.
 
         Returns:
-            bytes -- An array of values encoded as bytes
+            bytes: An array of values encoded as bytes
         """
         input_json = cherrypy.request.json
         name = input_json['name']
@@ -148,11 +168,11 @@ class FaerunWeb():
     @cherrypy.tools.allow(methods=['POST'])
     @cherrypy.tools.json_out(handler=json_handler)
     @cherrypy.tools.json_in()
-    def get_label(self):
-        """Gets the label of a data point based on the layer name and data point index
+    def get_label(self) -> dict:
+        """Gets the label of a data point based on the layer name and data point index.
 
         Returns:
-            dict -- A dict containing the formatted label and link
+            dict: A dict containing the formatted label and link
         """
         input_json = cherrypy.request.json
         index = input_json['id']
@@ -168,11 +188,11 @@ class FaerunWeb():
     @cherrypy.tools.allow(methods=['POST'])
     @cherrypy.tools.json_out(handler=json_handler)
     @cherrypy.tools.json_in()
-    def get_index(self):
-        """Get the indices of one or more data point based their labels and layer name
+    def get_index(self) -> list:
+        """Get the indices of one or more data point based their labels and layer name.
 
         Returns:
-            list -- A list of label - index pairs
+            list: A list of label - index pairs
         """
         input_json = cherrypy.request.json
         labels = input_json['label']
@@ -191,23 +211,27 @@ class FaerunWeb():
         return results
 
 
-def host(path, label_type='smiles', theme='light', label_formatter=None, link_formatter=None,
-         info=None, legend=False, legend_title='Legend', view='front', search_index=1):    
-    """Start a cherrypy server hosting a Faerun visualization
+def host(path: str, label_type: str = 'smiles', theme: str = 'light',
+         label_formatter: Callable[[str, int, str], str] = None,
+         link_formatter: Callable[[str, int, str], str] = None,
+         info: str = None, legend: bool = False, legend_title: str = 'Legend',
+         view: str = 'front', search_index: int = 1):
+    """Start a cherrypy server hosting a Faerun visualization.
 
     Arguments:
-        path {str} -- The path to the fearun data file
+        path (:obj:`str`): The path to the fearun data file
 
     Keyword Arguments:
-        label_type {str} -- The type of the labels (default: {'smiles'})
-        theme {str} -- The theme to use in the front-end (default: {'light'})
-        label_formatter {FunctionType} -- A function used for formatting labels (default: {None})
-        link_formatter {FunctionType} -- A function used for formatting links (default: {None})
-        info {str} -- A string containing markdown content that is shown as an info in the visualization (default: {None})
-        legend {bool} -- Whether or not to show the legend (default: {False})
-        legend_title {str} -- The title of the legend (default: {'Legend'})
-        view {str} -- The view type ('front', 'back', 'top', 'bottom', 'right', 'left', or 'free') (default: {'front'})
-        search_index {int} -- The index in the label values that is used for searching (default: {1})
+        label_type (:obj:`str`): The type of the labels
+        theme (:obj:`str`): The theme to use in the front-end
+        label_formatter (:obj:`Callable[[str, int, str], str]`): A function used for formatting labels
+        link_formatter (:obj:`Callable[[str, int, str], str]`): A function used for formatting links
+        info (:obj:`str`): A string containing markdown content that is shown as an info in the visualization
+        legend (:obj:`bool`): Whether or not to show the legend
+        legend_title (:obj:`str`): The title of the legend
+        view (:obj:`str`): The view type ('front', 'back', 'top', 'bottom', 'right', 'left', or 'free')
+        search_index (:obj:`int`): The index in the label values that is used for searching
+
     """
     cherrypy.quickstart(FaerunWeb(path, label_type, theme, label_formatter=label_formatter,
                                   link_formatter=link_formatter, info=info, legend=legend,

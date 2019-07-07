@@ -1,0 +1,7 @@
+faerun
+======
+
+.. toctree::
+   :maxdepth: 4
+
+   faerun

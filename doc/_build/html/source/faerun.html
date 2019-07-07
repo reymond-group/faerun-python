@@ -1,0 +1,529 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>faerun package &mdash; Faerun 1.0 documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+  <script type="text/javascript" src="../_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+        <script type="text/javascript" src="../_static/jquery.js"></script>
+        <script type="text/javascript" src="../_static/underscore.js"></script>
+        <script type="text/javascript" src="../_static/doctools.js"></script>
+        <script type="text/javascript" src="../_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../index.html" class="icon icon-home"> Faerun
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../tutorial.html">Getting Started</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../host.html">Web</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../documentation.html">Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../documentation.html#submodules">Submodules</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../documentation.html#module-faerun.faerun">faerun.faerun module</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../documentation.html#module-faerun.web">faerun.web module</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../documentation.html#module-faerun">Module contents</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">Faerun</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../index.html">Docs</a> &raquo;</li>
+        
+      <li>faerun package</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="../_sources/source/faerun.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="faerun-package">
+<h1>faerun package<a class="headerlink" href="#faerun-package" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="submodules">
+<h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this headline">¶</a></h2>
+</div>
+<div class="section" id="module-faerun.faerun">
+<span id="faerun-faerun-module"></span><h2>faerun.faerun module<a class="headerlink" href="#module-faerun.faerun" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="faerun-py">
+<h3>faerun.py<a class="headerlink" href="#faerun-py" title="Permalink to this headline">¶</a></h3>
+<p>The main module containing the Faerun class.</p>
+<dl class="class">
+<dt id="faerun.faerun.Faerun">
+<em class="property">class </em><code class="descclassname">faerun.faerun.</code><code class="descname">Faerun</code><span class="sig-paren">(</span><em>title='python-faerun'</em>, <em>clear_color='#111111'</em>, <em>coords=True</em>, <em>coords_color='#888888'</em>, <em>coords_box=False</em>, <em>view='free'</em>, <em>scale=750</em><span class="sig-paren">)</span><a class="headerlink" href="#faerun.faerun.Faerun" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Creates a faerun object which is an empty plotting surface where
+layers such as scatter plots can be added.</p>
+<dl class="method">
+<dt id="faerun.faerun.Faerun.__init__">
+<code class="descname">__init__</code><span class="sig-paren">(</span><em>title='python-faerun'</em>, <em>clear_color='#111111'</em>, <em>coords=True</em>, <em>coords_color='#888888'</em>, <em>coords_box=False</em>, <em>view='free'</em>, <em>scale=750</em><span class="sig-paren">)</span><a class="headerlink" href="#faerun.faerun.Faerun.__init__" title="Permalink to this definition">¶</a></dt>
+<dd><p>Constructor for Faerun</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name" colspan="2">Keyword Arguments:</th></tr>
+<tr class="field-odd field"><td>&#160;</td><td class="field-body"><ul class="first last simple">
+<li><strong>{str} -- The title of the generated HTML file</strong><strong> (</strong><strong>default</strong> (<em>title</em>) – {‘python-faerun’})</li>
+<li><strong>{str} -- The background color of the plot</strong><strong> (</strong><strong>default</strong> (<em>clear_color</em>) – {‘#111111’})</li>
+<li><strong>{bool} -- Show the coordinate axes in the plot</strong><strong> (</strong><strong>default</strong> (<em>coords</em>) – {True})</li>
+<li><strong>{str} -- The color of the coordinate axes</strong><strong> (</strong><strong>default</strong> (<em>coords_color</em>) – {‘#888888’})</li>
+<li><strong>{bool} -- Show a box around the coordinate axes</strong><strong> (</strong><strong>default</strong> (<em>coords_box</em>) – {False})</li>
+<li><strong>{str} -- The view</strong> (<em>view</em>) – {‘free’})</li>
+<li><strong>{int} -- To what size to scale the coordinates</strong> (<em>scale</em>) – {750})</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="faerun.faerun.Faerun.add_scatter">
+<code class="descname">add_scatter</code><span class="sig-paren">(</span><em>name</em>, <em>data</em>, <em>mapping={'c': 'c'</em>, <em>'cs': 'cs'</em>, <em>'labels': 'labels'</em>, <em>'s': 's'</em>, <em>'x': 'x'</em>, <em>'y': 'y'</em>, <em>'z': 'z'}</em>, <em>colormap='plasma'</em>, <em>shader='sphere'</em>, <em>point_scale=1.0</em>, <em>max_point_size=100</em>, <em>fog_intensity=0.0</em>, <em>saturation_limit=0.2</em>, <em>categorical=False</em>, <em>interactive=True</em>, <em>has_legend=False</em>, <em>legend_title=None</em>, <em>legend_labels=None</em><span class="sig-paren">)</span><a class="headerlink" href="#faerun.faerun.Faerun.add_scatter" title="Permalink to this definition">¶</a></dt>
+<dd><p>Add a scatter layer to the plot</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>{str} -- The name of the layer</strong> (<em>name</em>) – </li>
+<li><strong>{object} -- A Python dict</strong><strong> or </strong><strong>Pandas DataFrame containing the data</strong> (<em>data</em>) – </li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name" colspan="2">Keyword Arguments:</th></tr>
+<tr class="field-even field"><td>&#160;</td><td class="field-body"><ul class="first last simple">
+<li><strong>{dict} -- The keys which contain the data in the input dict</strong><strong> or </strong><strong>DataFrame</strong><strong> (</strong><strong>default</strong> (<em>mapping</em>) – {{‘x’: ‘x’, ‘y’: ‘y’, ‘z’: ‘z’, ‘c’: ‘c’, ‘cs’: ‘cs’, ‘s’: ‘s’, ‘labels’: ‘labels’}})</li>
+<li><strong>{str} -- The name of the colormap</strong> (<em>colormap</em>) – {‘plasma’})</li>
+<li><strong>{str} -- The name of the shader to use for the data point visualization</strong><strong> (</strong><strong>default</strong> (<em>shader</em>) – {‘sphere’})</li>
+<li><strong>{float} -- The relative size of the data points</strong><strong> (</strong><strong>default</strong> (<em>point_scale</em>) – {1.0})</li>
+<li><strong>{int} -- The maximum size of the data points when zooming in</strong><strong> (</strong><strong>default</strong> (<em>max_point_size</em>) – {100})</li>
+<li><strong>{float} -- The intensity of the distance fog</strong><strong> (</strong><strong>default</strong> (<em>fog_intensity</em>) – {0.0})</li>
+<li><strong>{float} -- The minimum saturation to avoid &quot;gray soup&quot;</strong><strong> (</strong><strong>default</strong> (<em>saturation_limit</em>) – {0.2})</li>
+<li><strong>{bool} -- Whether this scatter layer is categorical</strong><strong> (</strong><strong>default</strong> (<em>categorical</em>) – {False})</li>
+<li><strong>{bool} -- Whether this scatter layer is interactive</strong><strong> (</strong><strong>default</strong> (<em>interactive</em>) – {True})</li>
+<li><strong>{bool} -- Whether</strong><strong> or </strong><strong>not to draw a legend</strong><strong> (</strong><strong>default</strong> (<em>has_legend</em>) – {False})</li>
+<li><strong>{str} -- The title of the legend</strong><strong> (</strong><strong>default</strong> (<em>legend_title</em>) – {None})</li>
+<li><strong>{dict} -- A dict mapping values to legend labels</strong><strong> (</strong><strong>default</strong> (<em>legend_labels</em>) – {None})</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="faerun.faerun.Faerun.add_tree">
+<code class="descname">add_tree</code><span class="sig-paren">(</span><em>name</em>, <em>data</em>, <em>mapping={'c': 'c'</em>, <em>'from': 'from'</em>, <em>'to': 'to'</em>, <em>'x': 'x'</em>, <em>'y': 'y'</em>, <em>'z': 'z'}</em>, <em>color='#666666'</em>, <em>colormap='plasma'</em>, <em>fog_intensity=0.0</em>, <em>point_helper=None</em><span class="sig-paren">)</span><a class="headerlink" href="#faerun.faerun.Faerun.add_tree" title="Permalink to this definition">¶</a></dt>
+<dd><p>Add a tree layer to the plot</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>{str} -- The name of the layer</strong> (<em>name</em>) – </li>
+<li><strong>{object} -- A Python  dict</strong><strong> or </strong><strong>Pandas DataFrame containing the data</strong> (<em>data</em>) – </li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name" colspan="2">Keyword Arguments:</th></tr>
+<tr class="field-even field"><td>&#160;</td><td class="field-body"><ul class="first last simple">
+<li><strong>{dict} -- The keys which contain the data in the input dict</strong><strong> or </strong><strong>DataFrame</strong><strong> (</strong><strong>default</strong> (<em>mapping</em>) – {{‘from’: ‘from’, ‘to’: ‘to’, ‘x’: ‘x’, ‘y’: ‘y’, ‘z’: ‘z’, ‘c’: ‘c’}})</li>
+<li><strong>{str} -- The default color of the tree</strong><strong> (</strong><strong>default</strong> (<em>color</em>) – {‘#666666’})</li>
+<li><strong>{str} -- The name of the colormap</strong> (<em>colormap</em>) – {‘plasma’})</li>
+<li><strong>{float} -- The intensity of the distance fog</strong><strong> (</strong><strong>default</strong> (<em>fog_intensity</em>) – {0.0})</li>
+<li><strong>{str} -- The name of the scatter layer to associate with this tree layer</strong> (<em>point_helper</em>) – {None})</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="faerun.faerun.Faerun.create_data">
+<code class="descname">create_data</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#faerun.faerun.Faerun.create_data" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns a JavaScript string defining a JavaScript object containing the data</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">str – JavaScript code defining an object containing the data</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="faerun.faerun.Faerun.create_python_data">
+<code class="descname">create_python_data</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#faerun.faerun.Faerun.create_python_data" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns a Python dict containing the data</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">dict – The data defined in this Faerun instance</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="staticmethod">
+<dt id="faerun.faerun.Faerun.discrete_cmap">
+<em class="property">static </em><code class="descname">discrete_cmap</code><span class="sig-paren">(</span><em>n_colors</em>, <em>base_cmap=None</em><span class="sig-paren">)</span><a class="headerlink" href="#faerun.faerun.Faerun.discrete_cmap" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create an N-bin discrete colormap from the specified input map</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>{int} -- The number of discrete colors to generate</strong> (<em>n_colors</em>) – </td>
+</tr>
+<tr class="field-even field"><th class="field-name" colspan="2">Keyword Arguments:</th></tr>
+<tr class="field-even field"><td>&#160;</td><td class="field-body"><strong>{Colormap} -- The colormap on which to base tje discrete map</strong><strong> (</strong><strong>default</strong> (<em>base_cmap</em>) – {None})</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">Colormap – The discrete colormap</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="faerun.faerun.Faerun.get_min_max">
+<code class="descname">get_min_max</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#faerun.faerun.Faerun.get_min_max" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the minimum an maximum coordinates from this plotter instance</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">tuple – The minimum and maximum coordinates</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="faerun.faerun.Faerun.plot">
+<code class="descname">plot</code><span class="sig-paren">(</span><em>file_name='index'</em>, <em>path='./'</em>, <em>template='default'</em>, <em>legend_title='Legend'</em>, <em>legend_orientation='vertical'</em><span class="sig-paren">)</span><a class="headerlink" href="#faerun.faerun.Faerun.plot" title="Permalink to this definition">¶</a></dt>
+<dd><p>Plots the data to an HTML / JS file</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name" colspan="2">Keyword Arguments:</th></tr>
+<tr class="field-odd field"><td>&#160;</td><td class="field-body"><ul class="first last simple">
+<li><strong>{str} -- The name of the HTML / JS file</strong><strong> (</strong><strong>default</strong> (<em>file_name</em>) – {‘index’})</li>
+<li><strong>{str} -- The path to which to write the HTML / JS file</strong><strong> (</strong><strong>default</strong> (<em>path</em>) – {‘./’})</li>
+<li><strong>{str} -- The name of the template to use.</strong><strong> (</strong><strong>default</strong> (<em>template</em>) – {‘default’})</li>
+<li><strong>{str} -- The legend title</strong><strong> (</strong><strong>default</strong> (<em>legend_title</em>) – {‘Legend’})</li>
+<li><strong>{str} -- The orientation of the legend</strong> (<em>legend_orientation</em>) – {‘vertical’})</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+</div>
+<div class="section" id="module-faerun.web">
+<span id="faerun-web-module"></span><h2>faerun.web module<a class="headerlink" href="#module-faerun.web" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="web-py">
+<h3>web.py<a class="headerlink" href="#web-py" title="Permalink to this headline">¶</a></h3>
+<p>An utility module containing all that’s needed to host faerun data visualizations.</p>
+<dl class="class">
+<dt id="faerun.web.FaerunWeb">
+<em class="property">class </em><code class="descclassname">faerun.web.</code><code class="descname">FaerunWeb</code><span class="sig-paren">(</span><em>path</em>, <em>label_type='smiles'</em>, <em>theme='light'</em>, <em>label_formatter=None</em>, <em>link_formatter=None</em>, <em>info=None</em>, <em>legend=False</em>, <em>legend_title='Legend'</em>, <em>view='front'</em>, <em>search_index=1</em><span class="sig-paren">)</span><a class="headerlink" href="#faerun.web.FaerunWeb" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>A cherrypy controller class for hosting fearun visualizations</p>
+<dl class="method">
+<dt id="faerun.web.FaerunWeb.__init__">
+<code class="descname">__init__</code><span class="sig-paren">(</span><em>path</em>, <em>label_type='smiles'</em>, <em>theme='light'</em>, <em>label_formatter=None</em>, <em>link_formatter=None</em>, <em>info=None</em>, <em>legend=False</em>, <em>legend_title='Legend'</em>, <em>view='front'</em>, <em>search_index=1</em><span class="sig-paren">)</span><a class="headerlink" href="#faerun.web.FaerunWeb.__init__" title="Permalink to this definition">¶</a></dt>
+<dd><p>Initialize self.  See help(type(self)) for accurate signature.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="faerun.web.FaerunWeb.get_index">
+<code class="descname">get_index</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#faerun.web.FaerunWeb.get_index" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the indices of one or more data point based their labels and layer name</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">list – A list of label - index pairs</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="faerun.web.FaerunWeb.get_label">
+<code class="descname">get_label</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#faerun.web.FaerunWeb.get_label" title="Permalink to this definition">¶</a></dt>
+<dd><p>Gets the label of a data point based on the layer name and data point index</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">dict – A dict containing the formatted label and link</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="faerun.web.FaerunWeb.get_meta">
+<code class="descname">get_meta</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#faerun.web.FaerunWeb.get_meta" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the meta data for the fearun visualization (layers, …)</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">dict – A dict containing the meta information</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="faerun.web.FaerunWeb.get_values">
+<code class="descname">get_values</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#faerun.web.FaerunWeb.get_values" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get one set of coordinates or colors (x, y, z, r, g, b) for a faerun layer</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">bytes – An array of values encoded as bytes</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="faerun.web.FaerunWeb.index">
+<code class="descname">index</code><span class="sig-paren">(</span><em>**params</em><span class="sig-paren">)</span><a class="headerlink" href="#faerun.web.FaerunWeb.index" title="Permalink to this definition">¶</a></dt>
+<dd><p>GET the HTML file</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">FileType – The HTML file</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="function">
+<dt id="faerun.web.host">
+<code class="descclassname">faerun.web.</code><code class="descname">host</code><span class="sig-paren">(</span><em>path</em>, <em>label_type='smiles'</em>, <em>theme='light'</em>, <em>label_formatter=None</em>, <em>link_formatter=None</em>, <em>info=None</em>, <em>legend=False</em>, <em>legend_title='Legend'</em>, <em>view='front'</em>, <em>search_index=1</em><span class="sig-paren">)</span><a class="headerlink" href="#faerun.web.host" title="Permalink to this definition">¶</a></dt>
+<dd><p>Start a cherrypy server hosting a Faerun visualization</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>{str} -- The path to the fearun data file</strong> (<em>path</em>) – </p>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name" colspan="2">Keyword Arguments:</th></tr>
+<tr class="field-even field"><td>&#160;</td><td class="field-body"><ul class="first last simple">
+<li><strong>{str} -- The type of the labels</strong><strong> (</strong><strong>default</strong> (<em>label_type</em>) – {‘smiles’})</li>
+<li><strong>{str} -- The theme to use in the front-end</strong><strong> (</strong><strong>default</strong> (<em>theme</em>) – {‘light’})</li>
+<li><strong>{FunctionType} -- A function used for formatting labels</strong><strong> (</strong><strong>default</strong> (<em>label_formatter</em>) – {None})</li>
+<li><strong>{FunctionType} -- A function used for formatting links</strong><strong> (</strong><strong>default</strong> (<em>link_formatter</em>) – {None})</li>
+<li><strong>{str} -- A string containing markdown content that is shown as an info in the visualization</strong><strong> (</strong><strong>default</strong> (<em>info</em>) – {None})</li>
+<li><strong>{bool} -- Whether</strong><strong> or </strong><strong>not to show the legend</strong><strong> (</strong><strong>default</strong> (<em>legend</em>) – {False})</li>
+<li><strong>{str} -- The title of the legend</strong><strong> (</strong><strong>default</strong> (<em>legend_title</em>) – {‘Legend’})</li>
+<li><strong>{str} -- The view type</strong> (<em>view</em>) – {‘front’})</li>
+<li><strong>{int} -- The index in the label values that is used for searching</strong><strong> (</strong><strong>default</strong> (<em>search_index</em>) – {1})</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="faerun.web.json_handler">
+<code class="descclassname">faerun.web.</code><code class="descname">json_handler</code><span class="sig-paren">(</span><em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#faerun.web.json_handler" title="Permalink to this definition">¶</a></dt>
+<dd><p>The default cherrypy json encoder seems to be extremely slow…</p>
+</dd></dl>
+
+</div>
+</div>
+<div class="section" id="module-faerun">
+<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-faerun" title="Permalink to this headline">¶</a></h2>
+<dl class="function">
+<dt id="faerun.get_asset">
+<code class="descclassname">faerun.</code><code class="descname">get_asset</code><span class="sig-paren">(</span><em>path</em><span class="sig-paren">)</span><a class="headerlink" href="#faerun.get_asset" title="Permalink to this definition">¶</a></dt>
+<dd><p>Gets the path to the assets folder</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>{str} -- The path of the asset within the asset folder</strong> (<em>path</em>) – </td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">str – The full path to the asset</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2019, Daniel Probst (Reymond Group, University of Bern)
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

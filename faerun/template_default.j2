@@ -4,7 +4,7 @@
 <head>
   <meta charset="UTF-8">
   <title>{{title}}</title>
-  <script src="https://unpkg.com/lore-engine@1.0.21/dist/lore.min.js"></script>
+  <script src="https://unpkg.com/lore-engine@1.0.29/dist/lore.min.js"></script>
   <link href="https://fonts.googleapis.com/css?family=Open+Sans:400,600" rel="stylesheet">
   <style>
     body {
@@ -187,7 +187,7 @@
     let lore = Lore.init('lore', {
       antialiasing: true,
       clearColor: clearColor,
-      alphaBlending: false
+      alphaBlending: {{alpha_blending}}
     });
 
     // Tree plots

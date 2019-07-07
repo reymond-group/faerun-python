@@ -1,0 +1,30 @@
+faerun package
+==============
+
+Submodules
+----------
+
+faerun.faerun module
+--------------------
+
+.. automodule:: faerun.faerun
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+faerun.web module
+-----------------
+
+.. automodule:: faerun.web
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+
+Module contents
+---------------
+
+.. automodule:: faerun
+   :members:
+   :undoc-members:
+   :show-inheritance:

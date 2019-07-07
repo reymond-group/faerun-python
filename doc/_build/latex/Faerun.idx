@@ -1,0 +1,10 @@
+\indexentry{Faerun (class in faerun)@\spxentry{Faerun}\spxextra{class in faerun}|hyperpage}{9}
+\indexentry{\_\_init\_\_() (faerun.Faerun method)@\spxentry{\_\_init\_\_()}\spxextra{faerun.Faerun method}|hyperpage}{9}
+\indexentry{add\_scatter() (faerun.Faerun method)@\spxentry{add\_scatter()}\spxextra{faerun.Faerun method}|hyperpage}{10}
+\indexentry{add\_tree() (faerun.Faerun method)@\spxentry{add\_tree()}\spxextra{faerun.Faerun method}|hyperpage}{10}
+\indexentry{create\_data() (faerun.Faerun method)@\spxentry{create\_data()}\spxextra{faerun.Faerun method}|hyperpage}{11}
+\indexentry{create\_python\_data() (faerun.Faerun method)@\spxentry{create\_python\_data()}\spxextra{faerun.Faerun method}|hyperpage}{11}
+\indexentry{discrete\_cmap() (faerun.Faerun static method)@\spxentry{discrete\_cmap()}\spxextra{faerun.Faerun static method}|hyperpage}{11}
+\indexentry{get\_min\_max() (faerun.Faerun method)@\spxentry{get\_min\_max()}\spxextra{faerun.Faerun method}|hyperpage}{11}
+\indexentry{plot() (faerun.Faerun method)@\spxentry{plot()}\spxextra{faerun.Faerun method}|hyperpage}{11}
+\indexentry{host() (in module faerun)@\spxentry{host()}\spxextra{in module faerun}|hyperpage}{12}

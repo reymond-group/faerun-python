@@ -157,26 +157,45 @@
 <h2>Faerun<a class="headerlink" href="#faerun" title="Permalink to this headline">¶</a></h2>
 <dl class="class">
 <dt id="faerun.Faerun">
-<em class="property">class </em><code class="descclassname">faerun.</code><code class="descname">Faerun</code><span class="sig-paren">(</span><em>title='python-faerun'</em>, <em>clear_color='#111111'</em>, <em>coords=True</em>, <em>coords_color='#888888'</em>, <em>coords_box=False</em>, <em>view='free'</em>, <em>scale=750</em><span class="sig-paren">)</span><a class="headerlink" href="#faerun.Faerun" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="descclassname">faerun.</code><code class="descname">Faerun</code><span class="sig-paren">(</span><em>title: str = 'python-faerun'</em>, <em>clear_color: str = '#111111'</em>, <em>coords: bool = True</em>, <em>coords_color: str = '#888888'</em>, <em>coords_box: bool = False</em>, <em>view: str = 'free'</em>, <em>scale: float = 750.0</em><span class="sig-paren">)</span><a class="headerlink" href="#faerun.Faerun" title="Permalink to this definition">¶</a></dt>
 <dd><p>Creates a faerun object which is an empty plotting surface where
 layers such as scatter plots can be added.</p>
-<dl class="method">
-<dt id="faerun.Faerun.__init__">
-<code class="descname">__init__</code><span class="sig-paren">(</span><em>title='python-faerun'</em>, <em>clear_color='#111111'</em>, <em>coords=True</em>, <em>coords_color='#888888'</em>, <em>coords_box=False</em>, <em>view='free'</em>, <em>scale=750</em><span class="sig-paren">)</span><a class="headerlink" href="#faerun.Faerun.__init__" title="Permalink to this definition">¶</a></dt>
-<dd><p>Constructor for Faerun</p>
+<p>Constructor for Faerun.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name" colspan="2">Keyword Arguments:</th></tr>
 <tr class="field-odd field"><td>&#160;</td><td class="field-body"><ul class="first last simple">
-<li><strong>{str} -- The title of the generated HTML file</strong><strong> (</strong><strong>default</strong> (<em>title</em>) – {‘python-faerun’})</li>
-<li><strong>{str} -- The background color of the plot</strong><strong> (</strong><strong>default</strong> (<em>clear_color</em>) – {‘#111111’})</li>
-<li><strong>{bool} -- Show the coordinate axes in the plot</strong><strong> (</strong><strong>default</strong> (<em>coords</em>) – {True})</li>
-<li><strong>{str} -- The color of the coordinate axes</strong><strong> (</strong><strong>default</strong> (<em>coords_color</em>) – {‘#888888’})</li>
-<li><strong>{bool} -- Show a box around the coordinate axes</strong><strong> (</strong><strong>default</strong> (<em>coords_box</em>) – {False})</li>
-<li><strong>{str} -- The view</strong> (<em>view</em>) – {‘free’})</li>
-<li><strong>{int} -- To what size to scale the coordinates</strong> (<em>scale</em>) – {750})</li>
+<li><strong>title</strong> (<code class="xref py py-obj docutils literal notranslate"><span class="pre">str</span></code>, optional) – The title of the generated HTML file</li>
+<li><strong>clear_color</strong> (<code class="xref py py-obj docutils literal notranslate"><span class="pre">str</span></code>, optional) – The background color of the plot</li>
+<li><strong>coords</strong> (<code class="xref py py-obj docutils literal notranslate"><span class="pre">bool</span></code>, optional) – Show the coordinate axes in the plot</li>
+<li><strong>coords_color</strong> (<code class="xref py py-obj docutils literal notranslate"><span class="pre">str</span></code>, optional) – The color of the coordinate axes</li>
+<li><strong>coords_box</strong> (<code class="xref py py-obj docutils literal notranslate"><span class="pre">bool</span></code>, optional) – Show a box around the coordinate axes</li>
+<li><strong>view</strong> (<code class="xref py py-obj docutils literal notranslate"><span class="pre">str</span></code>, optional) – The view (front, back, top, bottom, left, right, free)</li>
+<li><strong>scale</strong> (<code class="xref py py-obj docutils literal notranslate"><span class="pre">float</span></code>, optional) – To what size to scale the coordinates (which are normalized)</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<dl class="method">
+<dt id="faerun.Faerun.__init__">
+<code class="descname">__init__</code><span class="sig-paren">(</span><em>title: str = 'python-faerun'</em>, <em>clear_color: str = '#111111'</em>, <em>coords: bool = True</em>, <em>coords_color: str = '#888888'</em>, <em>coords_box: bool = False</em>, <em>view: str = 'free'</em>, <em>scale: float = 750.0</em><span class="sig-paren">)</span><a class="headerlink" href="#faerun.Faerun.__init__" title="Permalink to this definition">¶</a></dt>
+<dd><p>Constructor for Faerun.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name" colspan="2">Keyword Arguments:</th></tr>
+<tr class="field-odd field"><td>&#160;</td><td class="field-body"><ul class="first last simple">
+<li><strong>title</strong> (<code class="xref py py-obj docutils literal notranslate"><span class="pre">str</span></code>, optional) – The title of the generated HTML file</li>
+<li><strong>clear_color</strong> (<code class="xref py py-obj docutils literal notranslate"><span class="pre">str</span></code>, optional) – The background color of the plot</li>
+<li><strong>coords</strong> (<code class="xref py py-obj docutils literal notranslate"><span class="pre">bool</span></code>, optional) – Show the coordinate axes in the plot</li>
+<li><strong>coords_color</strong> (<code class="xref py py-obj docutils literal notranslate"><span class="pre">str</span></code>, optional) – The color of the coordinate axes</li>
+<li><strong>coords_box</strong> (<code class="xref py py-obj docutils literal notranslate"><span class="pre">bool</span></code>, optional) – Show a box around the coordinate axes</li>
+<li><strong>view</strong> (<code class="xref py py-obj docutils literal notranslate"><span class="pre">str</span></code>, optional) – The view (front, back, top, bottom, left, right, free)</li>
+<li><strong>scale</strong> (<code class="xref py py-obj docutils literal notranslate"><span class="pre">float</span></code>, optional) – To what size to scale the coordinates (which are normalized)</li>
 </ul>
 </td>
 </tr>
@@ -186,32 +205,32 @@ layers such as scatter plots can be added.</p>
 
 <dl class="method">
 <dt id="faerun.Faerun.add_scatter">
-<code class="descname">add_scatter</code><span class="sig-paren">(</span><em>name</em>, <em>data</em>, <em>mapping={'c': 'c'</em>, <em>'cs': 'cs'</em>, <em>'labels': 'labels'</em>, <em>'s': 's'</em>, <em>'x': 'x'</em>, <em>'y': 'y'</em>, <em>'z': 'z'}</em>, <em>colormap='plasma'</em>, <em>shader='sphere'</em>, <em>point_scale=1.0</em>, <em>max_point_size=100</em>, <em>fog_intensity=0.0</em>, <em>saturation_limit=0.2</em>, <em>categorical=False</em>, <em>interactive=True</em>, <em>has_legend=False</em>, <em>legend_title=None</em>, <em>legend_labels=None</em><span class="sig-paren">)</span><a class="headerlink" href="#faerun.Faerun.add_scatter" title="Permalink to this definition">¶</a></dt>
-<dd><p>Add a scatter layer to the plot</p>
+<code class="descname">add_scatter</code><span class="sig-paren">(</span><em>name: str, data: Union[dict, pandas.core.frame.DataFrame], mapping: dict = {'c': 'c', 'cs': 'cs', 'labels': 'labels', 's': 's', 'x': 'x', 'y': 'y', 'z': 'z'}, colormap: Union[str, matplotlib.colors.Colormap] = 'plasma', shader: str = 'sphere', point_scale: float = 1.0, max_point_size: float = 100.0, fog_intensity: float = 0.0, saturation_limit: float = 0.2, categorical: bool = False, interactive: bool = True, has_legend: bool = False, legend_title: str = None, legend_labels: dict = None</em><span class="sig-paren">)</span><a class="headerlink" href="#faerun.Faerun.add_scatter" title="Permalink to this definition">¶</a></dt>
+<dd><p>Add a scatter layer to the plot.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>{str} -- The name of the layer</strong> (<em>name</em>) – </li>
-<li><strong>{object} -- A Python dict</strong><strong> or </strong><strong>Pandas DataFrame containing the data</strong> (<em>data</em>) – </li>
+<li><strong>name</strong> (<code class="xref py py-obj docutils literal notranslate"><span class="pre">str</span></code>) – The name of the layer</li>
+<li><strong>data</strong> (<code class="xref py py-obj docutils literal notranslate"><span class="pre">dict</span></code> or <code class="xref py py-obj docutils literal notranslate"><span class="pre">DataFrame</span></code>) – A Python dict or Pandas DataFrame containing the data</li>
 </ul>
 </td>
 </tr>
 <tr class="field-even field"><th class="field-name" colspan="2">Keyword Arguments:</th></tr>
 <tr class="field-even field"><td>&#160;</td><td class="field-body"><ul class="first last simple">
-<li><strong>{dict} -- The keys which contain the data in the input dict</strong><strong> or </strong><strong>DataFrame</strong><strong> (</strong><strong>default</strong> (<em>mapping</em>) – {{‘x’: ‘x’, ‘y’: ‘y’, ‘z’: ‘z’, ‘c’: ‘c’, ‘cs’: ‘cs’, ‘s’: ‘s’, ‘labels’: ‘labels’}})</li>
-<li><strong>{str} -- The name of the colormap</strong> (<em>colormap</em>) – {‘plasma’})</li>
-<li><strong>{str} -- The name of the shader to use for the data point visualization</strong><strong> (</strong><strong>default</strong> (<em>shader</em>) – {‘sphere’})</li>
-<li><strong>{float} -- The relative size of the data points</strong><strong> (</strong><strong>default</strong> (<em>point_scale</em>) – {1.0})</li>
-<li><strong>{int} -- The maximum size of the data points when zooming in</strong><strong> (</strong><strong>default</strong> (<em>max_point_size</em>) – {100})</li>
-<li><strong>{float} -- The intensity of the distance fog</strong><strong> (</strong><strong>default</strong> (<em>fog_intensity</em>) – {0.0})</li>
-<li><strong>{float} -- The minimum saturation to avoid &quot;gray soup&quot;</strong><strong> (</strong><strong>default</strong> (<em>saturation_limit</em>) – {0.2})</li>
-<li><strong>{bool} -- Whether this scatter layer is categorical</strong><strong> (</strong><strong>default</strong> (<em>categorical</em>) – {False})</li>
-<li><strong>{bool} -- Whether this scatter layer is interactive</strong><strong> (</strong><strong>default</strong> (<em>interactive</em>) – {True})</li>
-<li><strong>{bool} -- Whether</strong><strong> or </strong><strong>not to draw a legend</strong><strong> (</strong><strong>default</strong> (<em>has_legend</em>) – {False})</li>
-<li><strong>{str} -- The title of the legend</strong><strong> (</strong><strong>default</strong> (<em>legend_title</em>) – {None})</li>
-<li><strong>{dict} -- A dict mapping values to legend labels</strong><strong> (</strong><strong>default</strong> (<em>legend_labels</em>) – {None})</li>
+<li><strong>mapping</strong> (<code class="xref py py-obj docutils literal notranslate"><span class="pre">dict</span></code>, optional) – The keys which contain the data in the input dict or the column names in the pandas <code class="xref py py-obj docutils literal notranslate"><span class="pre">DataFrame</span></code></li>
+<li><strong>colormap</strong> (<code class="xref py py-obj docutils literal notranslate"><span class="pre">str</span></code> or <code class="xref py py-obj docutils literal notranslate"><span class="pre">Colormap</span></code>, optional) – The name of the colormap (can also be a matplotlib Colormap object)</li>
+<li><strong>shader</strong> (<code class="xref py py-obj docutils literal notranslate"><span class="pre">str</span></code>, optional) – The name of the shader to use for the data point visualization</li>
+<li><strong>point_scale</strong> (<code class="xref py py-obj docutils literal notranslate"><span class="pre">float</span></code>, optional) – The relative size of the data points</li>
+<li><strong>max_point_size</strong> (<code class="xref py py-obj docutils literal notranslate"><span class="pre">int</span></code>, optional) – – The maximum size of the data points when zooming in</li>
+<li><strong>fog_intensity</strong> (<code class="xref py py-obj docutils literal notranslate"><span class="pre">float</span></code>, optional) – – The intensity of the distance fog</li>
+<li><strong>saturation_limit</strong> (<code class="xref py py-obj docutils literal notranslate"><span class="pre">float</span></code>, optional) – – The minimum saturation to avoid “gray soup”</li>
+<li><strong>categorical</strong> (<code class="xref py py-obj docutils literal notranslate"><span class="pre">bool</span></code>, optional) – – Whether this scatter layer is categorical</li>
+<li><strong>interactive</strong> (<code class="xref py py-obj docutils literal notranslate"><span class="pre">bool</span></code>, optional) – – Whether this scatter layer is interactive</li>
+<li><strong>has_legend</strong> (<code class="xref py py-obj docutils literal notranslate"><span class="pre">bool</span></code>, optional) – – Whether or not to draw a legend</li>
+<li><strong>legend_title</strong> (<code class="xref py py-obj docutils literal notranslate"><span class="pre">str</span></code>, optional) – – The title of the legend</li>
+<li><strong>legend_labels</strong> (<code class="xref py py-obj docutils literal notranslate"><span class="pre">dict</span></code>, optional) – – A dict mapping values to legend labels</li>
 </ul>
 </td>
 </tr>
@@ -221,25 +240,25 @@ layers such as scatter plots can be added.</p>
 
 <dl class="method">
 <dt id="faerun.Faerun.add_tree">
-<code class="descname">add_tree</code><span class="sig-paren">(</span><em>name</em>, <em>data</em>, <em>mapping={'c': 'c'</em>, <em>'from': 'from'</em>, <em>'to': 'to'</em>, <em>'x': 'x'</em>, <em>'y': 'y'</em>, <em>'z': 'z'}</em>, <em>color='#666666'</em>, <em>colormap='plasma'</em>, <em>fog_intensity=0.0</em>, <em>point_helper=None</em><span class="sig-paren">)</span><a class="headerlink" href="#faerun.Faerun.add_tree" title="Permalink to this definition">¶</a></dt>
-<dd><p>Add a tree layer to the plot</p>
+<code class="descname">add_tree</code><span class="sig-paren">(</span><em>name: str, data: Union[dict, pandas.core.frame.DataFrame], mapping: dict = {'c': 'c', 'from': 'from', 'to': 'to', 'x': 'x', 'y': 'y', 'z': 'z'}, color: str = '#666666', colormap: Union[str, matplotlib.colors.Colormap] = 'plasma', fog_intensity: float = 0.0, point_helper: str = None</em><span class="sig-paren">)</span><a class="headerlink" href="#faerun.Faerun.add_tree" title="Permalink to this definition">¶</a></dt>
+<dd><p>Add a tree layer to the plot.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>{str} -- The name of the layer</strong> (<em>name</em>) – </li>
-<li><strong>{object} -- A Python  dict</strong><strong> or </strong><strong>Pandas DataFrame containing the data</strong> (<em>data</em>) – </li>
+<li><strong>name</strong> (<code class="xref py py-obj docutils literal notranslate"><span class="pre">str</span></code>) – The name of the layer</li>
+<li><strong>data</strong> (<code class="xref py py-obj docutils literal notranslate"><span class="pre">dict</span></code> or <code class="xref py py-obj docutils literal notranslate"><span class="pre">DataFrame</span></code>) – A Python dict or Pandas DataFrame containing the data</li>
 </ul>
 </td>
 </tr>
 <tr class="field-even field"><th class="field-name" colspan="2">Keyword Arguments:</th></tr>
 <tr class="field-even field"><td>&#160;</td><td class="field-body"><ul class="first last simple">
-<li><strong>{dict} -- The keys which contain the data in the input dict</strong><strong> or </strong><strong>DataFrame</strong><strong> (</strong><strong>default</strong> (<em>mapping</em>) – {{‘from’: ‘from’, ‘to’: ‘to’, ‘x’: ‘x’, ‘y’: ‘y’, ‘z’: ‘z’, ‘c’: ‘c’}})</li>
-<li><strong>{str} -- The default color of the tree</strong><strong> (</strong><strong>default</strong> (<em>color</em>) – {‘#666666’})</li>
-<li><strong>{str} -- The name of the colormap</strong> (<em>colormap</em>) – {‘plasma’})</li>
-<li><strong>{float} -- The intensity of the distance fog</strong><strong> (</strong><strong>default</strong> (<em>fog_intensity</em>) – {0.0})</li>
-<li><strong>{str} -- The name of the scatter layer to associate with this tree layer</strong> (<em>point_helper</em>) – {None})</li>
+<li><strong>mapping</strong> (<code class="xref py py-obj docutils literal notranslate"><span class="pre">dict</span></code>, optional) – The keys which contain the data in the input dict or DataFrame</li>
+<li><strong>color</strong> (<code class="xref py py-obj docutils literal notranslate"><span class="pre">str</span></code>, optional) – The default color of the tree</li>
+<li><strong>colormap</strong> (<code class="xref py py-obj docutils literal notranslate"><span class="pre">str</span></code> or <code class="xref py py-obj docutils literal notranslate"><span class="pre">Colormap</span></code>, optional) – The name of the colormap (can also be a matplotlib Colormap object)</li>
+<li><strong>fog_intensity</strong> (<code class="xref py py-obj docutils literal notranslate"><span class="pre">float</span></code>, optional) – The intensity of the distance fog</li>
+<li><strong>point_helper</strong> (<code class="xref py py-obj docutils literal notranslate"><span class="pre">str</span></code>, optional) – The name of the scatter layer to associate with this tree layer (the source of the coordinates)</li>
 </ul>
 </td>
 </tr>
@@ -249,13 +268,15 @@ layers such as scatter plots can be added.</p>
 
 <dl class="method">
 <dt id="faerun.Faerun.create_data">
-<code class="descname">create_data</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#faerun.Faerun.create_data" title="Permalink to this definition">¶</a></dt>
-<dd><p>Returns a JavaScript string defining a JavaScript object containing the data</p>
+<code class="descname">create_data</code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; str<a class="headerlink" href="#faerun.Faerun.create_data" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns a JavaScript string defining a JavaScript object containing the data.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">str – JavaScript code defining an object containing the data</td>
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">JavaScript code defining an object containing the data</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body"><code class="xref py py-obj docutils literal notranslate"><span class="pre">str</span></code></td>
 </tr>
 </tbody>
 </table>
@@ -263,13 +284,15 @@ layers such as scatter plots can be added.</p>
 
 <dl class="method">
 <dt id="faerun.Faerun.create_python_data">
-<code class="descname">create_python_data</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#faerun.Faerun.create_python_data" title="Permalink to this definition">¶</a></dt>
+<code class="descname">create_python_data</code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; dict<a class="headerlink" href="#faerun.Faerun.create_python_data" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns a Python dict containing the data</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">dict – The data defined in this Faerun instance</td>
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">The data defined in this Faerun instance</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body"><code class="xref py py-obj docutils literal notranslate"><span class="pre">dict</span></code></td>
 </tr>
 </tbody>
 </table>
@@ -277,18 +300,20 @@ layers such as scatter plots can be added.</p>
 
 <dl class="staticmethod">
 <dt id="faerun.Faerun.discrete_cmap">
-<em class="property">static </em><code class="descname">discrete_cmap</code><span class="sig-paren">(</span><em>n_colors</em>, <em>base_cmap=None</em><span class="sig-paren">)</span><a class="headerlink" href="#faerun.Faerun.discrete_cmap" title="Permalink to this definition">¶</a></dt>
-<dd><p>Create an N-bin discrete colormap from the specified input map</p>
+<em class="property">static </em><code class="descname">discrete_cmap</code><span class="sig-paren">(</span><em>n_colors: int</em>, <em>base_cmap: str</em><span class="sig-paren">)</span> &#x2192; matplotlib.colors.Colormap<a class="headerlink" href="#faerun.Faerun.discrete_cmap" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create an N-bin discrete colormap from the specified input map.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>{int} -- The number of discrete colors to generate</strong> (<em>n_colors</em>) – </td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>n_colors</strong> (<code class="xref py py-obj docutils literal notranslate"><span class="pre">int</span></code>) – The number of discrete colors to generate</td>
 </tr>
 <tr class="field-even field"><th class="field-name" colspan="2">Keyword Arguments:</th></tr>
-<tr class="field-even field"><td>&#160;</td><td class="field-body"><strong>{Colormap} -- The colormap on which to base tje discrete map</strong><strong> (</strong><strong>default</strong> (<em>base_cmap</em>) – {None})</td>
+<tr class="field-even field"><td>&#160;</td><td class="field-body"><strong>base_cmap</strong> (<code class="xref py py-obj docutils literal notranslate"><span class="pre">str</span></code>) – The colormap on which to base the discrete map</td>
 </tr>
-<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">Colormap – The discrete colormap</td>
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">The discrete colormap</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Colormap</span></code></td>
 </tr>
 </tbody>
 </table>
@@ -296,13 +321,15 @@ layers such as scatter plots can be added.</p>
 
 <dl class="method">
 <dt id="faerun.Faerun.get_min_max">
-<code class="descname">get_min_max</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#faerun.Faerun.get_min_max" title="Permalink to this definition">¶</a></dt>
+<code class="descname">get_min_max</code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; tuple<a class="headerlink" href="#faerun.Faerun.get_min_max" title="Permalink to this definition">¶</a></dt>
 <dd><p>Get the minimum an maximum coordinates from this plotter instance</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">tuple – The minimum and maximum coordinates</td>
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">The minimum and maximum coordinates</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body"><code class="xref py py-obj docutils literal notranslate"><span class="pre">tuple</span></code></td>
 </tr>
 </tbody>
 </table>
@@ -310,19 +337,19 @@ layers such as scatter plots can be added.</p>
 
 <dl class="method">
 <dt id="faerun.Faerun.plot">
-<code class="descname">plot</code><span class="sig-paren">(</span><em>file_name='index'</em>, <em>path='./'</em>, <em>template='default'</em>, <em>legend_title='Legend'</em>, <em>legend_orientation='vertical'</em><span class="sig-paren">)</span><a class="headerlink" href="#faerun.Faerun.plot" title="Permalink to this definition">¶</a></dt>
-<dd><p>Plots the data to an HTML / JS file</p>
+<code class="descname">plot</code><span class="sig-paren">(</span><em>file_name: str = 'index'</em>, <em>path: str = './'</em>, <em>template: str = 'default'</em>, <em>legend_title: str = 'Legend'</em>, <em>legend_orientation: str = 'vertical'</em><span class="sig-paren">)</span><a class="headerlink" href="#faerun.Faerun.plot" title="Permalink to this definition">¶</a></dt>
+<dd><p>Plots the data to an HTML / JS file.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name" colspan="2">Keyword Arguments:</th></tr>
 <tr class="field-odd field"><td>&#160;</td><td class="field-body"><ul class="first last simple">
-<li><strong>{str} -- The name of the HTML / JS file</strong><strong> (</strong><strong>default</strong> (<em>file_name</em>) – {‘index’})</li>
-<li><strong>{str} -- The path to which to write the HTML / JS file</strong><strong> (</strong><strong>default</strong> (<em>path</em>) – {‘./’})</li>
-<li><strong>{str} -- The name of the template to use.</strong><strong> (</strong><strong>default</strong> (<em>template</em>) – {‘default’})</li>
-<li><strong>{str} -- The legend title</strong><strong> (</strong><strong>default</strong> (<em>legend_title</em>) – {‘Legend’})</li>
-<li><strong>{str} -- The orientation of the legend</strong> (<em>legend_orientation</em>) – {‘vertical’})</li>
+<li><strong>file_name</strong> (<code class="xref py py-obj docutils literal notranslate"><span class="pre">str</span></code>, optional) – The name of the HTML / JS file</li>
+<li><strong>path</strong> (<code class="xref py py-obj docutils literal notranslate"><span class="pre">str</span></code>, optional) – The path to which to write the HTML / JS file</li>
+<li><strong>template</strong> (<code class="xref py py-obj docutils literal notranslate"><span class="pre">str</span></code>, optional) – The name of the template to use</li>
+<li><strong>legend_title</strong> (<code class="xref py py-obj docutils literal notranslate"><span class="pre">str</span></code>, optional) – The legend title</li>
+<li><strong>legend_orientation</strong> (<code class="xref py py-obj docutils literal notranslate"><span class="pre">str</span></code>, optional) – The orientation of the legend (‘vertical’ or ‘horizontal’)</li>
 </ul>
 </td>
 </tr>
@@ -336,27 +363,27 @@ layers such as scatter plots can be added.</p>
 <div class="section" id="web">
 <h2>Web<a class="headerlink" href="#web" title="Permalink to this headline">¶</a></h2>
 <dl class="function">
-<dt id="faerun.web.host">
-<code class="descclassname">faerun.web.</code><code class="descname">host</code><span class="sig-paren">(</span><em>path</em>, <em>label_type='smiles'</em>, <em>theme='light'</em>, <em>label_formatter=None</em>, <em>link_formatter=None</em>, <em>info=None</em>, <em>legend=False</em>, <em>legend_title='Legend'</em>, <em>view='front'</em>, <em>search_index=1</em><span class="sig-paren">)</span><a class="headerlink" href="#faerun.web.host" title="Permalink to this definition">¶</a></dt>
-<dd><p>Start a cherrypy server hosting a Faerun visualization</p>
+<dt id="faerun.host">
+<code class="descclassname">faerun.</code><code class="descname">host</code><span class="sig-paren">(</span><em>path: str, label_type: str = 'smiles', theme: str = 'light', label_formatter: Callable[[str, int, str], str] = None, link_formatter: Callable[[str, int, str], str] = None, info: str = None, legend: bool = False, legend_title: str = 'Legend', view: str = 'front', search_index: int = 1</em><span class="sig-paren">)</span><a class="headerlink" href="#faerun.host" title="Permalink to this definition">¶</a></dt>
+<dd><p>Start a cherrypy server hosting a Faerun visualization.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>{str} -- The path to the fearun data file</strong> (<em>path</em>) – </p>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><p class="first"><strong>path</strong> (<code class="xref py py-obj docutils literal notranslate"><span class="pre">str</span></code>) – The path to the fearun data file</p>
 </td>
 </tr>
 <tr class="field-even field"><th class="field-name" colspan="2">Keyword Arguments:</th></tr>
 <tr class="field-even field"><td>&#160;</td><td class="field-body"><ul class="first last simple">
-<li><strong>{str} -- The type of the labels</strong><strong> (</strong><strong>default</strong> (<em>label_type</em>) – {‘smiles’})</li>
-<li><strong>{str} -- The theme to use in the front-end</strong><strong> (</strong><strong>default</strong> (<em>theme</em>) – {‘light’})</li>
-<li><strong>{FunctionType} -- A function used for formatting labels</strong><strong> (</strong><strong>default</strong> (<em>label_formatter</em>) – {None})</li>
-<li><strong>{FunctionType} -- A function used for formatting links</strong><strong> (</strong><strong>default</strong> (<em>link_formatter</em>) – {None})</li>
-<li><strong>{str} -- A string containing markdown content that is shown as an info in the visualization</strong><strong> (</strong><strong>default</strong> (<em>info</em>) – {None})</li>
-<li><strong>{bool} -- Whether</strong><strong> or </strong><strong>not to show the legend</strong><strong> (</strong><strong>default</strong> (<em>legend</em>) – {False})</li>
-<li><strong>{str} -- The title of the legend</strong><strong> (</strong><strong>default</strong> (<em>legend_title</em>) – {‘Legend’})</li>
-<li><strong>{str} -- The view type</strong> (<em>view</em>) – {‘front’})</li>
-<li><strong>{int} -- The index in the label values that is used for searching</strong><strong> (</strong><strong>default</strong> (<em>search_index</em>) – {1})</li>
+<li><strong>label_type</strong> (<code class="xref py py-obj docutils literal notranslate"><span class="pre">str</span></code>) – The type of the labels</li>
+<li><strong>theme</strong> (<code class="xref py py-obj docutils literal notranslate"><span class="pre">str</span></code>) – The theme to use in the front-end</li>
+<li><strong>label_formatter</strong> (<code class="xref py py-obj docutils literal notranslate"><span class="pre">Callable[[str,</span> <span class="pre">int,</span> <span class="pre">str],</span> <span class="pre">str]</span></code>) – A function used for formatting labels</li>
+<li><strong>link_formatter</strong> (<code class="xref py py-obj docutils literal notranslate"><span class="pre">Callable[[str,</span> <span class="pre">int,</span> <span class="pre">str],</span> <span class="pre">str]</span></code>) – A function used for formatting links</li>
+<li><strong>info</strong> (<code class="xref py py-obj docutils literal notranslate"><span class="pre">str</span></code>) – A string containing markdown content that is shown as an info in the visualization</li>
+<li><strong>legend</strong> (<code class="xref py py-obj docutils literal notranslate"><span class="pre">bool</span></code>) – Whether or not to show the legend</li>
+<li><strong>legend_title</strong> (<code class="xref py py-obj docutils literal notranslate"><span class="pre">str</span></code>) – The title of the legend</li>
+<li><strong>view</strong> (<code class="xref py py-obj docutils literal notranslate"><span class="pre">str</span></code>) – The view type (‘front’, ‘back’, ‘top’, ‘bottom’, ‘right’, ‘left’, or ‘free’)</li>
+<li><strong>search_index</strong> (<code class="xref py py-obj docutils literal notranslate"><span class="pre">int</span></code>) – The index in the label values that is used for searching</li>
 </ul>
 </td>
 </tr>

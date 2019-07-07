@@ -4,31 +4,36 @@ faerun.py
 The main module containing the Faerun class. 
 """
 
-import os
-import jinja2
 import math
-import colour
+import os
+from typing import Union
 
-import numpy as np
+import colour
+import jinja2
 import matplotlib.pyplot as plt
+import numpy as np
+from matplotlib.colors import Colormap
+from pandas import DataFrame
 
 
 class Faerun(object):
     """Creates a faerun object which is an empty plotting surface where
      layers such as scatter plots can be added."""
 
-    def __init__(self, title='python-faerun', clear_color='#111111', coords=True,
-                 coords_color='#888888', coords_box=False, view='free', scale=750):
-        """Constructor for Faerun
+    def __init__(self, title: str = 'python-faerun', clear_color: str = '#111111', coords: bool = True,
+                 coords_color: str = '#888888', coords_box: bool = False, view: str = 'free',
+                 scale: float = 750.0, alpha_blending=False):
+        """Constructor for Faerun.
 
         Keyword Arguments:
-            title {str} -- The title of the generated HTML file (default: {'python-faerun'})
-            clear_color {str} -- The background color of the plot (default: {'#111111'})
-            coords {bool} -- Show the coordinate axes in the plot (default: {True})
-            coords_color {str} -- The color of the coordinate axes (default: {'#888888'})
-            coords_box {bool} -- Show a box around the coordinate axes (default: {False})
-            view {str} -- The view (top, left, free ...) (default: {'free'})
-            scale {int} -- To what size to scale the coordinates (which are normalized) (default: {750})
+            title (:obj:`str`, optional): The title of the generated HTML file
+            clear_color (:obj:`str`, optional): The background color of the plot
+            coords (:obj:`bool`, optional): Show the coordinate axes in the plot
+            coords_color (:obj:`str`, optional): The color of the coordinate axes
+            coords_box (:obj:`bool`, optional): Show a box around the coordinate axes
+            view (:obj:`str`, optional): The view (front, back, top, bottom, left, right, free)
+            scale (:obj:`float`, optional): To what size to scale the coordinates (which are normalized)
+            alpha_blending (:obj:`bool`, optional): Whether to activate alpha blending (required for smoothCircle shader)
         """
         self.title = title
         self.clear_color = clear_color
@@ -37,27 +42,29 @@ class Faerun(object):
         self.coords_box = coords_box
         self.view = view
         self.scale = scale
+        self.alpha_blending = alpha_blending
 
         self.trees = {}
         self.trees_data = {}
         self.scatters = {}
         self.scatters_data = {}
 
-    def add_tree(self, name, data,
-                 mapping={'from': 'from', 'to': 'to', 'x': 'x', 'y': 'y', 'z': 'z', 'c': 'c'},
-                 color='#666666', colormap='plasma', fog_intensity=0.0, point_helper=None):
-        """Add a tree layer to the plot
+    def add_tree(self, name: str, data: Union[dict, DataFrame],
+                 mapping: dict = {'from': 'from', 'to': 'to', 'x': 'x', 'y': 'y', 'z': 'z', 'c': 'c'},
+                 color: str = '#666666', colormap: Union[str, Colormap] = 'plasma',
+                 fog_intensity: float = 0.0, point_helper: str = None):
+        """Add a tree layer to the plot.
 
         Arguments:
-            name {str} -- The name of the layer
-            data {object} -- A Python  dict or Pandas DataFrame containing the data
+            name (:obj:`str`): The name of the layer
+            data (:obj:`dict` or :obj:`DataFrame`): A Python dict or Pandas DataFrame containing the data
 
         Keyword Arguments:
-            mapping {dict} -- The keys which contain the data in the input dict or DataFrame (default: {{'from': 'from', 'to': 'to', 'x': 'x', 'y': 'y', 'z': 'z', 'c': 'c'}})
-            color {str} -- The default color of the tree (default: {'#666666'})
-            colormap {str} -- The name of the colormap (can also be a matplotlib Colormap object) (default: {'plasma'})
-            fog_intensity {float} -- The intensity of the distance fog (default: {0.0})
-            point_helper {str} -- The name of the scatter layer to associate with this tree layer (the source of the coordinates) (default: {None})
+            mapping (:obj:`dict`, optional): The keys which contain the data in the input dict or DataFrame
+            color (:obj:`str`, optional): The default color of the tree
+            colormap (:obj:`str` or :obj:`Colormap`, optional): The name of the colormap (can also be a matplotlib Colormap object)
+            fog_intensity (:obj:`float`, optional): The intensity of the distance fog
+            point_helper (:obj:`str`, optional): The name of the scatter layer to associate with this tree layer (the source of the coordinates)
         """
         if point_helper is None and mapping['z'] not in data:
             data[mapping['z']] = [0] * len(data[mapping['x']])
@@ -68,30 +75,32 @@ class Faerun(object):
         }
         self.trees_data[name] = data
 
-    def add_scatter(self, name, data,
-                    mapping={'x': 'x', 'y': 'y', 'z': 'z', 'c': 'c', 'cs': 'cs', 's': 's', 'labels': 'labels'},
-                    colormap='plasma', shader='sphere', point_scale=1.0, max_point_size=100, 
-                    fog_intensity=0.0, saturation_limit=0.2, categorical=False, interactive=True, 
-                    has_legend=False, legend_title=None, legend_labels=None):
-        """Add a scatter layer to the plot
+    def add_scatter(self, name: str, data: Union[dict, DataFrame],
+                    mapping: dict = {'x': 'x', 'y': 'y', 'z': 'z', 'c': 'c', 'cs': 'cs', 's': 's', 'labels': 'labels'},
+                    colormap: Union[str, Colormap] = 'plasma', shader: str = 'sphere',
+                    point_scale: float = 1.0, max_point_size: float = 100.0,
+                    fog_intensity: float = 0.0, saturation_limit: float = 0.2, 
+                    categorical: bool = False, interactive: bool = True,
+                    has_legend: bool = False, legend_title: str = None, legend_labels: dict = None):
+        """Add a scatter layer to the plot.
 
         Arguments:
-            name {str} -- The name of the layer
-            data {object} -- A Python dict or Pandas DataFrame containing the data
+            name (:obj:`str`): The name of the layer
+            data (:obj:`dict` or :obj:`DataFrame`): A Python dict or Pandas DataFrame containing the data
 
         Keyword Arguments:
-            mapping {dict} -- The keys which contain the data in the input dict or DataFrame (default: {{'x': 'x', 'y': 'y', 'z': 'z', 'c': 'c', 'cs': 'cs', 's': 's', 'labels': 'labels'}})
-            colormap {str} -- The name of the colormap (can also be a matplotlib Colormap object) (default: {'plasma'})
-            shader {str} -- The name of the shader to use for the data point visualization (default: {'sphere'})
-            point_scale {float} -- The relative size of the data points (default: {1.0})
-            max_point_size {int} -- The maximum size of the data points when zooming in (default: {100})
-            fog_intensity {float} -- The intensity of the distance fog (default: {0.0})
-            saturation_limit {float} -- The minimum saturation to avoid "gray soup" (default: {0.2})
-            categorical {bool} -- Whether this scatter layer is categorical (default: {False})
-            interactive {bool} -- Whether this scatter layer is interactive (default: {True})
-            has_legend {bool} -- Whether or not to draw a legend (default: {False})
-            legend_title {str} -- The title of the legend (default: {None})
-            legend_labels {dict} -- A dict mapping values to legend labels (default: {None})
+            mapping (:obj:`dict`, optional): The keys which contain the data in the input dict or the column names in the pandas :obj:`DataFrame`
+            colormap (:obj:`str` or :obj:`Colormap`, optional): The name of the colormap (can also be a matplotlib Colormap object)
+            shader (:obj:`str`, optional): The name of the shader to use for the data point visualization
+            point_scale (:obj:`float`, optional): The relative size of the data points
+            max_point_size (:obj:`int`, optional): -- The maximum size of the data points when zooming in
+            fog_intensity (:obj:`float`, optional): -- The intensity of the distance fog
+            saturation_limit (:obj:`float`, optional): -- The minimum saturation to avoid "gray soup"
+            categorical (:obj:`bool`, optional): -- Whether this scatter layer is categorical
+            interactive (:obj:`bool`, optional): -- Whether this scatter layer is interactive
+            has_legend (:obj:`bool`, optional): -- Whether or not to draw a legend
+            legend_title (:obj:`str`, optional): -- The title of the legend
+            legend_labels (:obj:`dict`, optional): -- A dict mapping values to legend labels
         """
         if mapping['z'] not in data:
             data[mapping['z']] = [0] * len(data[mapping['x']])
@@ -161,16 +170,16 @@ class Faerun(object):
 
         self.scatters_data[name] = data
 
-    def plot(self, file_name='index', path='./', template='default', legend_title='Legend', 
-             legend_orientation='vertical'):
-        """Plots the data to an HTML / JS file
+    def plot(self, file_name: str = 'index', path: str = './', template: str = 'default', 
+             legend_title: str = 'Legend', legend_orientation: str = 'vertical'):
+        """Plots the data to an HTML / JS file.
 
         Keyword Arguments:
-            file_name {str} -- The name of the HTML / JS file (default: {'index'})
-            path {str} -- The path to which to write the HTML / JS file (default: {'./'})
-            template {str} -- The name of the template to use. (default: {'default'})
-            legend_title {str} -- The legend title (default: {'Legend'})
-            legend_orientation {str} -- The orientation of the legend (vertical or horizontal) (default: {'vertical'})
+            file_name (:obj:`str`, optional): The name of the HTML / JS file
+            path (:obj:`str`, optional): The path to which to write the HTML / JS file
+            template (:obj:`str`, optional): The name of the template to use
+            legend_title (:obj:`str`, optional): The legend title
+            legend_orientation (:obj:`str`, optional): The orientation of the legend ('vertical' or 'horizontal')
         """
         script_path = os.path.dirname(os.path.abspath(__file__))
         html_path = os.path.join(path, file_name + '.html')
@@ -196,7 +205,8 @@ class Faerun(object):
             'point_helpers': list(self.scatters.values()),
             'has_legend': has_legend,
             'legend_title': legend_title,
-            'legend_orientation': legend_orientation
+            'legend_orientation': legend_orientation,
+            'alpha_blending': str(self.alpha_blending).lower()
         }
 
         output_text = jenv.get_template(
@@ -208,12 +218,13 @@ class Faerun(object):
         with open(js_path, 'w') as f:
             f.write(self.create_data())
 
-    def get_min_max(self):
-        """Get the minimum an maximum coordinates from this plotter instance
+    def get_min_max(self) -> tuple:
+        """ Get the minimum an maximum coordinates from this plotter instance
 
-        Returns:
-            tuple -- The minimum and maximum coordinates
+            Returns:
+                :obj:`tuple`: The minimum and maximum coordinates
         """
+
         minimum = float('inf')
         maximum = float('-inf')
 
@@ -268,11 +279,11 @@ class Faerun(object):
 
         return minimum, maximum
 
-    def create_python_data(self):
+    def create_python_data(self) -> dict:
         """Returns a Python dict containing the data
 
         Returns:
-            dict -- The data defined in this Faerun instance
+            :obj:`dict`: The data defined in this Faerun instance
         """
         s = self.scale
         minimum, maximum = self.get_min_max()
@@ -390,11 +401,11 @@ class Faerun(object):
 
         return output
 
-    def create_data(self):
-        """Returns a JavaScript string defining a JavaScript object containing the data
+    def create_data(self) -> str:
+        """Returns a JavaScript string defining a JavaScript object containing the data.
 
         Returns:
-            str -- JavaScript code defining an object containing the data
+            :obj:`str`: JavaScript code defining an object containing the data
         """
         s = self.scale
         minimum, maximum = self.get_min_max()
@@ -513,17 +524,17 @@ class Faerun(object):
         return output
 
     @staticmethod
-    def discrete_cmap(n_colors, base_cmap=None):
-        """Create an N-bin discrete colormap from the specified input map
+    def discrete_cmap(n_colors: int, base_cmap: str) -> Colormap:
+        """Create an N-bin discrete colormap from the specified input map.
 
         Arguments:
-            n_colors {int} -- The number of discrete colors to generate
-        
+            n_colors (:obj:`int`): The number of discrete colors to generate
+
         Keyword Arguments:
-            base_cmap {Colormap} -- The colormap on which to base tje discrete map (default: {None})
+            base_cmap (:obj:`str`): The colormap on which to base the discrete map
 
         Returns:
-            Colormap -- The discrete colormap
+            :obj:`Colormap`: The discrete colormap
         """
         # https://gist.github.com/jakevdp/91077b0cae40f8f8244a
         base = plt.cm.get_cmap(base_cmap)

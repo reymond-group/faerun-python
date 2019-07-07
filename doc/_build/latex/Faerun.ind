@@ -1,0 +1,40 @@
+\begin{sphinxtheindex}
+\let\bigletter\sphinxstyleindexlettergroup
+\let\spxpagem \sphinxstyleindexpagemain
+\let\spxentry \sphinxstyleindexentry
+\let\spxextra \sphinxstyleindexextra
+
+  \bigletter {\sphinxsymbolsname}
+  \item \spxentry{\_\_init\_\_()}\spxextra{faerun.Faerun method}, \hyperpage{9}
+
+  \indexspace
+  \bigletter A
+  \item \spxentry{add\_scatter()}\spxextra{faerun.Faerun method}, \hyperpage{10}
+  \item \spxentry{add\_tree()}\spxextra{faerun.Faerun method}, \hyperpage{10}
+
+  \indexspace
+  \bigletter C
+  \item \spxentry{create\_data()}\spxextra{faerun.Faerun method}, \hyperpage{11}
+  \item \spxentry{create\_python\_data()}\spxextra{faerun.Faerun method}, \hyperpage{11}
+
+  \indexspace
+  \bigletter D
+  \item \spxentry{discrete\_cmap()}\spxextra{faerun.Faerun static method}, \hyperpage{11}
+
+  \indexspace
+  \bigletter F
+  \item \spxentry{Faerun}\spxextra{class in faerun}, \hyperpage{9}
+
+  \indexspace
+  \bigletter G
+  \item \spxentry{get\_min\_max()}\spxextra{faerun.Faerun method}, \hyperpage{11}
+
+  \indexspace
+  \bigletter H
+  \item \spxentry{host()}\spxextra{in module faerun}, \hyperpage{12}
+
+  \indexspace
+  \bigletter P
+  \item \spxentry{plot()}\spxextra{faerun.Faerun method}, \hyperpage{11}
+
+\end{sphinxtheindex}

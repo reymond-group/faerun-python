@@ -201,7 +201,7 @@
     
     phNames.push('helix')
     phName = phNames[phNames.length - 1];
-    pointHelpers.push(new Lore.Helpers.PointHelper(lore, phName, 'sphere', { maxPointSize: parseFloat('100') }));
+    pointHelpers.push(new Lore.Helpers.PointHelper(lore, phName, 'sphere', { maxPointSize: parseFloat('100.0') }));
     phNameToPhIndex[phName] = pointHelpers.length - 1;
     ph = pointHelpers[pointHelpers.length - 1];
     ph.setXYZRGBS(data[phName].x, data[phName].y, data[phName].z, data[phName].r, data[phName].g, data[phName].b, data[phName].s);

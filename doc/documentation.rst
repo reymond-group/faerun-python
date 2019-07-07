@@ -6,7 +6,6 @@ Faerun
 .. autoclass:: faerun.Faerun
     :members:
 
-
 Web
 ^^^
-.. autofunction:: faerun.web.host
+.. autofunction:: faerun.host
