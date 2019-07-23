@@ -174,8 +174,8 @@
           {% for value, label in point_helper.legend %}
           <div class="color-stripe" style="background-color:rgba({{value[0] * 255}}, {{value[1] * 255}}, {{value[2] * 255}}, {{value[3]}})"></div>
           {% endfor %}
-          <div class="legend-label max">{{point_helper.max_c}}</div>
-          <div class="legend-label min">{{point_helper.min_c}}</div>
+          <div class="legend-label max">{{point_helper.max_legend_label}}</div>
+          <div class="legend-label min">{{point_helper.min_legend_label}}</div>
         </div>
         {% endif %}
       </div>
