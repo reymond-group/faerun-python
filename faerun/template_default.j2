@@ -191,7 +191,7 @@
     let lore = Lore.init('lore', {
       antialiasing: true,
       clearColor: clearColor,
-      alphaBlending: {{alpha_blending}}
+      alphaBlending: '{{view}}' === 'free' ? false : true,
     });
 
     // Tree plots

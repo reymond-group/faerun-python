@@ -12,9 +12,13 @@ import colour
 import jinja2
 import matplotlib.pyplot as plt
 import numpy as np
-from IPython.display import IFrame
 from matplotlib.colors import Colormap
 from pandas import DataFrame
+
+try:
+    from IPython.display import IFrame
+except Exception:
+    pass
 
 
 class Faerun(object):

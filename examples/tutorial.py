@@ -4,7 +4,7 @@ from faerun import Faerun
 
 
 def main():
-    f = Faerun(title='faerun-example', clear_color='#222222', coords=False, view='free')
+    f = Faerun(title='faerun-example', clear_color='#222222', coords=False, view='front')
 
     x = np.linspace(0, 12.0, 326)
     y = np.sin(np.pi * x)
@@ -13,7 +13,7 @@ def main():
 
     data = {'x': x, 'y': y, 'z': z, 'c': c, 'labels': c}
 
-    f.add_scatter('helix', data, shader='sphere', colormap='Dark2', point_scale=5.0, 
+    f.add_scatter('helix', data, shader='smoothCircle', colormap='Dark2', point_scale=5.0, 
                   categorical=True, has_legend=True, legend_labels=[(0, 'Zero'), (1, 'One')])
 
     f.plot('helix')
