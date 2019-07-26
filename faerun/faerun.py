@@ -39,8 +39,10 @@ class Faerun(object):
         coords_offset: float = 5.0,
         x_title: str = "",
         y_title: str = "",
+        show_legend: bool = True,
         legend_title: str = "Legend",
         legend_orientation: str = "vertical",
+        legend_number_format: str = "{:.2f}",
         view: str = "free",
         scale: float = 750.0,
         alpha_blending=False,
@@ -61,8 +63,10 @@ class Faerun(object):
             coords_offset (:obj:`float`, optional): An offset added to the coordinate axes
             x_title (:obj:`str`, optional): The title of the x-axis
             y_title (:obj:`str`, optional): The title of the y-axis
+            show_legend (:obj:`bool`, optional): Whether or not to show the legend
             legend_title (:obj:`str`, optional): The legend title
             legend_orientation (:obj:`str`, optional): The orientation of the legend ('vertical' or 'horizontal')
+            legend_number_format (:obj:`str`, optional): A format string applied to the numbers displayed in the legend
             view (:obj:`str`, optional): The view (front, back, top, bottom, left, right, free)
             scale (:obj:`float`, optional): To what size to scale the coordinates (which are normalized)
             alpha_blending (:obj:`bool`, optional): Whether to activate alpha blending (required for smoothCircle shader)
@@ -80,8 +84,10 @@ class Faerun(object):
         self.coords_offset = coords_offset
         self.x_title = x_title
         self.y_title = y_title
+        self.show_legend = show_legend
         self.legend_title = legend_title
         self.legend_orientation = legend_orientation
+        self.legend_number_format = legend_number_format
         self.view = view
         self.scale = scale
         self.alpha_blending = alpha_blending
@@ -303,8 +309,8 @@ class Faerun(object):
             "is_range": is_range,
             "min_c": min_c,
             "max_c": max_c,
-            "min_legend_label": min_legend_label,
-            "max_legend_label": max_legend_label,
+            "min_legend_label": self.legend_number_format.format(min_legend_label),
+            "max_legend_label": self.legend_number_format.format(max_legend_label),
         }
 
         self.scatters_data[name] = data
@@ -334,6 +340,9 @@ class Faerun(object):
                 has_legend = True
                 break
 
+        if not show_legend:
+            has_legend = False
+        
         model = {
             "title": self.title,
             "file_name": file_name + ".js",
