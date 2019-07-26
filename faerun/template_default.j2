@@ -321,7 +321,7 @@
 
         // Coordinates
         {% if coords %}
-          init_coords(minX, minY, minZ, maxX, maxY, maxZ, {{coords_grid}}, {{coords_ticks}}, {{coords_tick_count}}, {{coords_tick_length}}, '{{coords_color}}', {{coords_box}})
+          init_coords(minX, minY, minZ, maxX, maxY, maxZ, {{coords_grid}}, {{coords_ticks}}, {{coords_tick_count}}, {{coords_tick_length}}, '{{coords_color}}', {{coords_box}}, {{coords_offset}})
         {% endif %}
 
         let center = new Lore.Math.Vector3f((maxX + minX) / 2.0, (maxY + minY) / 2.0, (maxZ + minZ) / 2.0);
