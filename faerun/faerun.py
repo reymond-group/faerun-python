@@ -6,7 +6,7 @@ The main module containing the Faerun class.
 
 import math
 import os
-from typing import Union
+from typing import Union, Dict, Any
 
 import colour
 import jinja2
@@ -27,40 +27,104 @@ class Faerun(object):
 
     def __init__(
         self,
-        title: str = "python-faerun",
+        title: str = "",
         clear_color: str = "#111111",
         coords: bool = True,
         coords_color: str = "#888888",
         coords_box: bool = False,
+        coords_ticks: bool = True,
+        coords_grid: bool = False,
+        coords_tick_count: int = 10,
+        coords_tick_length: float = 2.0,
+        coords_offset: float = 5.0,
+        x_title: str = "",
+        y_title: str = "",
         view: str = "free",
         scale: float = 750.0,
         alpha_blending=False,
+        style: Dict[str, Dict[str, Any]] = {},
     ):
         """Constructor for Faerun.
 
         Keyword Arguments:
-            title (:obj:`str`, optional): The title of the generated HTML file
+            title (:obj:`str`, optional): The plot title
             clear_color (:obj:`str`, optional): The background color of the plot
             coords (:obj:`bool`, optional): Show the coordinate axes in the plot
             coords_color (:obj:`str`, optional): The color of the coordinate axes
             coords_box (:obj:`bool`, optional): Show a box around the coordinate axes
+            coords_tick (:obj:`bool`, optional): Show ticks on coordinate axes
+            coords_grid (:obj:`bool`, optional): Extend ticks to create a grid
+            coords_tick_count (:obj:`int`, optional): The number of ticks to display per axis
+            coords_tick_length (:obj:`float`, optional): The length of the coordinate ticks
+            coords_offset (:obj:`float`, optional): An offset added to the coordinate axes
+            x_title (:obj:`str`, optional): The title of the x-axis
+            y_title (:obj:`str`, optional): The title of the y-axis
             view (:obj:`str`, optional): The view (front, back, top, bottom, left, right, free)
             scale (:obj:`float`, optional): To what size to scale the coordinates (which are normalized)
             alpha_blending (:obj:`bool`, optional): Whether to activate alpha blending (required for smoothCircle shader)
+            style (:obj:`Dict[str, Dict[str, Any]]`, optional): The css styles to apply to the HTML elements
         """
         self.title = title
         self.clear_color = clear_color
         self.coords = coords
         self.coords_color = coords_color
         self.coords_box = coords_box
+        self.coords_ticks = coords_ticks
+        self.coords_grid = coords_grid
+        self.coords_tick_count = coords_tick_count
+        self.coords_tick_length = coords_tick_length
+        self.coords_offset = coords_offset
+        self.x_title = x_title
+        self.y_title = y_title
         self.view = view
         self.scale = scale
         self.alpha_blending = alpha_blending
+        self.style = style
 
         self.trees = {}
         self.trees_data = {}
         self.scatters = {}
         self.scatters_data = {}
+
+        # Defining the default style (css values)
+        default_style = {
+            "legend": {
+                "bottom": "10px",
+                "right": "10px",
+                "padding": "10px",
+                "border": "1px solid #111111",
+                "border-radius": "2px",
+                "background-color": "#111111",
+                "filter": "drop-shadow(0px 0px 10px rgba(0, 0, 0, 0.5))",
+                "color": "#eeeeee",
+                "font-family": "'Open Sans'",
+            },
+            "title": {
+                "padding-bottom": "20px",
+                "font-size": "1.0em",
+                "color": "#888888",
+                "font-family": "'Open Sans'",
+            },
+            "x-axis": {
+                "padding-top": "20px",
+                "font-size": "0.7em",
+                "color": "#888888",
+                "font-family": "'Open Sans'",
+            },
+            "y-axis": {
+                "padding-bottom": "20px",
+                "font-size": "0.7em",
+                "color": "#888888",
+                "font-family": "'Open Sans'",
+                "transform": "rotate(-90deg)",
+            }
+        }
+
+        for key, _ in default_style.items():
+            if key in self.style:
+                default_style[key].update(self.style[key])
+
+        self.style = default_style
 
     def add_tree(
         self,
@@ -269,17 +333,25 @@ class Faerun(object):
             "view": self.view,
             "coords": self.coords,
             "coords_color": self.coords_color,
-            "coords_box": self.coords_box,
+            "coords_box": str(self.coords_box).lower(),
+            "coords_ticks": str(self.coords_ticks).lower(),
+            "coords_grid": str(self.coords_grid).lower(),
+            "coords_tick_count": self.coords_tick_count,
+            "coords_tick_length": self.coords_tick_length,
+            "coords_offset": self.coords_offset,
+            "x_title": self.x_title,
+            "y_title": self.y_title,
             "tree_helpers": list(self.trees.values()),
             "point_helpers": list(self.scatters.values()),
             "has_legend": has_legend,
             "legend_title": legend_title,
             "legend_orientation": legend_orientation,
             "alpha_blending": str(self.alpha_blending).lower(),
+            "style": self.style,
         }
 
         if Faerun.in_notebook():
-            model['data'] = self.create_data()
+            model["data"] = self.create_data()
         else:
             with open(js_path, "w") as f:
                 f.write(self.create_data())
@@ -707,7 +779,10 @@ class Faerun(object):
             :obj:`bool`: Whether the code is running in an ipython notebook
         """
         try:
-            if str(type(get_ipython())) == "<class 'ipykernel.zmqshell.ZMQInteractiveShell'>":
+            if (
+                str(type(get_ipython()))
+                == "<class 'ipykernel.zmqshell.ZMQInteractiveShell'>"
+            ):
                 return True
             else:
                 return False
