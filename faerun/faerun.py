@@ -39,6 +39,8 @@ class Faerun(object):
         coords_offset: float = 5.0,
         x_title: str = "",
         y_title: str = "",
+        legend_title: str = "Legend",
+        legend_orientation: str = "vertical",
         view: str = "free",
         scale: float = 750.0,
         alpha_blending=False,
@@ -59,6 +61,8 @@ class Faerun(object):
             coords_offset (:obj:`float`, optional): An offset added to the coordinate axes
             x_title (:obj:`str`, optional): The title of the x-axis
             y_title (:obj:`str`, optional): The title of the y-axis
+            legend_title (:obj:`str`, optional): The legend title
+            legend_orientation (:obj:`str`, optional): The orientation of the legend ('vertical' or 'horizontal')
             view (:obj:`str`, optional): The view (front, back, top, bottom, left, right, free)
             scale (:obj:`float`, optional): To what size to scale the coordinates (which are normalized)
             alpha_blending (:obj:`bool`, optional): Whether to activate alpha blending (required for smoothCircle shader)
@@ -76,6 +80,8 @@ class Faerun(object):
         self.coords_offset = coords_offset
         self.x_title = x_title
         self.y_title = y_title
+        self.legend_title = legend_title
+        self.legend_orientation = legend_orientation
         self.view = view
         self.scale = scale
         self.alpha_blending = alpha_blending
@@ -193,8 +199,8 @@ class Faerun(object):
         has_legend: bool = False,
         legend_title: str = None,
         legend_labels: dict = None,
-        min_legend_label="0.0",
-        max_legend_label="1.0",
+        min_legend_label=None,
+        max_legend_label=None,
     ):
         """Add a scatter layer to the plot.
 
@@ -224,6 +230,12 @@ class Faerun(object):
         min_c = float(min(data[mapping["c"]]))
         max_c = float(max(data[mapping["c"]]))
         len_c = len(data[mapping["c"]])
+
+        if min_legend_label is None:
+            min_legend_label = str(min_c)
+
+        if max_legend_label is None:
+            max_legend_label = str(max_c)
 
         is_range = False
 
@@ -302,8 +314,6 @@ class Faerun(object):
         file_name: str = "index",
         path: str = "./",
         template: str = "default",
-        legend_title: str = "Legend",
-        legend_orientation: str = "vertical",
     ):
         """Plots the data to an HTML / JS file.
 
@@ -311,8 +321,6 @@ class Faerun(object):
             file_name (:obj:`str`, optional): The name of the HTML / JS file
             path (:obj:`str`, optional): The path to which to write the HTML / JS file
             template (:obj:`str`, optional): The name of the template to use
-            legend_title (:obj:`str`, optional): The legend title
-            legend_orientation (:obj:`str`, optional): The orientation of the legend ('vertical' or 'horizontal')
         """
         script_path = os.path.dirname(os.path.abspath(__file__))
         html_path = os.path.join(path, file_name + ".html")
@@ -344,8 +352,8 @@ class Faerun(object):
             "tree_helpers": list(self.trees.values()),
             "point_helpers": list(self.scatters.values()),
             "has_legend": has_legend,
-            "legend_title": legend_title,
-            "legend_orientation": legend_orientation,
+            "legend_title": self.legend_title,
+            "legend_orientation": self.legend_orientation,
             "alpha_blending": str(self.alpha_blending).lower(),
             "style": self.style,
         }

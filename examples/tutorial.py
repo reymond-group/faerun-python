@@ -4,7 +4,7 @@ from faerun import Faerun
 
 
 def main():
-    f = Faerun(title='faerun-example', clear_color='#222222', coords=False, view='front')
+    f = Faerun(clear_color='#222222', coords=True, view='front')
 
     x = np.linspace(0, 12.0, 326)
     y = np.sin(np.pi * x)
