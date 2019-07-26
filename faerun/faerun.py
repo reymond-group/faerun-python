@@ -205,8 +205,8 @@ class Faerun(object):
         has_legend: bool = False,
         legend_title: str = None,
         legend_labels: dict = None,
-        min_legend_label=None,
-        max_legend_label=None,
+        min_legend_label: Union[str, float] = None,
+        max_legend_label: Union[str, float] = None,
     ):
         """Add a scatter layer to the plot.
 
@@ -227,8 +227,8 @@ class Faerun(object):
             has_legend (:obj:`bool`, optional): Whether or not to draw a legend
             legend_title (:obj:`str`, optional): The title of the legend
             legend_labels (:obj:`dict`, optional): A dict mapping values to legend labels
-            min_legend_label (:obj:`str`, option): The label used for the miminum value in a ranged (non-categorical) legend
-            max_legend_label (:obj:`str`, option): The label used for the maximum value in a ranged (non-categorical) legend
+            min_legend_label (:obj:`Union[str, float]`, option): The label used for the miminum value in a ranged (non-categorical) legend
+            max_legend_label (:obj:`Union[str, float]`, option): The label used for the maximum value in a ranged (non-categorical) legend
         """
         if mapping["z"] not in data:
             data[mapping["z"]] = [0] * len(data[mapping["x"]])
@@ -238,10 +238,10 @@ class Faerun(object):
         len_c = len(data[mapping["c"]])
 
         if min_legend_label is None:
-            min_legend_label = str(min_c)
+            min_legend_label = min_c
 
         if max_legend_label is None:
-            max_legend_label = str(max_c)
+            max_legend_label = max_c
 
         is_range = False
 
@@ -292,6 +292,13 @@ class Faerun(object):
                 saturation_limit,
                 np.array((data[mapping["cs"]] - min_cs) / (max_cs - min_cs)),
             )
+        
+        # Format numbers if parameters are indeed numbers
+        if isinstance(min_legend_label, (int, float)):
+            min_legend_label = self.legend_number_format.format(min_legend_label)
+
+        if isinstance(max_legend_label, (int, float)):
+            max_legend_label = self.legend_number_format.format(max_legend_label)
 
         self.scatters[name] = {
             "name": name,
@@ -309,8 +316,8 @@ class Faerun(object):
             "is_range": is_range,
             "min_c": min_c,
             "max_c": max_c,
-            "min_legend_label": self.legend_number_format.format(min_legend_label),
-            "max_legend_label": self.legend_number_format.format(max_legend_label),
+            "min_legend_label": min_legend_label,
+            "max_legend_label": max_legend_label,
         }
 
         self.scatters_data[name] = data
@@ -340,7 +347,7 @@ class Faerun(object):
                 has_legend = True
                 break
 
-        if not show_legend:
+        if not self.show_legend:
             has_legend = False
         
         model = {
