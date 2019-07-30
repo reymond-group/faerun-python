@@ -361,7 +361,7 @@
                 phNames.push(phName);
                 pointHelpers.push(new Lore.Helpers.PointHelper(lore, phName, shaders[i], { maxPointSize: 20 }));
                 ph = pointHelpers[pointHelpers.length - 1];
-                if (sizes[i].length === 0)
+                if (sizes[i].length !== coords[i][0].length)
                     ph.setXYZRGBS(coords[i][0], coords[i][1], coords[i][2], colors[i][0], colors[i][1], colors[i][2]);
                 else
                     ph.setXYZRGBS(coords[i][0], coords[i][1], coords[i][2], colors[i][0], colors[i][1], colors[i][2], sizes[i]);

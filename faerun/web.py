@@ -162,9 +162,9 @@ class FaerunWeb():
             dtype = np.uint8
 
         if coord in self.data[name]:
-            return bytes(np.array(self.data[name][coord].tolist(), dtype=dtype))
+            return bytes(np.array(self.data[name][coord], dtype=dtype))
         else:
-            return bytes(np.array([]))
+            return bytes(np.array([], dtype=dtype))
 
     @cherrypy.expose
     @cherrypy.tools.allow(methods=['POST'])
