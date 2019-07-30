@@ -40,7 +40,6 @@ import faerun
 def json_handler(*args, **kwargs):
     """ The default cherrypy json encoder seems to be extremely slow... """
     value = cherrypy.serving.request._json_inner_handler(*args, **kwargs)
-    print(value)
     return ujson.dumps(value).encode('utf8')
 
 
@@ -162,7 +161,10 @@ class FaerunWeb():
         elif dtype == 'uint8':
             dtype = np.uint8
 
-        return bytes(np.array(self.data[name][coord].tolist(), dtype=dtype))
+        if coord in self.data[name]:
+            return bytes(np.array(self.data[name][coord].tolist(), dtype=dtype))
+        else:
+            return bytes(np.array([]))
 
     @cherrypy.expose
     @cherrypy.tools.allow(methods=['POST'])

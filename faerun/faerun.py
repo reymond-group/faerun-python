@@ -129,7 +129,7 @@ class Faerun(object):
                 "color": "#888888",
                 "font-family": "'Open Sans'",
                 "transform": "rotate(-90deg)",
-            }
+            },
         }
 
         for key, _ in default_style.items():
@@ -292,7 +292,7 @@ class Faerun(object):
                 saturation_limit,
                 np.array((data[mapping["cs"]] - min_cs) / (max_cs - min_cs)),
             )
-        
+
         # Format numbers if parameters are indeed numbers
         if isinstance(min_legend_label, (int, float)):
             min_legend_label = self.legend_number_format.format(min_legend_label)
@@ -323,10 +323,7 @@ class Faerun(object):
         self.scatters_data[name] = data
 
     def plot(
-        self,
-        file_name: str = "index",
-        path: str = "./",
-        template: str = "default",
+        self, file_name: str = "index", path: str = "./", template: str = "default"
     ):
         """Plots the data to an HTML / JS file.
 
@@ -349,7 +346,7 @@ class Faerun(object):
 
         if not self.show_legend:
             has_legend = False
-        
+
         model = {
             "title": self.title,
             "file_name": file_name + ".js",
@@ -583,8 +580,8 @@ class Faerun(object):
             :obj:`str`: JavaScript code defining an object containing the data
         """
         s = self.scale
-        minimum, maximum = self.get_min_max()
-        diff = maximum - minimum
+        mini, maxi = self.get_min_max()
+        diff = maxi - mini
 
         output = "const data = {\n"
 
@@ -599,52 +596,19 @@ class Faerun(object):
                 cmap = colormap
 
             output += name + ": {\n"
-            output += (
-                "x: ["
-                + ",".join(
-                    map(
-                        str,
-                        [
-                            round(s * (x - minimum) / diff, 3)
-                            for x in data[mapping["x"]]
-                        ],
-                    )
-                )
-                + "],\n"
-            )
-            output += (
-                "y: ["
-                + ",".join(
-                    map(
-                        str,
-                        [
-                            round(s * (y - minimum) / diff, 3)
-                            for y in data[mapping["y"]]
-                        ],
-                    )
-                )
-                + "],\n"
-            )
-            output += (
-                "z: ["
-                + ",".join(
-                    map(
-                        str,
-                        [
-                            round(s * (z - minimum) / diff, 3)
-                            for z in data[mapping["z"]]
-                        ],
-                    )
-                )
-                + "],\n"
-            )
+
+            x_norm = [round(s * (x - mini) / diff, 3) for x in data[mapping["x"]]]
+            output += "x: [" + ",".join(map(str, x_norm)) + "],\n"
+
+            y_norm = [round(s * (y - mini) / diff, 3) for y in data[mapping["y"]]]
+            output += "y: [" + ",".join(map(str, y_norm)) + "],\n"
+
+            z_norm = [round(s * (z - mini) / diff, 3) for z in data[mapping["z"]]]
+            output += "z: [" + ",".join(map(str, z_norm)) + "],\n"
 
             if mapping["labels"] in data:
-                output += (
-                    "labels: ["
-                    + ",".join("'{0}'".format(s) for s in data[mapping["labels"]])
-                    + "],\n"
-                )
+                fmt_labels = ["'{0}'".format(s) for s in data[mapping["labels"]]]
+                output += "labels: [" + ",".join(fmt_labels) + "],\n"
 
             if mapping["s"] in data:
                 output += "s: [" + ",".join(map(str, data[mapping["s"]])) + "],\n"
@@ -693,67 +657,23 @@ class Faerun(object):
                     z_t.append(scatter[scatter_mapping["z"]][data[mapping["from"]][i]])
                     z_t.append(scatter[scatter_mapping["z"]][data[mapping["to"]][i]])
 
-                output += (
-                    "x: ["
-                    + ",".join(
-                        map(str, [round(s * (x - minimum) / diff, 3) for x in x_t])
-                    )
-                    + "],\n"
-                )
-                output += (
-                    "y: ["
-                    + ",".join(
-                        map(str, [round(s * (y - minimum) / diff, 3) for y in y_t])
-                    )
-                    + "],\n"
-                )
-                output += (
-                    "z: ["
-                    + ",".join(
-                        map(str, [round(s * (z - minimum) / diff, 3) for z in z_t])
-                    )
-                    + "],\n"
-                )
+                x_norm = [round(s * (x - mini) / diff, 3) for x in x_t]
+                output += f"x: [" + ",".join(map(str, x_norm)) + "],\n"
+
+                y_norm = [round(s * (y - mini) / diff, 3) for y in y_t]
+                output += "y: [" + ",".join(map(str, y_norm)) + "],\n"
+
+                z_norm = [round(s * (z - mini) / diff, 3) for z in z_t]
+                output += "z: [" + ",".join(map(str, z_norm)) + "],\n"
             else:
-                output += (
-                    "x: ["
-                    + ",".join(
-                        map(
-                            str,
-                            [
-                                round(s * (x - minimum) / diff, 3)
-                                for x in data[mapping["x"]]
-                            ],
-                        )
-                    )
-                    + "],\n"
-                )
-                output += (
-                    "y: ["
-                    + ",".join(
-                        map(
-                            str,
-                            [
-                                round(s * (y - minimum) / diff, 3)
-                                for y in data[mapping["y"]]
-                            ],
-                        )
-                    )
-                    + "],\n"
-                )
-                output += (
-                    "z: ["
-                    + ",".join(
-                        map(
-                            str,
-                            [
-                                round(s * (z - minimum) / diff, 3)
-                                for z in data[mapping["z"]]
-                            ],
-                        )
-                    )
-                    + "],\n"
-                )
+                x_norm = [round(s * (x - mini) / diff, 3) for x in data[mapping["x"]]]
+                output += "x: [" + ",".join(map(str, x_norm)) + "],\n"
+
+                y_norm = [round(s * (y - mini) / diff, 3) for y in data[mapping["y"]]]
+                output += "y: [" + ",".join(map(str, y_norm)) + "],\n"
+
+                z_norm = [round(s * (z - mini) / diff, 3) for z in data[mapping["z"]]]
+                output += "z: [" + ",".join(map(str, z_norm)) + "],\n"
 
             if mapping["c"] in data:
                 colormap = self.trees[name]["colormap"]

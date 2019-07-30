@@ -1,4 +1,5 @@
 import pickle
+import random
 import numpy as np
 import pandas as pd
 from faerun import Faerun, host
@@ -35,12 +36,13 @@ def load():
     result = pca.fit_transform(mqns)
     return result, mqns, smiles
 
+
 def main():
     coords, mqns, smiles = load()
 
     data = {
         'x': [], 'y': [],
-        'c': [],
+        'c': [], 's': [],
         'labels': smiles
     }
 
@@ -48,6 +50,7 @@ def main():
         data['x'].append(coords[i][0])
         data['y'].append(coords[i][1])
         data['c'].append(mqns[i][0])
+        data['s'].append(random.randint(1, 5))
 
     df = pd.DataFrame.from_dict(data)
 

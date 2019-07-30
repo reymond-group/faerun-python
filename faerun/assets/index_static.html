@@ -242,6 +242,7 @@
             let treeNames = [];
             let coordinates = [];
             let colors = [];
+            let sizes = [];
             let scatterNames = [];
             let pointScales = [];
             let shaders = [];
@@ -287,6 +288,11 @@
                 let r = await get_values(name, 'r', 'uint8');
                 let g = await get_values(name, 'g', 'uint8');
                 let b = await get_values(name, 'b', 'uint8');
+                
+                updateText('loader', 'Loading Point Sizes for "' + name + '" ...');
+                let s = await get_values(name, 's');
+
+                sizes.push(s);
                 coordinates.push([x, y, z]);
                 colors.push([r, g, b]);
                 scatterNames.push(name);
@@ -300,7 +306,7 @@
             setTimeout(() => {
                 init_coords(minX, minY, minZ, maxX, maxY, maxZ, true, true, 100, 2.0, theme.grid, true);
                 init_trees(treeNames, trees);
-                init_scatters(scatterNames, coordinates, colors, pointScales, shaders, meta.label_type);
+                init_scatters(scatterNames, coordinates, colors, sizes, pointScales, shaders, meta.label_type);
 
                 // Wait to return so that trees and scatters are ready
                 setTimeout(() => {
@@ -344,23 +350,21 @@
         }
 
         // Scatter plots
-        function init_scatters(names, coords, colors, pointScales, shaders, labelType='smiles') {
+        function init_scatters(names, coords, colors, sizes, pointScales, shaders, labelType='smiles') {
             let ph = null;
             let phNames = [];
             let ohIndexToPhName = [];
             let phName = null;
 
-            for (let i = 0; i < coords.length; i++) {
-                sizes = Array(colors[i][0].length);
-                
-                for (let j = 0; j < colors[i][0].length; j++)
-                    sizes[j] = 1;
-                
+            for (let i = 0; i < coords.length; i++) {                
                 let phName = names[i];
                 phNames.push(phName);
                 pointHelpers.push(new Lore.Helpers.PointHelper(lore, phName, shaders[i], { maxPointSize: 20 }));
                 ph = pointHelpers[pointHelpers.length - 1];
-                ph.setXYZRGBS(coords[i][0], coords[i][1], coords[i][2], colors[i][0], colors[i][1], colors[i][2], sizes);
+                if (sizes[i].length === 0)
+                    ph.setXYZRGBS(coords[i][0], coords[i][1], coords[i][2], colors[i][0], colors[i][1], colors[i][2]);
+                else
+                    ph.setXYZRGBS(coords[i][0], coords[i][1], coords[i][2], colors[i][0], colors[i][1], colors[i][2], sizes[i]);
                 ph.setPointScale(pointScales[i]);
                 ph.setFog([cc.components[0], cc.components[1], cc.components[2], cc.components[3]], 0.0);
                 octreeHelpers.push(new Lore.Helpers.OctreeHelper(lore, 'Octree_' + phName, 'tree', ph));
