@@ -77,6 +77,12 @@
         transition: opacity 0.1s ease-out;
       }
 
+      #text-container {
+        position: relative;
+        max-width: 500px;
+        white-space: normal;
+      }
+
       #hover-indicator {
         display: none;
         position: absolute;
@@ -122,12 +128,16 @@
         margin-top: 0;
         margin-bottom: 5px;
         text-align: center;
+        max-width: 250px;
+        white-space: normal;
       }
 
       #legend h3 {
         font-size: 0.8em;
         margin-top: 10px;
         margin-bottom: 6px;
+        max-width: 250px;
+        white-space: normal;
       }
 
       #legend .legend-element, #legend .legend-element-range {
@@ -188,7 +198,7 @@
     {% endif %}
 
     <div id="hover-indicator"></div>
-    <div id="tip-image-container"></div>
+    <div id="tip-image-container"><div id="text-container"></div></div>
     <canvas id="lore"></canvas>
 
     {% if has_legend %}
@@ -330,6 +340,7 @@
         lore.controls.setView(0.9, -0.5)
 
         let tip = document.getElementById('tip-image-container');
+        let tip_text = document.getElementById('text-container');
         let hoverIndicator = document.getElementById('hover-indicator');
 
         Lore.Helpers.OctreeHelper.joinHoveredChanged(octreeHelpers, function (e) {
@@ -339,7 +350,7 @@
               label: data[ohIndexToPhName[e.source]].labels[e.e.index]
             }
 
-            tip.innerHTML = currentPoint.label;
+            tip_text.innerHTML = currentPoint.label;
             tip.classList.add('show');
 
             let pointSize = pointHelpers[e.source].getPointSize();

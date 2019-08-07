@@ -246,6 +246,7 @@
             let scatterNames = [];
             let pointScales = [];
             let shaders = [];
+            let treeColors = [];
             
             let minX = Number.MAX_VALUE;
             let minY = Number.MAX_VALUE;
@@ -261,6 +262,7 @@
                 let z = await get_values(name, 'z');
                 trees.push([x, y, z]);
                 treeNames.push(name);
+                treeColors.push(meta.tree[name].color);
 
                 minX = min(x, minX);
                 minY = min(y, minY);
@@ -305,7 +307,7 @@
             // Add a timeout to give updateText above the chance to set value
             setTimeout(() => {
                 init_coords(minX, minY, minZ, maxX, maxY, maxZ, true, true, 100, 2.0, theme.grid, true);
-                init_trees(treeNames, trees);
+                init_trees(treeNames, treeColors, trees);
                 init_scatters(scatterNames, coordinates, colors, sizes, pointScales, shaders, meta.label_type);
 
                 // Wait to return so that trees and scatters are ready
@@ -334,7 +336,7 @@
         }
 
         // Trees
-        function init_trees(names, coords) {
+        function init_trees(names, treeColors, coords) {
             // Tree plots
             let th = null;
             let thNames = [];
@@ -344,7 +346,7 @@
                 thName = thNames[thNames.length - 1];
                 treeHelpers.push(new Lore.Helpers.TreeHelper(lore, thName, 'tree'));
                 th = treeHelpers[treeHelpers.length - 1];
-                th.setXYZHexS(coords[i][0], coords[i][1], coords[i][2], '#555555');
+                th.setXYZHexS(coords[i][0], coords[i][1], coords[i][2], treeColors[i]);
                 th.setFog([cc.components[0], cc.components[1], cc.components[2], cc.components[3]], 0.0);
             }
         }
