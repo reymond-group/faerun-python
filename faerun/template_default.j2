@@ -144,18 +144,22 @@
         position: relative;
         display: flex;
         flex: auto;
-        align-items: center;
+        align-items: flex-start;
         padding-bottom: 2px;
+      }
+
+      #legend .legend-element {
+        align-items: flex-start;
+      }
+
+      #legend .legend-element-range {
+        flex-direction: column;
       }
 
       #legend .color-box {
         {% for key, value in style["color-box"].items() %}
           {{key}}: {{value}};
         {% endfor %}
-      }
-
-      #legend .legend-element-range {
-        flex-direction: column;
       }
 
       #legend .color-stripe {
@@ -173,13 +177,13 @@
       #legend .legend-label.max {
         position: absolute;
         top: 0px;
-        margin-left: 20px;
+        margin-left: 15px;
       }
 
       #legend .legend-label.min {
         position: absolute;
         bottom: 2px;
-        margin-left: 20px;
+        margin-left: 15px;
       }
 
       .show {
