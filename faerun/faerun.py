@@ -130,6 +130,16 @@ class Faerun(object):
                 "font-family": "'Open Sans'",
                 "transform": "rotate(-90deg)",
             },
+            "color-box": {
+                "width": "15px",
+                "height": "15px",
+                "border": "solid 0px",
+            },
+            "color-stripe": {
+                "width": "15px",
+                "height": "1px",
+                "border": "solid 0px",
+            },
         }
 
         for key, _ in default_style.items():

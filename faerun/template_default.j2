@@ -144,13 +144,14 @@
         position: relative;
         display: flex;
         flex: auto;
-        align-items: flex-start;
+        align-items: center;
         padding-bottom: 2px;
       }
 
       #legend .color-box {
-        width: 15px;
-        height: 15px;
+        {% for key, value in style["color-box"].items() %}
+          {{key}}: {{value}};
+        {% endfor %}
       }
 
       #legend .legend-element-range {
@@ -158,8 +159,9 @@
       }
 
       #legend .color-stripe {
-        width: 15px;
-        height: 1px;
+        {% for key, value in style["color-stripe"].items() %}
+          {{key}}: {{value}};
+        {% endfor %}
       }
 
       #legend .legend-label {
@@ -171,13 +173,13 @@
       #legend .legend-label.max {
         position: absolute;
         top: 0px;
-        margin-left: 15px;
+        margin-left: 20px;
       }
 
       #legend .legend-label.min {
         position: absolute;
         bottom: 2px;
-        margin-left: 15px;
+        margin-left: 20px;
       }
 
       .show {
@@ -219,7 +221,8 @@
                   {% for value, label in point_helper.legend %}
                     <div class="legend-element">
                     <div class="color-box"
-                        style="background-color:rgba({{ value[0] * 255 }}, {{ value[1] * 255 }}, {{ value[2] * 255 }}, {{ value[3] }})">
+                         style="background-color: rgba({{ value[0] * 255 }}, {{ value[1] * 255 }}, {{ value[2] * 255 }}, {{ value[3] }});
+                                border-color: rgba({{ value[0] * 255 }}, {{ value[1] * 255 }}, {{ value[2] * 255 }}, {{ value[3] }})">
                     </div>
                     <div class="legend-label">{{ label }}</div>
                     </div>
@@ -228,7 +231,8 @@
                   <div class="legend-element-range">
                   {% for value, label in point_helper.legend %}
                     <div class="color-stripe" 
-                        style="background-color:rgba({{ value[0] * 255 }}, {{ value[1] * 255 }}, {{ value[2] * 255 }}, {{ value[3] }})">
+                         style="background-color: rgba({{ value[0] * 255 }}, {{ value[1] * 255 }}, {{ value[2] * 255 }}, {{ value[3] }});
+                                border-color: rgba({{ value[0] * 255 }}, {{ value[1] * 255 }}, {{ value[2] * 255 }}, {{ value[3] }})">
                     </div>
                   {% endfor %}
                   <div class="legend-label max">

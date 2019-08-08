@@ -4,23 +4,31 @@ from faerun import Faerun
 
 
 def main():
-    f = Faerun(clear_color='#222222', coords=True, view='front')
+    f = Faerun(clear_color="#222222", coords=True, view="front", style={"color-box": {"border-radius": "50%", "border-width": "2px", "background-color": "transparent !important"}})
 
     x = np.linspace(0, 12.0, 326)
     y = np.sin(np.pi * x)
     z = np.cos(np.pi * x)
     c = np.random.randint(0, 2, len(x))
 
-    data = {'x': x, 'y': y, 'z': z, 'c': c, 'labels': c}
+    data = {"x": x, "y": y, "z": z, "c": c, "labels": c}
 
-    f.add_scatter('helix', data, shader='smoothCircle', colormap='Dark2', point_scale=5.0, 
-                  categorical=True, has_legend=True, legend_labels=[(0, 'Zero'), (1, 'One')])
+    f.add_scatter(
+        "helix",
+        data,
+        shader="smoothCircle",
+        colormap="Dark2",
+        point_scale=5.0,
+        categorical=True,
+        has_legend=True,
+        legend_labels=[(0, "Zero"), (1, "One")],
+    )
 
-    f.plot('helix')
+    f.plot("helix")
 
-    with open('helix.faerun', 'wb+') as handle:
+    with open("helix.faerun", "wb+") as handle:
         pickle.dump(f.create_python_data(), handle, protocol=pickle.HIGHEST_PROTOCOL)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()
