@@ -130,16 +130,8 @@ class Faerun(object):
                 "font-family": "'Open Sans'",
                 "transform": "rotate(-90deg)",
             },
-            "color-box": {
-                "width": "15px",
-                "height": "15px",
-                "border": "solid 0px",
-            },
-            "color-stripe": {
-                "width": "15px",
-                "height": "1px",
-                "border": "solid 0px",
-            },
+            "color-box": {"width": "15px", "height": "15px", "border": "solid 0px"},
+            "color-stripe": {"width": "15px", "height": "1px", "border": "solid 0px"},
         }
 
         for key, _ in default_style.items():
@@ -596,6 +588,7 @@ class Faerun(object):
         output = "const data = {\n"
 
         # Create the data for the scatters
+        # TODO: If it's not interactive, labels shouldn't be exported.
         for name, data in self.scatters_data.items():
             mapping = self.scatters[name]["mapping"]
             colormap = self.scatters[name]["colormap"]

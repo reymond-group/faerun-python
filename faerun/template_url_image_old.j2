@@ -1,0 +1,356 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="UTF-8">
+  <title>{{title}}</title>
+  <script src="https://unpkg.com/lore-engine@1.0.29/dist/lore.min.js"></script>
+  <link href="https://fonts.googleapis.com/css?family=Open+Sans:400,600" rel="stylesheet">
+  <style>
+    body {
+      margin: 0px;
+      padding: 0px;
+      height: 100%;
+      user-select: none;
+      overflow: hidden;
+    }
+
+    #lore {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+    }
+
+    #tip-image-container {
+      position: absolute;
+      z-index: 9999;
+      width: 250px;
+      height: 250px;
+      background-color: rgba(255, 255, 255, 1.0);
+      pointer-events: none;
+      opacity: 0.0;
+      transition: opacity 0.1s ease-out;
+      filter: drop-shadow(0px 0px 10px rgba(0, 0, 0, 1.0));
+    }
+
+    #tip-image-container.show {
+      opacity: 1.0;
+      transition: opacity 0.1s ease-out;
+    }
+
+    #tip-image {
+      width: 250px;
+      height: 250px;
+      pointer-events: none;
+    }
+
+    #hover-indicator {
+      display: none;
+      position: absolute;
+      z-index: 999;
+      border: 1px solid #fff;
+      background-color: rgba(255, 255, 255, 0.25);
+      border-radius: 50%;
+      pointer-events: none;
+    }
+
+    #hover-indicator.show {
+      display: block !important
+    }
+
+    #legend {
+      position: absolute;
+      bottom: 10px;
+      right: 10px;
+      padding: 10px;
+      border: 1px solid #111;
+      border-radius: 2px;
+      background-color: #111111;
+      filter: drop-shadow(0px 0px 10px rgba(0, 0, 0, 0.5));
+      color: #eee;
+      font-family: 'Open Sans'
+    }
+
+    #legend .container {
+      display: flex;
+      flex: auto;
+      align-items: flex-start;
+      {% if legend_orientation == 'vertical' %}
+      flex-direction: column;
+      {% else %}
+      flex-direction: row;
+      {% endif %}
+    }
+
+    #legend .legend-section:not(:first-child) {
+      {% if legend_orientation == 'horizontal' %}
+      margin-left: 20px;
+      {% endif %}
+    }
+
+    #legend h2 {
+      font-size: 1em;
+      font-weight: 600;
+      padding-top: 0;
+      margin-top: 0;
+      margin-bottom: 5px;
+      text-align: center;
+    }
+
+    #legend h3 {
+      font-size: 0.8em;
+      margin-top: 10px;
+      margin-bottom: 6px;
+    }
+
+    #legend .legend-element, #legend .legend-element-range {
+      position: relative;
+      display: flex;
+      flex: auto;
+      align-items: flex-start;
+      padding-bottom: 2px;
+    }
+
+    #legend .color-box {
+      width: 15px;
+      height: 15px;
+    }
+
+    #legend .legend-element-range {
+      flex-direction: column;
+    }
+
+    #legend .color-stripe {
+      width: 15px;
+      height: 1px;
+    }
+
+    #legend .legend-label {
+      height: 15px;
+      font-size: 0.7em;
+      padding-left: 5px;
+    }
+
+    #legend .legend-label.max {
+      position: absolute;
+      top: 0px;
+      margin-left: 15px;
+    }
+
+    #legend .legend-label.min {
+      position: absolute;
+      bottom: 2px;
+      margin-left: 15px;
+    }
+  </style>
+</head>
+
+<body>
+  <div id="hover-indicator"></div>
+  <div id="tip-image-container">
+    <img id="tip-image" />
+  </div>
+  <canvas id="lore"></canvas>
+
+  {% if has_legend %}
+  <div id="legend">
+    {% if legend_title %}
+    <h2>{{legend_title}}</h2>
+    {% endif %}
+    <div class='container'>
+    {% for point_helper in point_helpers %}
+      {% if point_helper.has_legend %}
+      <div id="legend-{{point_helper.name}}" class="legend-section" data-name="{{point_helper.name}}">
+        <h3 onclick="toggleLegendSection('{{point_helper.name}}')">{{point_helper.legend_title}}</h3>
+        {% if not point_helper.is_range %}
+        {% for value, label in point_helper.legend %}
+        <div class="legend-element">
+          <div class="color-box" style="background-color:rgba({{value[0] * 255}}, {{value[1] * 255}}, {{value[2] * 255}}, {{value[3]}})"></div>
+          <div class="legend-label">{{label}}</div>
+        </div>
+        {% endfor %}
+        {% else %}
+        <div class="legend-element-range">
+          {% for value, label in point_helper.legend %}
+          <div class="color-stripe" style="background-color:rgba({{value[0] * 255}}, {{value[1] * 255}}, {{value[2] * 255}}, {{value[3]}})"></div>
+          {% endfor %}
+          <div class="legend-label max">{{point_helper.max_legend_label}}</div>
+          <div class="legend-label min">{{point_helper.min_legend_label}}</div>
+        </div>
+        {% endif %}
+      </div>
+      {% endif %}
+    {% endfor %}
+    </div>
+  </div>
+  {% endif %}
+
+  <script src="{{file_name}}"></script>
+  <script>
+    let clearColor = '{{clear_color|safe}}';
+    let cc = Lore.Core.Color.fromHex(clearColor);
+    let currentPoint = null;
+
+    let lore = Lore.init('lore', {
+      antialiasing: true,
+      clearColor: clearColor,
+      alphaBlending: '{{view}}' === 'free' ? false : true,
+    });
+
+    // Tree plots
+    let treeHelpers = [];
+    let th = null;
+    let thNames = [];
+    let thName = null;
+    {% for tree_helper in tree_helpers %}
+    thNames.push('{{tree_helper["name"]|safe}}')
+    thName = thNames[thNames.length - 1];
+    treeHelpers.push(new Lore.Helpers.TreeHelper(lore, thName, 'tree'));
+    th = treeHelpers[treeHelpers.length - 1];
+    th.setXYZHexS(data[thName].x, data[thName].y, data[thName].z, '{{tree_helper["color"]|safe}}');
+    th.setFog([cc.components[0], cc.components[1], cc.components[2], cc.components[3]], parseFloat('{{tree_helper["fog_intensity"]}}'))
+    {% endfor %}
+
+    // Scatter plots
+    let pointHelpers = [];
+    let octreeHelpers = [];
+    let ph = null;
+    let phNames = [];
+    let ohIndexToPhName = [];
+    let phNameToPhIndex = {};
+    let phName = null;
+    {% for point_helper in point_helpers %}
+    phNames.push('{{point_helper["name"]|safe}}')
+    phName = phNames[phNames.length - 1];
+    pointHelpers.push(new Lore.Helpers.PointHelper(lore, phName, '{{point_helper["shader"]|safe}}', { maxPointSize: parseFloat('{{point_helper["max_point_size"]}}') }));
+    phNameToPhIndex[phName] = pointHelpers.length - 1;
+    ph = pointHelpers[pointHelpers.length - 1];
+    ph.setXYZRGBS(data[phName].x, data[phName].y, data[phName].z, data[phName].r, data[phName].g, data[phName].b, data[phName].s);
+    ph.setPointScale(parseFloat('{{point_helper["point_scale"]}}'));
+    ph.setFog([cc.components[0], cc.components[1], cc.components[2], cc.components[3]], parseFloat('{{point_helper["fog_intensity"]}}'))
+    {% if point_helper['interactive'] %}
+    octreeHelpers.push(new Lore.Helpers.OctreeHelper(lore, 'Octree_' + phName, 'tree', ph));
+    ohIndexToPhName.push(phName);
+    {% endif %}
+    {% endfor %}
+
+    // Coordinates
+    {% if coords %}
+    let coord_options = {
+      axis: {
+        x: { color: Lore.Core.Color.fromHex('{{coords_color}}') },
+        y: { color: Lore.Core.Color.fromHex('{{coords_color}}') },
+        z: { color: Lore.Core.Color.fromHex('{{coords_color}}') }
+      },
+      ticks: {
+        x: { color: Lore.Core.Color.fromHex('{{coords_color}}') },
+        y: { color: Lore.Core.Color.fromHex('{{coords_color}}') },
+        z: { color: Lore.Core.Color.fromHex('{{coords_color}}') }
+      },
+      {% if coords_box %}
+      box: { enabled: true }
+      {% else %}
+      box: { enabled: false }
+      {% endif %}
+    }
+    coordinateHelper = Lore.Helpers.CoordinatesHelper.fromPointHelper(pointHelpers[0], coord_options)
+    {% endif %}
+
+    // TODO: Get overall center and max radius
+    lore.controls.setLookAt(pointHelpers[0].getCenter());
+    lore.controls.setRadius(pointHelpers[0].getMaxRadius() + 100);
+    lore.controls.setView(0.9, -0.5)
+
+    let tip = document.getElementById('tip-image-container');
+    let tipImage = document.getElementById('tip-image');
+    let hoverIndicator = document.getElementById('hover-indicator');
+
+    Lore.Helpers.OctreeHelper.joinHoveredChanged(octreeHelpers, function (e) {
+      if (e.e && data[ohIndexToPhName[e.source]].labels) {
+        currentPoint = {
+          index: e.e.index,
+          label: data[ohIndexToPhName[e.source]].labels[e.e.index]
+        }
+
+        tipImage.src = currentPoint.label;
+        tip.classList.add('show');
+
+        let pointSize = pointHelpers[e.source].getPointSize();
+        let x = e.e.screenPosition[0];
+        let y = e.e.screenPosition[1];
+
+        hoverIndicator.style.width = pointSize + 'px';
+        hoverIndicator.style.height = pointSize + 'px';
+        hoverIndicator.style.left = (x - pointSize / 2.0 - 1) + 'px';
+        hoverIndicator.style.top = (y - pointSize / 2.0 - 1) + 'px';
+
+        hoverIndicator.classList.add('show');
+      } else {
+        currentPoint = null;
+        tip.classList.remove('show');
+        hoverIndicator.classList.remove('show');
+      }
+    });
+
+    {% if view == 'front' %}
+    lore.controls.setFrontView();
+    {% endif %}
+    {% if view == 'back' %}
+    lore.controls.setBackView();
+    {% endif %}
+    {% if view == 'left' %}
+    lore.controls.setLeftView();
+    {% endif %}
+    {% if view == 'right' %}
+    lore.controls.setRightView();
+    {% endif %}
+    {% if view == 'top' %}
+    lore.controls.setTopView();
+    {% endif %}
+    {% if view == 'bottom' %}
+    lore.controls.setBottomView();
+    {% endif %}
+
+
+    document.addEventListener('mousemove', function (event) {
+      let tip = document.getElementById('tip-image-container');
+
+      let x = event.clientX;
+      let y = event.clientY;
+
+      if (x > window.innerWidth - tip.offsetWidth - 20) {
+        x -= tip.offsetWidth;
+      } else {
+        x += 10;
+      }
+
+      if (y > window.innerHeight - tip.offsetHeight - 20) {
+        y -= tip.offsetHeight;
+      } else {
+        y += 10;
+      }
+
+      if (tip) {
+        tip.style.top = y + 'px';
+        tip.style.left = x + 'px';
+      }
+    });
+
+    // Legend
+    function toggleLegendSection(name) {
+      let section = document.getElementById('legend-' + name);
+      let geometry = pointHelpers[phNameToPhIndex[name]].geometry;
+      let isVisible = geometry.isVisible;
+
+      if (isVisible) {
+        geometry.isVisible = false;
+        section.style.opacity = 0.5;
+      } else {
+        geometry.isVisible = true;
+        section.style.opacity = 1.0;
+      }
+    }
+  </script>
+</body>
+
+</html>
