@@ -37,20 +37,29 @@ import faerun
 
 #     return indices
 
+
 def json_handler(*args, **kwargs):
     """ The default cherrypy json encoder seems to be extremely slow... """
     value = cherrypy.serving.request._json_inner_handler(*args, **kwargs)
-    return ujson.dumps(value).encode('utf8')
+    return ujson.dumps(value).encode("utf8")
 
 
-class FaerunWeb():
+class FaerunWeb:
     """ A cherrypy controller class for hosting fearun visualizations """
 
-    def __init__(self, path: str, label_type: str = 'smiles', theme: str = 'light',
-                 label_formatter: Callable[[str, int, str], str] = None,
-                 link_formatter: Callable[[str, int, str], str] = None,
-                 info: str = None, legend: str = False, legend_title: str ='Legend',
-                 view: str = 'front', search_index: int = 1):
+    def __init__(
+        self,
+        path: str,
+        label_type: str = "smiles",
+        theme: str = "light",
+        label_formatter: Callable[[str, int, str], str] = None,
+        link_formatter: Callable[[str, int, str], str] = None,
+        info: str = None,
+        legend: str = False,
+        legend_title: str = "Legend",
+        view: str = "front",
+        search_index: int = 1,
+    ):
         """The constructor for the Faerun web server.
         
         Arguments:
@@ -68,18 +77,18 @@ class FaerunWeb():
             search_index (:obj:`int`): The index in the label values that is used for searching
         """
         if not os.path.isfile(path):
-            print('File not found: ' + path)
+            print("File not found: " + path)
             sys.exit(1)
 
         if label_formatter is None:
-            label_formatter = lambda label, index, name: label.split('__')[0]
+            label_formatter = lambda label, index, name: label.split("__")[0]
 
         if link_formatter is None:
-            link_formatter = lambda label, index, name: ''
+            link_formatter = lambda label, index, name: ""
 
         self.label_type = label_type
         self.theme = theme
-        self.data = pickle.load(open(path, 'rb'))
+        self.data = pickle.load(open(path, "rb"))
         self.ids = {}
         self.link_formatter = link_formatter
         self.label_formatter = label_formatter
@@ -90,7 +99,7 @@ class FaerunWeb():
         self.search_index = search_index
 
         for name in self.data:
-            if self.data[name]['type'] != 'scatter':
+            if self.data[name]["type"] != "scatter":
                 continue
 
             # This is currently implemented for two values:
@@ -98,14 +107,16 @@ class FaerunWeb():
             # seperated by __ in the label field
             self.ids[name] = []
 
-            if isinstance(self.data[name]['labels'][0], str) and '__' in self.data[name]['labels'][0]:
-                for _, label in enumerate(self.data[name]['labels']):
-                    vals = label.split('__')
+            if (
+                isinstance(self.data[name]["labels"][0], str)
+                and "__" in self.data[name]["labels"][0]
+            ):
+                for _, label in enumerate(self.data[name]["labels"]):
+                    vals = label.split("__")
                     self.ids[name].append(vals[1].lower())
             else:
-                for _, label in enumerate(self.data[name]['labels']):
+                for _, label in enumerate(self.data[name]["labels"]):
                     self.ids[name].append(str(label).lower())
-
 
     @cherrypy.expose
     def index(self, **params) -> IO:
@@ -114,10 +125,10 @@ class FaerunWeb():
         Returns:
             FileType: The HTML file
         """
-        return open(faerun.get_asset('index_static.html'))
+        return open(faerun.get_asset("index_static.html"))
 
     @cherrypy.expose
-    @cherrypy.tools.allow(methods=['POST'])
+    @cherrypy.tools.allow(methods=["POST"])
     @cherrypy.tools.json_out(handler=json_handler)
     @cherrypy.tools.json_in()
     def get_meta(self) -> dict:
@@ -127,22 +138,22 @@ class FaerunWeb():
             dict: A dict containing the meta information
         """
         meta = {}
-        meta['label_type'] = self.label_type
-        meta['theme'] = self.theme
-        meta['info'] = self.info
-        meta['legend'] = self.legend
-        meta['legend_title'] = self.legend_title
-        meta['view'] = self.view
+        meta["label_type"] = self.label_type
+        meta["theme"] = self.theme
+        meta["info"] = self.info
+        meta["legend"] = self.legend
+        meta["legend_title"] = self.legend_title
+        meta["view"] = self.view
 
         for name in self.data:
-            data_type = self.data[name]['type']
+            data_type = self.data[name]["type"]
             if data_type not in meta:
                 meta[data_type] = {}
-            meta[data_type][name] = self.data[name]['meta']
+            meta[data_type][name] = self.data[name]["meta"]
         return meta
 
     @cherrypy.expose
-    @cherrypy.tools.allow(methods=['POST'])
+    @cherrypy.tools.allow(methods=["POST"])
     # @cherrypy.tools.json_out(handler=json_handler)
     @cherrypy.tools.json_in()
     def get_values(self) -> bytes:
@@ -152,13 +163,13 @@ class FaerunWeb():
             bytes: An array of values encoded as bytes
         """
         input_json = cherrypy.request.json
-        name = input_json['name']
-        coord = input_json['coord']
-        dtype = input_json['dtype']
+        name = input_json["name"]
+        coord = input_json["coord"]
+        dtype = input_json["dtype"]
 
-        if dtype == 'float32':
+        if dtype == "float32":
             dtype = np.float32
-        elif dtype == 'uint8':
+        elif dtype == "uint8":
             dtype = np.uint8
 
         if coord in self.data[name]:
@@ -167,7 +178,7 @@ class FaerunWeb():
             return bytes(np.array([], dtype=dtype))
 
     @cherrypy.expose
-    @cherrypy.tools.allow(methods=['POST'])
+    @cherrypy.tools.allow(methods=["POST"])
     @cherrypy.tools.json_out(handler=json_handler)
     @cherrypy.tools.json_in()
     def get_label(self) -> dict:
@@ -177,17 +188,17 @@ class FaerunWeb():
             dict: A dict containing the formatted label and link
         """
         input_json = cherrypy.request.json
-        index = input_json['id']
-        name = input_json['name']
-        label = self.data[name]['labels'][index]
+        index = input_json["id"]
+        name = input_json["name"]
+        label = self.data[name]["labels"][index]
 
         return {
-            'label': self.label_formatter(label, index, name),
-            'link': self.link_formatter(label, index, name)
+            "label": self.label_formatter(label, index, name),
+            "link": self.link_formatter(label, index, name),
         }
 
     @cherrypy.expose
-    @cherrypy.tools.allow(methods=['POST'])
+    @cherrypy.tools.allow(methods=["POST"])
     @cherrypy.tools.json_out(handler=json_handler)
     @cherrypy.tools.json_in()
     def get_index(self) -> list:
@@ -197,27 +208,36 @@ class FaerunWeb():
             list: A list of label - index pairs
         """
         input_json = cherrypy.request.json
-        labels = input_json['label']
-        name = input_json['name']
+        labels = input_json["label"]
+        name = input_json["name"]
 
         labels = str(labels).upper().strip()
 
         results = []
-        for label in labels.split(','):
+        for label in labels.split(","):
             label = label.strip().lower()
             try:
-                results.append([label, [i for i, v in enumerate(self.ids[name]) if v == label]])
+                results.append(
+                    [label, [i for i, v in enumerate(self.ids[name]) if v == label]]
+                )
             except ValueError:
                 results.append([label, []])
 
         return results
 
 
-def host(path: str, label_type: str = 'smiles', theme: str = 'light',
-         label_formatter: Callable[[str, int, str], str] = None,
-         link_formatter: Callable[[str, int, str], str] = None,
-         info: str = None, legend: bool = False, legend_title: str = 'Legend',
-         view: str = 'front', search_index: int = 1):
+def host(
+    path: str,
+    label_type: str = "smiles",
+    theme: str = "light",
+    label_formatter: Callable[[str, int, str], str] = None,
+    link_formatter: Callable[[str, int, str], str] = None,
+    info: str = None,
+    legend: bool = False,
+    legend_title: str = "Legend",
+    view: str = "front",
+    search_index: int = 1,
+):
     """Start a cherrypy server hosting a Faerun visualization.
 
     Arguments:
@@ -235,6 +255,23 @@ def host(path: str, label_type: str = 'smiles', theme: str = 'light',
         search_index (:obj:`int`): The index in the label values that is used for searching
 
     """
-    cherrypy.quickstart(FaerunWeb(path, label_type, theme, label_formatter=label_formatter,
-                                  link_formatter=link_formatter, info=info, legend=legend,
-                                  legend_title=legend_title, view=view, search_index=search_index))
+
+    cherrypy.config.update(
+        {"server.socket_host": "0.0.0.0", "server.socket_port": 8080}
+    )
+
+    cherrypy.quickstart(
+        FaerunWeb(
+            path,
+            label_type,
+            theme,
+            label_formatter=label_formatter,
+            link_formatter=link_formatter,
+            info=info,
+            legend=legend,
+            legend_title=legend_title,
+            view=view,
+            search_index=search_index,
+        )
+    )
+
