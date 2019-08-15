@@ -298,7 +298,17 @@ Furthermore, the documentation of [tmap](https://github.com/reymond-group/tmap) 
 
 ### Faerun
 
-#### class faerun.Faerun(title: str = '', clear_color: str = '#111111', coords: bool = True, coords_color: str = '#888888', coords_box: bool = False, coords_ticks: bool = True, coords_grid: bool = False, coords_tick_count: int = 10, coords_tick_length: float = 2.0, coords_offset: float = 5.0, x_title: str = '', y_title: str = '', show_legend: bool = True, legend_title: str = 'Legend', legend_orientation: str = 'vertical', legend_number_format: str = '{:.2f}', view: str = 'free', scale: float = 750.0, alpha_blending=False, style: Dict[str, Dict[str, Any]] = {})
+```python
+class faerun.Faerun(title: str = '', clear_color: str = '#111111', coords: bool = True,
+                    coords_color: str = '#888888', coords_box: bool = False,
+                    coords_ticks: bool = True, coords_grid: bool = False,
+                    coords_tick_count: int = 10, coords_tick_length: float = 2.0,
+                    coords_offset: float = 5.0, x_title: str = '', y_title: str = '',
+                    show_legend: bool = True, legend_title: str = 'Legend',
+                    legend_orientation: str = 'vertical', legend_number_format: str = '{:.2f}',
+                    view: str = 'free', scale: float = 750.0, alpha_blending: bool = False,
+                    style: Dict[str, Dict[str, Any]] = {})
+```
 
 Creates a faerun object which is an empty plotting surface where
 layers such as scatter plots can be added.
@@ -347,7 +357,15 @@ Constructor for Faerun.
 
   - **style** (`Dict[str, Dict[str, Any]]`, optional) – The css styles to apply to the HTML elements
 
-#### **init**(title: str = '', clear_color: str = '#111111', coords: bool = True, coords_color: str = '#888888', coords_box: bool = False, coords_ticks: bool = True, coords_grid: bool = False, coords_tick_count: int = 10, coords_tick_length: float = 2.0, coords_offset: float = 5.0, x_title: str = '', y_title: str = '', show_legend: bool = True, legend_title: str = 'Legend', legend_orientation: str = 'vertical', legend_number_format: str = '{:.2f}', view: str = 'free', scale: float = 750.0, alpha_blending=False, style: Dict[str, Dict[str, Any]] = {})
+```python
+__init__(title: str = '', clear_color: str = '#111111', coords: bool = True,
+         coords_color: str = '#888888', coords_box: bool = False, coords_ticks: bool = True,
+         coords_grid: bool = False, coords_tick_count: int = 10, coords_tick_length: float = 2.0,
+         coords_offset: float = 5.0, x_title: str = '', y_title: str = '', show_legend: bool = True,
+         legend_title: str = 'Legend', legend_orientation: str = 'vertical',
+         legend_number_format: str = '{:.2f}', view: str = 'free', scale: float = 750.0, 
+         alpha_blending: bool = False, style: Dict[str, Dict[str, Any]] = {})
+```
 
 Constructor for Faerun.
 
@@ -393,7 +411,15 @@ Constructor for Faerun.
 
   - **style** (`Dict[str, Dict[str, Any]]`, optional) – The css styles to apply to the HTML elements
 
-#### add_scatter(name: str, data: Union[dict, pandas.core.frame.DataFrame], mapping: dict = {'c': 'c', 'cs': 'cs', 'labels': 'labels', 's': 's', 'x': 'x', 'y': 'y', 'z': 'z'}, colormap: Union[str, matplotlib.colors.Colormap] = 'plasma', shader: str = 'sphere', point_scale: float = 1.0, max_point_size: float = 100.0, fog_intensity: float = 0.0, saturation_limit: float = 0.2, categorical: bool = False, interactive: bool = True, has_legend: bool = False, legend_title: str = None, legend_labels: dict = None, min_legend_label: Union[str, float] = None, max_legend_label: Union[str, float] = None)
+```python
+add_scatter(name: str, data: Union[dict, pandas.core.frame.DataFrame], 
+            mapping: dict = {'c': 'c', 'cs': 'cs', 'labels': 'labels', 's': 's', 'x': 'x', 'y': 'y', 'z': 'z'},
+            colormap: Union[str, matplotlib.colors.Colormap] = 'plasma', shader: str = 'sphere',
+            point_scale: float = 1.0, max_point_size: float = 100.0, fog_intensity: float = 0.0,
+            saturation_limit: float = 0.2, categorical: bool = False, interactive: bool = True,
+            has_legend: bool = False, legend_title: str = None, legend_labels: dict = None,
+            min_legend_label: Union[str, float] = None, max_legend_label: Union[str, float] = None)
+```
 
 Add a scatter layer to the plot.
 
@@ -433,7 +459,12 @@ Add a scatter layer to the plot.
 
   - **max_legend_label** (`Union[str, float]`, option) – The label used for the maximum value in a ranged (non-categorical) legend
 
-#### add_tree(name: str, data: Union[dict, pandas.core.frame.DataFrame], mapping: dict = {'c': 'c', 'from': 'from', 'to': 'to', 'x': 'x', 'y': 'y', 'z': 'z'}, color: str = '#666666', colormap: Union[str, matplotlib.colors.Colormap] = 'plasma', fog_intensity: float = 0.0, point_helper: str = None)
+```python
+add_tree(name: str, data: Union[dict, pandas.core.frame.DataFrame],
+         mapping: dict = {'c': 'c', 'from': 'from', 'to': 'to', 'x': 'x', 'y': 'y', 'z': 'z'},
+         color: str = '#666666', colormap: Union[str, matplotlib.colors.Colormap] = 'plasma',
+         fog_intensity: float = 0.0, point_helper: str = None)
+```
 
 Add a tree layer to the plot.
 
@@ -455,7 +486,9 @@ Add a tree layer to the plot.
 
   - **point_helper** (`str`, optional) – The name of the scatter layer to associate with this tree layer (the source of the coordinates)
 
-#### create_data()
+```python
+create_data()
+```
 
 Returns a JavaScript string defining a JavaScript object containing the data.
 
@@ -467,7 +500,9 @@ Returns a JavaScript string defining a JavaScript object containing the data.
 
   `str`
 
-#### create_python_data()
+```python
+create_python_data()
+```
 
 Returns a Python dict containing the data
 
@@ -479,7 +514,9 @@ Returns a Python dict containing the data
 
   `dict`
 
-#### static discrete_cmap(n_colors: int, base_cmap: str)
+```python
+static discrete_cmap(n_colors: int, base_cmap: str)
+```
 
 Create an N-bin discrete colormap from the specified input map.
 
@@ -499,7 +536,9 @@ Create an N-bin discrete colormap from the specified input map.
 
   `Colormap`
 
-#### get_min_max()
+```python
+get_min_max()
+```
 
 Get the minimum an maximum coordinates from this plotter instance
 
@@ -511,7 +550,9 @@ Get the minimum an maximum coordinates from this plotter instance
 
   `tuple`
 
-#### static in_notebook()
+```python
+static in_notebook()
+```
 
 Checks whether the code is running in an ipython notebook.
 
@@ -523,7 +564,9 @@ Checks whether the code is running in an ipython notebook.
 
   `bool`
 
-#### plot(file_name: str = 'index', path: str = './', template: str = 'default')
+```python
+plot(file_name: str = 'index', path: str = './', template: str = 'default')
+```
 
 Plots the data to an HTML / JS file.
 
@@ -537,7 +580,13 @@ Plots the data to an HTML / JS file.
 
 ### Web
 
-#### faerun.host(path: str, label_type: str = 'smiles', theme: str = 'light', title: str = 'Faerun', label_formatter: Callable[[str, int, str], str] = None, link_formatter: Callable[[str, int, str], str] = None, info: str = None, legend: bool = False, legend_title: str = 'Legend', view: str = 'front', search_index: int = 1)
+```python
+faerun.host(path: str, label_type: str = 'smiles', theme: str = 'light', title: str = 'Faerun',
+            label_formatter: Callable[[str, int, str], str] = None,
+            link_formatter: Callable[[str, int, str], str] = None, 
+            info: str = None, legend: bool = False, legend_title: str = 'Legend', view: str = 'front', 
+            search_index: int = 1)
+```
 
 Start a cherrypy server hosting a Faerun visualization.
 
