@@ -10,13 +10,13 @@ Faerun (Python) is based on the [Lore.js](https://github.com/reymond-group/lore)
 
 Faerun can be installed using pip.
 
-```
+```bash
 pip install faerun
 ```
 
 In order to use it in a script, the class `Faerun` has to be imported from the package.
 
-```
+```python
 from faerun import Faerun
 ```
 
@@ -26,7 +26,7 @@ That’s it for the installation.
 
 In order to plot, a plot document has to be created. To do so, create an instance of the class `Faerun`
 
-```
+```python
 from faerun import Faerun
 
 f = Faerun(title='faerun-example', clear_color='#222222', coords=False, view='free')
@@ -39,7 +39,7 @@ The drawing of coordinate axes is disabled by setting `coords=False` and since w
 
 The next step is to prepare the data which is to be plotted. In the tutorial, we will just generate some nice looking data using `numpy`.
 
-```
+```python
 import numpy as np
 
 x = np.linspace(0, 12.0, 326)
@@ -51,7 +51,7 @@ c = np.random.randint(0, 6, len(x))
 This data can then be wrapped in a `dict`. In addition, `DataFrame` from the `pandas` package are also supported by faerun.
 In the example, the same values are used for the colors `c` and labels `labels`.
 
-```
+```python
 data = {'x': x, 'y': y, 'z': z, 'c': c, 'labels': c}
 ```
 
@@ -59,7 +59,7 @@ data = {'x': x, 'y': y, 'z': z, 'c': c, 'labels': c}
 
 Given the `Faerun` instance and the data, a scatter plot can be created using the method `add_scatter`.
 
-```
+```python
 f.add_scatter('helix', data, shader='sphere', colormap='Dark2', point_scale=5.0,
               categorical=True, has_legend=True, legend_labels=[(0, 'Zero'), (1, 'One')])
 ```
@@ -74,7 +74,7 @@ Finally, `has_legend=True` adds the scatter layer to the legend and `legend_labe
 
 The faerun document can the be plotted to an HTML document with an accompanying JavaScript data file.
 
-```
+```python
 f.plot('helix')
 ```
 
@@ -85,7 +85,7 @@ This saves the plot as `helix.html\` and \`\`helix.js`. The files can be opened 
 - **[Drugbank 3D](http://doc.gdb.tools/faerun-python/example3d)**
 - **[Drugbank 2D](http://doc.gdb.tools/faerun-python/example2d)**
 
-The code of the examples shown above for creating interactive 2D and 3D maps from Drugbank can be found in the examples directory. Following, a simple [example](http://doc.gdb.tools/faerun-python/example) of plotting any data:
+Furthermore, the documentation of [tmap](https://github.com/reymond-group/tmap) provides a wide range of examples of Faerun in use. See [here](http://tmap.gdb.tools/#ex-nips).
 
 ```Python
 import numpy as np
