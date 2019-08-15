@@ -52,6 +52,7 @@ class FaerunWeb:
         path: str,
         label_type: str = "smiles",
         theme: str = "light",
+        title: str = "Faerun",
         label_formatter: Callable[[str, int, str], str] = None,
         link_formatter: Callable[[str, int, str], str] = None,
         info: str = None,
@@ -68,6 +69,7 @@ class FaerunWeb:
         Keyword Arguments:
             label_type (:obj:`str`): The type of the labels
             theme (:obj:`str`): The theme to use in the front-end
+            title (:obj:`str`): The title of the HTML document
             label_formatter (:obj:`Callable[[str, int, str], str]`): A function used for formatting labels
             link_formatter (:obj:`Callable[[str, int, str], str]`): A function used for formatting links
             info (:obj:`str`): A string containing markdown content that is shown as an info in the visualization
@@ -88,6 +90,7 @@ class FaerunWeb:
 
         self.label_type = label_type
         self.theme = theme
+        self.title = title
         self.data = pickle.load(open(path, "rb"))
         self.ids = {}
         self.link_formatter = link_formatter
@@ -140,6 +143,7 @@ class FaerunWeb:
         meta = {}
         meta["label_type"] = self.label_type
         meta["theme"] = self.theme
+        meta["title"] = self.title
         meta["info"] = self.info
         meta["legend"] = self.legend
         meta["legend_title"] = self.legend_title
@@ -230,6 +234,7 @@ def host(
     path: str,
     label_type: str = "smiles",
     theme: str = "light",
+    title: str = "Faerun",
     label_formatter: Callable[[str, int, str], str] = None,
     link_formatter: Callable[[str, int, str], str] = None,
     info: str = None,
@@ -246,6 +251,7 @@ def host(
     Keyword Arguments:
         label_type (:obj:`str`): The type of the labels
         theme (:obj:`str`): The theme to use in the front-end
+        title (:obj:`str`): The title of the HTML document
         label_formatter (:obj:`Callable[[str, int, str], str]`): A function used for formatting labels
         link_formatter (:obj:`Callable[[str, int, str], str]`): A function used for formatting links
         info (:obj:`str`): A string containing markdown content that is shown as an info in the visualization
@@ -265,6 +271,7 @@ def host(
             path,
             label_type,
             theme,
+            title=title,
             label_formatter=label_formatter,
             link_formatter=link_formatter,
             info=info,
