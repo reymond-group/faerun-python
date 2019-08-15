@@ -86,7 +86,7 @@ This saves the plot as `helix.html` and `helix.js`. The files can be opened loca
 
 The faerun document can also be exported to a faerun data file, which in turn can then be hosted using the `web` module.
 
-```
+```python
 import pickle
 
 with open('helix.faerun', 'wb+') as handle:
@@ -95,7 +95,7 @@ with open('helix.faerun', 'wb+') as handle:
 
 ### Complete Example
 
-```
+```python
 import pickle
 import numpy as np
 from faerun import Faerun
@@ -167,7 +167,7 @@ host('helix.faerun', label_type='default',
 
 This function is then called whenever a label is requested from the server. In addition to the argument `label`, the arguments `index` and `name` can be used to further customize the displayed label and represent the integer index of the data point and the data layer they belong to (e.g. the name defined with `add_scatter`).
 
-![image](_static/tutorial_host_label.png)
+![image](https://raw.githubusercontent.com/reymond-group/faerun-python/master/doc/_static/tutorial_host_label.png)
 
 ### Adding Hyperlinks
 
@@ -185,7 +185,7 @@ host('helix.faerun', label_type='default',
 
 The hosted version of a Faerun visualization also allows for searching. As a default, the search searches for exact matches in labels (substring or regex searches are not possible at this time).
 
-![image](_static/tutorial_host_search.png)
+![image](https://raw.githubusercontent.com/reymond-group/faerun-python/master/doc/_static/tutorial_host_search.png)
 
 However, the search can be customized. As described in “Formatting Labels”, additional label values can be added by separating them using `'__'`.
 
@@ -201,7 +201,7 @@ data = {'x': x, 'y': y, 'z': z, 'c': c, 'labels': labels}
 
 The above examples adds an additional label value and as default, the second label value is then used by the search.
 
-![image](_static/tutorial_host_search_2.png)
+![image](https://raw.githubusercontent.com/reymond-group/faerun-python/master/doc/_static/tutorial_host_search_2.png)
 
 If there are additional label values, the search index can be set using the `search_index` argument.
 
