@@ -82,6 +82,8 @@ f.plot('helix')
 
 This saves the plot as `helix.html` and `helix.js`. The files can be opened locally or hosted on any web server.
 
+![image](https://raw.githubusercontent.com/reymond-group/faerun-python/master/doc/_static/tutorial.png)
+
 ### Saving to Faerun Data File
 
 The faerun document can also be exported to a faerun data file, which in turn can then be hosted using the `web` module.
