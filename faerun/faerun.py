@@ -112,6 +112,17 @@ class Faerun(object):
                 "color": "#eeeeee",
                 "font-family": "'Open Sans'",
             },
+            "selected": {
+                "bottom": "10px",
+                "left": "10px",
+                "padding": "10px",
+                "border": "1px solid #111111",
+                "border-radius": "2px",
+                "background-color": "#111111",
+                "filter": "drop-shadow(0px 0px 10px rgba(0, 0, 0, 0.5))",
+                "color": "#eeeeee",
+                "font-family": "'Open Sans'",
+            },
             "title": {
                 "padding-bottom": "20px",
                 "font-size": "1.0em",

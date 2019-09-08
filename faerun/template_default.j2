@@ -2,9 +2,10 @@
 <html>
   <head>
     <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <link rel="shortcut icon" href="data:image/vnd.microsoft.icon;base64,AAABAAEAEBAQAAEABAAoAQAAFgAAACgAAAAQAAAAIAAAAAEABAAAAAAAgAAAAAAAAAAAAAAAEAAAAAAAAAAAAAAA25g0AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAERAAAAAAAAAREAAAAAAAABEQAAAAAAAAERAAAAAAAAARERERAAAAABEREREAAAAAEREREQAAAAAREAAAAAAAABEQAAAAAAAAEREREQAAAAARERERAAAAABEREREAAAAAAAAAAAAAAAAAAAAAAAD//wAA//8AAPH/AADx/wAA8f8AAPH/AADwDwAA8A8AAPAPAADx/wAA8f8AAPAPAADwDwAA8A8AAP//AAD//wAA" />
     <title>{{ title }}</title>
-    <script src="https://unpkg.com/lore-engine@1.0.36/dist/lore.min.js"></script>
+    <script src="https://unpkg.com/lore-engine@1.0.38/dist/lore.min.js"></script>
     <link
       href="https://fonts.googleapis.com/css?family=Open+Sans:400,600"
       rel="stylesheet"
@@ -206,6 +207,14 @@
         margin-left: 15px;
       }
 
+      #selected-container {
+        position: absolute;
+        z-index: 99999;
+        {% for key, value in style["selected"].items() %}
+          {{key}}: {{value}};
+        {% endfor %}
+      }
+
       .show {
         opacity: 1.0 !important;
       }
@@ -223,6 +232,7 @@
       <div id="y-axis">{{y_title}}</div>
     {% endif %}
 
+    <div id="selected-container"></div>
     <div id="hover-indicator"></div>
     <div id="tip-image-container"><div id="text-container"></div></div>
     <canvas id="lore"></canvas>
@@ -333,6 +343,7 @@
         let tip = document.getElementById('tip-image-container');
         let tip_text = document.getElementById('text-container');
         let hoverIndicator = document.getElementById('hover-indicator');
+        let selectedContainer = document.getElementById('selected-container');
 
         Lore.Helpers.OctreeHelper.joinHoveredChanged(octreeHelpers, e => {
           if (e.e && data[ohIndexToPhName[e.source]].labels) {
@@ -364,6 +375,19 @@
             tip.classList.remove('show');
             hoverIndicator.classList.remove('show');
           }
+        });
+
+        Lore.Helpers.OctreeHelper.joinSelectedChanged(octreeHelpers, e => {
+          let html = '';
+
+          e.forEach((group, i) => {
+            html += `Octree: ${i}<br />`;
+            group.selected.forEach((element, j) => {
+              html += `Element: ${element.index}<br />`;
+            });
+          });
+
+          selectedContainer.innerHTML = html;
         });
 
         document.addEventListener('dblclick', e => {
