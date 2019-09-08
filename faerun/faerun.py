@@ -6,7 +6,8 @@ The main module containing the Faerun class.
 
 import math
 import os
-from typing import Union, Dict, Any
+from typing import Union, Dict, Any, List
+from collections.abc import Iterable
 
 import colour
 import jinja2
@@ -16,7 +17,7 @@ from matplotlib.colors import Colormap
 from pandas import DataFrame
 
 try:
-    from IPython.display import IFrame
+    from IPython.display import display, IFrame, FileLink
 except Exception:
     pass
 
@@ -186,8 +187,8 @@ class Faerun(object):
     def add_scatter(
         self,
         name: str,
-        data: Union[dict, DataFrame],
-        mapping: dict = {
+        data: Union[Dict, DataFrame],
+        mapping: Dict = {
             "x": "x",
             "y": "y",
             "z": "z",
@@ -196,19 +197,21 @@ class Faerun(object):
             "s": "s",
             "labels": "labels",
         },
-        colormap: Union[str, Colormap] = "plasma",
+        colormap: Union[str, Colormap, List[str], List[Colormap]] = "plasma",
         shader: str = "sphere",
         point_scale: float = 1.0,
         max_point_size: float = 100.0,
         fog_intensity: float = 0.0,
-        saturation_limit: float = 0.2,
-        categorical: bool = False,
+        saturation_limit: Union[float, List[float]] = 0.2,
+        categorical: Union[bool, List[bool]] = False,
         interactive: bool = True,
         has_legend: bool = False,
-        legend_title: str = None,
-        legend_labels: dict = None,
-        min_legend_label: Union[str, float] = None,
-        max_legend_label: Union[str, float] = None,
+        legend_title: Union[str, List[str]] = None,
+        legend_labels: Union[Dict, List[Dict]] = None,
+        min_legend_label: Union[str, float, List[str], List[float]] = None,
+        max_legend_label: Union[str, float, List[str], List[float]] = None,
+        series_title: Union[str, List[str]] = None,
+        ondblclick: Union[str, List[str]] = None,
     ):
         """Add a scatter layer to the plot.
 
@@ -218,89 +221,162 @@ class Faerun(object):
 
         Keyword Arguments:
             mapping (:obj:`dict`, optional): The keys which contain the data in the input dict or the column names in the pandas :obj:`DataFrame`
-            colormap (:obj:`str` or :obj:`Colormap`, optional): The name of the colormap (can also be a matplotlib Colormap object)
+            colormap (:obj:`str`, :obj:`Colormap`, :obj:`List[str]`, or :obj:`List[Colormap]` optional): The name of the colormap (can also be a matplotlib Colormap object). A list when visualizing multiple properties
             shader (:obj:`str`, optional): The name of the shader to use for the data point visualization
             point_scale (:obj:`float`, optional): The relative size of the data points
             max_point_size (:obj:`int`, optional): The maximum size of the data points when zooming in
             fog_intensity (:obj:`float`, optional): The intensity of the distance fog
-            saturation_limit (:obj:`float`, optional): The minimum saturation to avoid "gray soup"
-            categorical (:obj:`bool`, optional): Whether this scatter layer is categorical
+            saturation_limit (:obj:`float` or :obj:`List[float]`, optional): The minimum saturation to avoid "gray soup". A list when visualizing multiple properties
+            categorical (:obj:`bool` or :obj:`List[bool]`, optional): Whether this scatter layer is categorical. A list when visualizing multiple properties
             interactive (:obj:`bool`, optional): Whether this scatter layer is interactive
             has_legend (:obj:`bool`, optional): Whether or not to draw a legend
-            legend_title (:obj:`str`, optional): The title of the legend
-            legend_labels (:obj:`dict`, optional): A dict mapping values to legend labels
-            min_legend_label (:obj:`Union[str, float]`, option): The label used for the miminum value in a ranged (non-categorical) legend
-            max_legend_label (:obj:`Union[str, float]`, option): The label used for the maximum value in a ranged (non-categorical) legend
+            legend_title (:obj:`str` or :obj:`List[str]`, optional): The title of the legend. A list when visualizing multiple properties
+            legend_labels (:obj:`Dict` or :obj:`List[Dict]`, optional): A dict mapping values to legend labels. A list when visualizing multiple properties
+            min_legend_label (:obj:`str`, :obj:`float`, :obj:`List[str]` or :obj:`List[float]`, optional): The label used for the miminum value in a ranged (non-categorical) legend. A list when visualizing multiple properties
+            max_legend_label (:obj:`str`, :obj:`float`, :obj:`List[str]` or :obj:`List[float]`, optional): The label used for the maximum value in a ranged (non-categorical) legend. A list when visualizing multiple properties
+            series_title (:obj:`str` or :obj:`List[str]`, optional): The name of the series (used when multiple properites supplied). A list when visualizing multiple properties
+            ondblclick (:obj:`str` or :obj:`List[str]`, optional): A JavaScript snippet that is executed on double-clicking on a data point. A list when visualizing multiple properties
         """
         if mapping["z"] not in data:
             data[mapping["z"]] = [0] * len(data[mapping["x"]])
 
-        min_c = float(min(data[mapping["c"]]))
-        max_c = float(max(data[mapping["c"]]))
-        len_c = len(data[mapping["c"]])
+        if "pandas" in type(data).__module__:
+            data = data.to_dict("list")
 
-        if min_legend_label is None:
-            min_legend_label = min_c
+        data_c = data[mapping["c"]]
+        data_cs = data[mapping["c"]] if mapping["cs"] in data else None
 
-        if max_legend_label is None:
-            max_legend_label = max_c
+        # Check whether the color ("c") are strings
+        if type(data_c[0]) is str:
+            raise ValueError('Strings are not valid values for "c".')
 
-        is_range = False
+        # In case there are multiple series defined
+        n_series = 1
+        if isinstance(data_c[0], Iterable):
+            n_series = len(data_c)
+        else:
+            data_c = [data_c]
 
-        if legend_title is None:
-            legend_title = name
+        if data_cs is not None and not isinstance(data_cs[0], Iterable):
+            data_cs = [data_cs]
 
-        # Prepare the legend
-        legend = []
-        if has_legend:
-            legend_values = []
-            if categorical:
-                if legend_labels:
-                    legend_values = legend_labels
+        # Make everything a list that isn't one (or a tuple)
+        colormap = Faerun.make_list(colormap)
+        saturation_limit = Faerun.make_list(saturation_limit)
+        categorical = Faerun.make_list(categorical)
+        legend_title = Faerun.make_list(legend_title)
+        legend_labels = Faerun.make_list(legend_labels, make_list_list=True)
+        min_legend_label = Faerun.make_list(min_legend_label)
+        max_legend_label = Faerun.make_list(max_legend_label)
+        series_title = Faerun.make_list(series_title)
+        ondblclick = Faerun.make_list(ondblclick)
+
+        # If any argument list is shorter than the number of series,
+        # repeat the last element
+        colormap = Faerun.expand_list(colormap, n_series)
+        saturation_limit = Faerun.expand_list(saturation_limit, n_series)
+        categorical = Faerun.expand_list(categorical, n_series)
+        legend_title = Faerun.expand_list(legend_title, n_series, with_none=True)
+        legend_labels = Faerun.expand_list(legend_labels, n_series, with_none=True)
+        min_legend_label = Faerun.expand_list(
+            min_legend_label, n_series, with_none=True
+        )
+        max_legend_label = Faerun.expand_list(
+            max_legend_label, n_series, with_none=True
+        )
+        series_title = Faerun.expand_list(series_title, n_series, with_value="Series")
+        ondblclick = Faerun.expand_list(ondblclick, n_series, with_none=True)
+
+        # # The c and cs values in the data are a special case, as they should
+        # # never be expanded
+        # if type(data[mapping["c"]][0]) is not list and prop_len > 1:
+        #     prop_len = 1
+        # elif:
+        #     prop_len = len(data[mapping["c"]])
+
+        legend = [None] * n_series
+        is_range = [None] * n_series
+        min_c = [None] * n_series
+        max_c = [None] * n_series
+
+        for s in range(n_series):
+            min_c[s] = float(min(data_c[s]))
+            max_c[s] = float(max(data_c[s]))
+            len_c = len(data_c[s])
+
+            if min_legend_label[s] is None:
+                min_legend_label[s] = min_c[s]
+
+            if max_legend_label[s] is None:
+                max_legend_label[s] = max_c[s]
+
+            is_range[s] = False
+
+            if legend_title[s] is None:
+                legend_title[s] = name
+
+            # Prepare the legend
+            legend[s] = []
+            if has_legend:
+                legend_values = []
+                if categorical[s]:
+                    if legend_labels[s]:
+                        legend_values = legend_labels[s]
+                    else:
+                        legend_values = [(i, str(i)) for i in sorted(set(data_c[s]))]
                 else:
-                    legend_values = [(i, str(i)) for i in sorted(set(data["c"]))]
-            else:
-                if legend_labels:
-                    legend_labels.reverse()
-                    for value, label in legend_labels:
-                        legend_values.append(((value - min_c) / (max_c - min_c), label))
+                    if legend_labels[s]:
+                        legend_labels[s].reverse()
+                        for value, label in legend_labels[s]:
+                            legend_values.append(
+                                [(value - min_c[s]) / (max_c[s] - min_c[s]), label]
+                            )
+                    else:
+                        is_range[s] = True
+                        for i, val in enumerate(np.linspace(1.0, 0.0, 99)):
+                            legend_values.append(
+                                [val, str(data_c[s][int(math.floor(len_c / 100 * i))])]
+                            )
+
+                cmap = None
+                if isinstance(colormap[s], str):
+                    cmap = plt.cm.get_cmap(colormap[s])
                 else:
-                    is_range = True
-                    for i, val in enumerate(np.linspace(1.0, 0.0, 99)):
-                        legend_values.append(
-                            (val, str(data["c"][int(math.floor(len_c / 100 * i))]))
-                        )
+                    cmap = colormap[s]
 
-            cmap = None
-            if isinstance(colormap, str):
-                cmap = plt.cm.get_cmap(colormap)
-            else:
-                cmap = colormap
+                for value, label in legend_values:
+                    legend[s].append([list(cmap(value)), label])
 
-            for value, label in legend_values:
-                legend.append((cmap(value), label))
+            # Normalize the data to later get the correct colour maps
+            if not categorical[s]:
+                data_c[s] = np.array(data_c[s])
+                data_c[s] = (data_c[s] - min_c[s]) / (max_c[s] - min_c[s])
 
-        # Normalize the data to later get the correct colour maps
-        if not categorical:
-            data[mapping["c"]] = np.array(data[mapping["c"]])
-            data[mapping["c"]] = (data[mapping["c"]] - min_c) / (max_c - min_c)
+            if mapping["cs"] in data and len(data_cs) > s:
+                data_cs[s] = np.array(data_cs[s])
+                min_cs = min(data_cs[s])
+                max_cs = max(data_cs[s])
+                # Avoid zero saturation by limiting the lower bound to 0.1
 
-        if mapping["cs"] in data:
-            data[mapping["cs"]] = np.array(data[mapping["cs"]])
-            min_cs = min(data[mapping["cs"]])
-            max_cs = max(data[mapping["cs"]])
-            # Avoid zero saturation by limiting the lower bound to 0.1
-            data[mapping["cs"]] = 1.0 - np.maximum(
-                saturation_limit,
-                np.array((data[mapping["cs"]] - min_cs) / (max_cs - min_cs)),
-            )
+                data_cs[s] = 1.0 - np.maximum(
+                    saturation_limit[s],
+                    np.array((data_cs[s] - min_cs) / (max_cs - min_cs)),
+                )
 
-        # Format numbers if parameters are indeed numbers
-        if isinstance(min_legend_label, (int, float)):
-            min_legend_label = self.legend_number_format.format(min_legend_label)
+            # Format numbers if parameters are indeed numbers
+            if isinstance(min_legend_label[s], (int, float)):
+                min_legend_label[s] = self.legend_number_format.format(
+                    min_legend_label[s]
+                )
 
-        if isinstance(max_legend_label, (int, float)):
-            max_legend_label = self.legend_number_format.format(max_legend_label)
+            if isinstance(max_legend_label[s], (int, float)):
+                max_legend_label[s] = self.legend_number_format.format(
+                    max_legend_label[s]
+                )
+
+        data[mapping["c"]] = data_c
+        if data_cs:
+            data[mapping["cs"]] = data_cs
 
         self.scatters[name] = {
             "name": name,
@@ -320,12 +396,18 @@ class Faerun(object):
             "max_c": max_c,
             "min_legend_label": min_legend_label,
             "max_legend_label": max_legend_label,
+            "series_title": series_title,
+            "ondblclick": ondblclick,
         }
 
         self.scatters_data[name] = data
 
     def plot(
-        self, file_name: str = "index", path: str = "./", template: str = "default"
+        self,
+        file_name: str = "index",
+        path: str = "./",
+        template: str = "default",
+        notebook_height: int = 500,
     ):
         """Plots the data to an HTML / JS file.
 
@@ -333,7 +415,10 @@ class Faerun(object):
             file_name (:obj:`str`, optional): The name of the HTML / JS file
             path (:obj:`str`, optional): The path to which to write the HTML / JS file
             template (:obj:`str`, optional): The name of the template to use
+            notebook_height: (:obj`int`, optional): The height of the plot when displayed in a jupyter notebook
         """
+        self.notebook_height = notebook_height
+
         script_path = os.path.dirname(os.path.abspath(__file__))
         html_path = os.path.join(path, file_name + ".html")
         js_path = os.path.join(path, file_name + ".js")
@@ -371,6 +456,7 @@ class Faerun(object):
             "legend_orientation": self.legend_orientation,
             "alpha_blending": str(self.alpha_blending).lower(),
             "style": self.style,
+            "in_notebook": Faerun.in_notebook(),
         }
 
         if Faerun.in_notebook():
@@ -385,7 +471,8 @@ class Faerun(object):
             result_file.write(output_text)
 
         if Faerun.in_notebook():
-            return IFrame(html_path, width="100%", height=500)
+            display(IFrame(html_path, width="100%", height=self.notebook_height))
+            display(FileLink(html_path))
 
     def get_min_max(self) -> tuple:
         """ Get the minimum an maximum coordinates from this plotter instance
@@ -463,13 +550,14 @@ class Faerun(object):
         # Create the data for the scatters
         for name, data in self.scatters_data.items():
             mapping = self.scatters[name]["mapping"]
-            colormap = self.scatters[name]["colormap"]
+            colormaps = self.scatters[name]["colormap"]
+            cmaps = [None] * len(colormaps)
 
-            cmap = None
-            if isinstance(colormap, str):
-                cmap = plt.cm.get_cmap(colormap)
-            else:
-                cmap = colormap
+            for i, colormap in enumerate(colormaps):
+                if isinstance(colormap, str):
+                    cmaps[i] = plt.cm.get_cmap(colormap)
+                else:
+                    cmaps[i] = colormap
 
             output[name] = {}
             output[name]["meta"] = self.scatters[name]
@@ -492,25 +580,39 @@ class Faerun(object):
             if mapping["s"] in data:
                 output[name]["s"] = np.array(data[mapping["s"]], dtype=np.float32)
 
-            if mapping["c"] in data and mapping["cs"] in data:
-                colors = np.array([cmap(x) for x in data[mapping["c"]]])
+            output[name]["colors"] = [{}] * len(data[mapping["c"]])
+            for s in range(len(data[mapping["c"]])):
+                if mapping["cs"] in data:
+                    colors = np.array([cmaps[s](x) for x in data[mapping["c"]][s]])
 
-                for i, c in enumerate(colors):
-                    hsl = np.array(colour.rgb2hsl(c[:3]))
-                    hsl[1] = hsl[1] - hsl[1] * data[mapping["cs"]][i]
-                    colors[i] = np.append(np.array(colour.hsl2rgb(hsl)), 1.0)
+                    for i, c in enumerate(colors):
+                        hsl = np.array(colour.rgb2hsl(c[:3]))
+                        hsl[1] = hsl[1] - hsl[1] * data[mapping["cs"]][s][i]
+                        colors[i] = np.append(np.array(colour.hsl2rgb(hsl)), 1.0)
 
-                colors = np.round(colors * 255.0)
+                    colors = np.round(colors * 255.0)
 
-                output[name]["r"] = np.array(colors[:, 0], dtype=np.float32)
-                output[name]["g"] = np.array(colors[:, 1], dtype=np.float32)
-                output[name]["b"] = np.array(colors[:, 2], dtype=np.float32)
-            elif mapping["c"] in data:
-                colors = np.array([cmap(x) for x in data[mapping["c"]]])
-                colors = np.round(colors * 255.0)
-                output[name]["r"] = np.array(colors[:, 0], dtype=np.float32)
-                output[name]["g"] = np.array(colors[:, 1], dtype=np.float32)
-                output[name]["b"] = np.array(colors[:, 2], dtype=np.float32)
+                    output[name]["colors"][s]["r"] = np.array(
+                        colors[:, 0], dtype=np.float32
+                    )
+                    output[name]["colors"][s]["g"] = np.array(
+                        colors[:, 1], dtype=np.float32
+                    )
+                    output[name]["colors"][s]["b"] = np.array(
+                        colors[:, 2], dtype=np.float32
+                    )
+                else:
+                    colors = np.array([cmaps[s](x) for x in data[mapping["c"]][s]])
+                    colors = np.round(colors * 255.0)
+                    output[name]["colors"][s]["r"] = np.array(
+                        colors[:, 0], dtype=np.float32
+                    )
+                    output[name]["colors"][s]["g"] = np.array(
+                        colors[:, 1], dtype=np.float32
+                    )
+                    output[name]["colors"][s]["b"] = np.array(
+                        colors[:, 2], dtype=np.float32
+                    )
 
         for name, data in self.trees_data.items():
             mapping = self.trees[name]["mapping"]
@@ -591,15 +693,16 @@ class Faerun(object):
         # TODO: If it's not interactive, labels shouldn't be exported.
         for name, data in self.scatters_data.items():
             mapping = self.scatters[name]["mapping"]
-            colormap = self.scatters[name]["colormap"]
-            cmap = None
-            if isinstance(colormap, str):
-                cmap = plt.cm.get_cmap(colormap)
-            else:
-                cmap = colormap
+            colormaps = self.scatters[name]["colormap"]
+            cmaps = [None] * len(colormaps)
+
+            for i, colormap in enumerate(colormaps):
+                if isinstance(colormap, str):
+                    cmaps[i] = plt.cm.get_cmap(colormap)
+                else:
+                    cmaps[i] = colormap
 
             output += name + ": {\n"
-
             x_norm = [round(s * (x - mini) / diff, 3) for x in data[mapping["x"]]]
             output += "x: [" + ",".join(map(str, x_norm)) + "],\n"
 
@@ -616,26 +719,35 @@ class Faerun(object):
             if mapping["s"] in data:
                 output += "s: [" + ",".join(map(str, data[mapping["s"]])) + "],\n"
 
-            if mapping["c"] in data and mapping["cs"] in data:
-                colors = np.array([cmap(x) for x in data[mapping["c"]]])
+            output += "colors: [\n"
+            for series in range(len(data[mapping["c"]])):
+                output += "{\n"
+                if mapping["cs"] in data:
+                    colors = np.array(
+                        [cmaps[series](x) for x in data[mapping["c"]][series]]
+                    )
 
-                for i, c in enumerate(colors):
-                    hsl = np.array(colour.rgb2hsl(c[:3]))
-                    hsl[1] = hsl[1] - hsl[1] * data[mapping["cs"]][i]
-                    colors[i] = np.append(np.array(colour.hsl2rgb(hsl)), 1.0)
+                    for i, c in enumerate(colors):
+                        hsl = np.array(colour.rgb2hsl(c[:3]))
+                        hsl[1] = hsl[1] - hsl[1] * data[mapping["cs"]][series][i]
+                        colors[i] = np.append(np.array(colour.hsl2rgb(hsl)), 1.0)
 
-                colors = np.round(colors * 255.0)
+                    colors = np.round(colors * 255.0)
 
-                output += "r: [" + ",".join(map(str, colors[:, 0])) + "],\n"
-                output += "g: [" + ",".join(map(str, colors[:, 1])) + "],\n"
-                output += "b: [" + ",".join(map(str, colors[:, 2])) + "],\n"
-            elif mapping["c"] in data:
-                colors = np.array([cmap(x) for x in data[mapping["c"]]])
-                colors = np.round(colors * 255.0)
-                output += "r: [" + ",".join(map(str, colors[:, 0])) + "],\n"
-                output += "g: [" + ",".join(map(str, colors[:, 1])) + "],\n"
-                output += "b: [" + ",".join(map(str, colors[:, 2])) + "],\n"
+                    output += "r: [" + ",".join(map(str, colors[:, 0])) + "],\n"
+                    output += "g: [" + ",".join(map(str, colors[:, 1])) + "],\n"
+                    output += "b: [" + ",".join(map(str, colors[:, 2])) + "],\n"
+                elif mapping["c"] in data:
+                    colors = np.array(
+                        [cmaps[series](x) for x in data[mapping["c"]][series]]
+                    )
+                    colors = np.round(colors * 255.0)
+                    output += "r: [" + ",".join(map(str, colors[:, 0])) + "],\n"
+                    output += "g: [" + ",".join(map(str, colors[:, 1])) + "],\n"
+                    output += "b: [" + ",".join(map(str, colors[:, 2])) + "],\n"
+                output += "},\n"
 
+            output += "]"
             output += "},\n"
 
         for name, data in self.trees_data.items():
@@ -697,6 +809,54 @@ class Faerun(object):
         output += "};\n"
 
         return output
+
+    @staticmethod
+    def make_list(obj: Any, make_list_list: bool = False) -> List:
+        """ If an object isn't a list, it is added to one and returned,
+        otherwise, the list is returned.
+
+        Arguments:
+            obj (:obj:`Any`): A Python object
+
+        Keyword Arguments:
+
+
+        Returns:
+            :obj:`List`: The object wrapped in a list (or the original list)
+        """
+
+        if make_list_list and type(obj) is list and type(obj[0]) is not list:
+            return [obj]
+        elif type(obj) is list:
+            return obj
+        else:
+            return [obj]
+
+    @staticmethod
+    def expand_list(
+        l: List, length: int, with_value: Any = None, with_none: bool = False
+    ) -> List:
+        """ Expands list to a given length by repeating the last element.
+
+        Arguments:
+            l (:obj:`List`): A list
+            length (:obj:`int`): The new length of the list
+        
+        Keyword Arguments:
+            with_value (:obj:`Any`, optional): Whether to expand the list with a given value
+            with_none (:obj:`bool`, optional): Whether to expand the list with None rather than the last element
+
+        Returns:
+            :obj:`List`: A list of length :obj:`length`
+        """
+
+        if with_none:
+            l.extend([None] * (length - len(l)))
+        elif with_value is not None:
+            l.extend([with_value] * (length - len(l)))
+        else:
+            l.extend([l[-1]] * (length - len(l)))
+        return l
 
     @staticmethod
     def discrete_cmap(n_colors: int, base_cmap: str) -> Colormap:

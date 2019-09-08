@@ -4,7 +4,7 @@
     <meta charset="UTF-8" />
     <link rel="shortcut icon" href="data:image/vnd.microsoft.icon;base64,AAABAAEAEBAQAAEABAAoAQAAFgAAACgAAAAQAAAAIAAAAAEABAAAAAAAgAAAAAAAAAAAAAAAEAAAAAAAAAAAAAAA25g0AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAERAAAAAAAAAREAAAAAAAABEQAAAAAAAAERAAAAAAAAARERERAAAAABEREREAAAAAEREREQAAAAAREAAAAAAAABEQAAAAAAAAEREREQAAAAARERERAAAAABEREREAAAAAAAAAAAAAAAAAAAAAAAD//wAA//8AAPH/AADx/wAA8f8AAPH/AADwDwAA8A8AAPAPAADx/wAA8f8AAPAPAADwDwAA8A8AAP//AAD//wAA" />
     <title>{{ title }}</title>
-    <script src="https://unpkg.com/lore-engine@1.0.29/dist/lore.min.js"></script>
+    <script src="https://unpkg.com/lore-engine@1.0.31/dist/lore.min.js"></script>
     <link
       href="https://fonts.googleapis.com/css?family=Open+Sans:400,600"
       rel="stylesheet"
@@ -67,6 +67,7 @@
         font-family: 'Open Sans';
         background-color: rgba(255, 255, 255, 1.0);
         border-radius: 2px;
+        border-left: 5px solid #000;
         pointer-events: none;
         opacity: 0.0;
         transition: opacity 0.1s ease-out;
@@ -116,6 +117,10 @@
         {% endif %}
       }
 
+      #legend .legend-section {
+        width: 100%;
+      }
+
       #legend .legend-section:not(:first-child) {
         {% if legend_orientation == 'horizontal' %}
         margin-left: 20px;
@@ -136,9 +141,22 @@
       #legend h3 {
         font-size: 0.8em;
         margin-top: 10px;
-        margin-bottom: 6px;
+        margin-bottom: 0px;
         max-width: 250px;
         white-space: normal;
+      }
+
+      #legend select {
+        width: 100%;
+        margin-bottom: 5px;
+        background: transparent;
+        color: #fff;
+        border-radius: 2px;
+        font-size: 0.75em;
+      }
+
+      #legend select option {
+        background: #000;
       }
 
       #legend .legend-element, #legend .legend-element-range {
@@ -147,6 +165,7 @@
         flex: auto;
         align-items: flex-start;
         padding-bottom: 2px;
+        padding-top: 2px;
       }
 
       #legend .legend-element {
@@ -208,52 +227,7 @@
     <div id="tip-image-container"><div id="text-container"></div></div>
     <canvas id="lore"></canvas>
 
-    {% if has_legend %}
-      <div id="legend">
-        {% if legend_title %}
-          <h2>{{ legend_title }}</h2>
-        {% endif %}
-        <div class="container">
-          {% for point_helper in point_helpers %} 
-            {% if point_helper.has_legend %}
-              <div id="legend-{{ point_helper.name }}"
-                  class="legend-section"
-                  data-name="{{ point_helper.name }}">
-                <h3 onclick="toggleLegendSection('{{ point_helper.name }}')">
-                  {{ point_helper.legend_title }}
-                </h3>
-                {% if not point_helper.is_range %}
-                  {% for value, label in point_helper.legend %}
-                    <div class="legend-element">
-                    <div class="color-box"
-                         style="background-color: rgba({{ value[0] * 255 }}, {{ value[1] * 255 }}, {{ value[2] * 255 }}, {{ value[3] }});
-                                border-color: rgba({{ value[0] * 255 }}, {{ value[1] * 255 }}, {{ value[2] * 255 }}, {{ value[3] }})">
-                    </div>
-                    <div class="legend-label">{{ label }}</div>
-                    </div>
-                  {% endfor %} 
-                {% else %}
-                  <div class="legend-element-range">
-                  {% for value, label in point_helper.legend %}
-                    <div class="color-stripe" 
-                         style="background-color: rgba({{ value[0] * 255 }}, {{ value[1] * 255 }}, {{ value[2] * 255 }}, {{ value[3] }});
-                                border-color: rgba({{ value[0] * 255 }}, {{ value[1] * 255 }}, {{ value[2] * 255 }}, {{ value[3] }})">
-                    </div>
-                  {% endfor %}
-                  <div class="legend-label max">
-                  {{ point_helper.max_legend_label }}
-                  </div>
-                  <div class="legend-label min">
-                  {{ point_helper.min_legend_label }}
-                  </div>
-                  </div>
-                {% endif %}
-              </div>
-            {% endif %}
-          {% endfor %}
-        </div>
-      </div>
-    {% endif %}
+    
 
     {% if data %}
       <script>
@@ -263,6 +237,12 @@
       <script src="{{file_name}}"></script>
     {% endif %}
     <script>
+        let scatterMeta = {{point_helpers|tojson}};
+        let seriesState = {}
+        scatterMeta.forEach(s => {
+            seriesState[s.name] = 0;
+        });
+
         let clearColor = '{{clear_color|safe}}';
         let cc = Lore.Core.Color.fromHex(clearColor);
         let currentPoint = null;
@@ -307,22 +287,24 @@
         let maxZ = -Number.MAX_VALUE;
         let maxRadius = -Number.MAX_VALUE;
 
-        {% for point_helper in point_helpers %}
-          phNames.push('{{point_helper["name"]|safe}}')
+        scatterMeta.forEach(s => {
+          phNames.push(s.name)
           phName = phNames[phNames.length - 1];
 
-          pointHelpers.push(new Lore.Helpers.PointHelper(lore, phName, '{{point_helper["shader"]|safe}}', 
-                                                         { maxPointSize: parseFloat('{{point_helper["max_point_size"]}}') }));
+          pointHelpers.push(
+            new Lore.Helpers.PointHelper(lore, phName, s.shader, 
+                                         { maxPointSize: s.max_point_size })
+          );
           
           phNameToPhIndex[phName] = pointHelpers.length - 1;
           ph = pointHelpers[pointHelpers.length - 1];
 
           ph.setXYZRGBS(data[phName].x, data[phName].y, data[phName].z, 
-                        data[phName].r, data[phName].g, data[phName].b, data[phName].s);
+                        data[phName]['colors'][0].r, data[phName]['colors'][0].g, data[phName]['colors'][0].b, data[phName].s);
 
-          ph.setPointScale(parseFloat('{{point_helper["point_scale"]}}'));
+          ph.setPointScale(s.point_scale);
           ph.setFog([cc.components[0], cc.components[1], cc.components[2], cc.components[3]], 
-                    parseFloat('{{point_helper["fog_intensity"]}}'))
+                    s.fog_intensity)
 
           minX = min(data[phName].x, minX);
           minY = min(data[phName].y, minY);
@@ -332,15 +314,15 @@
           maxZ = max(data[phName].z, maxZ);
           maxRadius = ph.getMaxRadius();
 
-          {% if point_helper['interactive'] %}
+          if (s.interactive) {
             octreeHelpers.push(new Lore.Helpers.OctreeHelper(lore, 'Octree_' + phName, 'tree', ph));
             ohIndexToPhName.push(phName);
-          {% endif %}
-        {% endfor %}
+          }
+        });
 
         // Coordinates
         {% if coords %}
-          init_coords(minX, minY, minZ, maxX, maxY, maxZ, {{coords_grid}}, {{coords_ticks}}, {{coords_tick_count}}, {{coords_tick_length}}, '{{coords_color}}', {{coords_box}}, {{coords_offset}})
+        init_coords(minX, minY, minZ, maxX, maxY, maxZ, {{coords_grid}}, {{coords_ticks}}, {{coords_tick_count}}, {{coords_tick_length}}, '{{coords_color}}', {{coords_box}}, {{coords_offset}})
         {% endif %}
 
         let center = new Lore.Math.Vector3f((maxX + minX) / 2.0, (maxY + minY) / 2.0, (maxZ + minZ) / 2.0);
@@ -352,14 +334,19 @@
         let tip_text = document.getElementById('text-container');
         let hoverIndicator = document.getElementById('hover-indicator');
 
-        Lore.Helpers.OctreeHelper.joinHoveredChanged(octreeHelpers, function (e) {
+        Lore.Helpers.OctreeHelper.joinHoveredChanged(octreeHelpers, e => {
           if (e.e && data[ohIndexToPhName[e.source]].labels) {
             currentPoint = {
               index: e.e.index,
-              label: data[ohIndexToPhName[e.source]].labels[e.e.index]
+              label: data[ohIndexToPhName[e.source]].labels[e.e.index],
+              source: ohIndexToPhName[e.source]
             }
 
+            let rgbColor = pointHelpers[e.source].getColor(e.e.index);
+            let hexColor = Lore.Core.Color.rgbToHex(rgbColor[0], rgbColor[1], rgbColor[2]);
+
             tip_text.innerHTML = currentPoint.label;
+            tip.style.borderColor = hexColor;
             tip.classList.add('show');
 
             let pointSize = pointHelpers[e.source].getPointSize();
@@ -376,6 +363,15 @@
             currentPoint = null;
             tip.classList.remove('show');
             hoverIndicator.classList.remove('show');
+          }
+        });
+
+        document.addEventListener('dblclick', e => {
+          if (currentPoint) {
+            var index = currentPoint.index;
+            var labels = currentPoint.label.split('__');
+            var source = currentPoint.source;
+            eval(scatterMeta[phNameToPhIndex[source]].ondblclick[seriesState[source]]);
           }
         });
 
@@ -512,6 +508,109 @@
         updateYAxis(true);
       }, 500)
 
+      renderLegend();
+      function renderLegend() {
+        {% if has_legend %}
+        let body = document.getElementsByTagName('body')[0];
+        let legend = document.getElementById('legend');
+        if (legend)
+          body.removeChild(legend);
+        legend = createElement('div', { id: 'legend' });
+        body.appendChild(legend)
+        {% if legend_title %}
+        legend.appendChild(createElement('h2', { content: '{{legend_title}}' }));
+        {% endif %}
+        
+        let container = createElement('div', { classes: 'container' });
+        legend.appendChild(container);
+
+        scatterMeta.forEach(s => {
+          let index = seriesState[s.name];
+          if (s.has_legend) {
+            legendSection = []
+            if (!s.is_range[index]) {
+              s.legend[index].forEach(v => {
+                legendSection.push(createElement('div', { classes: 'legend-element' }, [
+                  createColorBox(v[0]),
+                  createElement('div', { classes: 'legend-label', content: v[1] }),
+                ]))
+              })
+            } else {
+              legendSection.push(createElement('div', { classes: 'legend-element-range' }, [
+                ...createColorScale(s.legend[index]),
+                createElement('div', { classes: 'legend-label max', content: s.max_legend_label[index] }),
+                createElement('div', { classes: 'legend-label min', content: s.min_legend_label[index] }),
+              ]))
+            }
+
+            let series = [];
+            for (var i = 0; i < s.series_title.length; i++) {
+              series.push(
+                createElement('option', { value: i, content: s.series_title[i], selected: i === index})
+              );
+            }
+
+            container.appendChild(
+              createElement('div', { id: `legend-${s.name}`, 
+                                    classes: 'legend-section', 
+                                    'data-name': `${s.name}` }, [
+                  createElement('h3', { onclick: `toggleLegendSection('${s.name}')`,
+                                        content: s.legend_title[index] }),
+                  createElement('select', { id: `select-${s.name}`, 
+                                            classes: 'series-selector',
+                                            'data-name': s.name,
+                                            hidden: s.series_title.length < 2,
+                                            onchange: `changeSeries(this.value, '${s.name}')`}, [
+                    ...series
+                  ]),
+                  ...legendSection
+                ]
+              )
+            );
+          }
+        });
+        {% endif %}
+      }
+
+      function changeSeries(value, name) {
+        value = parseInt(value);
+        seriesState[name] = value;
+        renderLegend();
+
+        pointHelpers[phNameToPhIndex[name]].setRGBFromArrays(data[name]['colors'][value].r, data[name]['colors'][value].g, data[name]['colors'][value].b)
+      }
+
+      function createColorBox(value) {
+        return createElement(
+          'div', 
+          { 
+            classes: 'color-box', 
+            style: `background-color: rgba(${value[0] * 255}, ${value[1] * 255 }, ${value[2] * 255 }, ${value[3] });
+                    border-color: rgba(${value[0] * 255 }, ${value[1] * 255 }, ${value[2] * 255 }, ${value[3] })`
+          }
+        );
+      }
+
+      function createColorScale(values) {
+        let scale = [];
+
+        values.forEach(value => {
+          scale.push(
+            createElement(
+              'div', 
+              { 
+                classes: 'color-stripe', 
+                style: `background-color: rgba(${value[0][0] * 255}, ${value[0][1] * 255}, ${value[0][2] * 255}, ${value[0][3]});
+                        border-color: rgba(${value[0][0] * 255}, ${value[0][1] * 255}, ${value[0][2] * 255}, ${value[0][3]})`,
+                alt: value[1]
+              }
+            ),
+          )
+        });
+
+        return scale;
+      }
+
       function updateTitle(first = false) {
         if ('{{title}}' === '')
           return;
@@ -558,23 +657,55 @@
       }
 
       // DLHs
-      function min(arr, other = Number.MAX_VALUE) {
-          let m = Number.MAX_VALUE;
-          for (var i = 0; i < arr.length; i++)
-              if (arr[i] < m) m = arr[i];
-          if (m < other)
-              return m;
+      function createElement(tag, values, children) {
+        let element = document.createElement(tag);
+
+        for (const key of Object.keys(values)) {
+          if (key === 'classes')
+            element.classList.add(...values[key].split(' '));
+          else if (key === 'content')
+            element.innerHTML = values[key];
+          else if (key === 'hidden') {
+            if (values[key])
+              element.setAttribute('hidden', true);
+          }
+          else if (key === 'selected') {
+            if (values[key])
+              element.setAttribute('selected', true);
+          }
           else
-              return other;
+            element.setAttribute(key, values[key]);
+        }
+
+        if (children) {
+          if (Array.isArray(children)) {
+            children.forEach(child => {
+              element.appendChild(child);
+            })
+          } else {
+            element.appendChild(children);
+          }
+        }
+
+        return element;
+      }
+      function min(arr, other = Number.MAX_VALUE) {
+        let m = Number.MAX_VALUE;
+        for (var i = 0; i < arr.length; i++)
+            if (arr[i] < m) m = arr[i];
+        if (m < other)
+            return m;
+        else
+            return other;
       }
       function max(arr, other = -Number.MAX_VALUE) {
-          let m = -Number.MAX_VALUE;
-          for (var i = 0; i < arr.length; i++)
-              if (arr[i] > m) m = arr[i];
-          if (m > other)
-              return m;
-          else
-              return other;
+        let m = -Number.MAX_VALUE;
+        for (var i = 0; i < arr.length; i++)
+            if (arr[i] > m) m = arr[i];
+        if (m > other)
+            return m;
+        else
+            return other;
       }
     </script>
   </body>

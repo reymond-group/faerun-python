@@ -179,7 +179,13 @@ class FaerunWeb:
         if coord in self.data[name]:
             return bytes(np.array(self.data[name][coord], dtype=dtype))
         else:
-            return bytes(np.array([], dtype=dtype))
+            if "series" in input_json and coord in ["r", "g", "b"]:
+                series = int(input_json["series"])
+                return bytes(
+                    np.array(self.data[name]["colors"][series][coord], dtype=dtype)
+                )
+            else:
+                return bytes(np.array([], dtype=dtype))
 
     @cherrypy.expose
     @cherrypy.tools.allow(methods=["POST"])

@@ -134,7 +134,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/showdown/1.9.0/showdown.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/0.18.0/axios.min.js"></script>
-    <script src="https://unpkg.com/lore-engine@1.0.29/dist/lore.js"></script>
+    <script src="https://unpkg.com/lore-engine@1.0.31/dist/lore.js"></script>
     <script src="https://unpkg.com/smiles-drawer@1.0.2/dist/smiles-drawer.min.js"></script>
 
     <!-- Let's keep everything in one file, shouldn't be too much ... -->
@@ -199,12 +199,16 @@
         }
 
 
-        async function get_values(name, coord, dtype='float32') {
+        async function get_values(name, coord, dtype='float32', series=null) {
+            let body = JSON.stringify({ name: name, coord: coord, dtype: dtype });
+            if (series !== null)
+                body = JSON.stringify({ name: name, coord: coord, dtype: dtype, series: series });
+
             let response = await fetch('/get_values', {
                 responseType: 'blob',
                 method: 'post',
                 headers: headers,
-                body: JSON.stringify({ name: name, coord: coord, dtype: dtype }) 
+                body: body
             })
 
             let buffer = await response.arrayBuffer();
@@ -288,9 +292,9 @@
                 maxZ = max(z, maxZ);
 
                 updateText('loader', 'Loading Colours for "' + name + '" ...');
-                let r = await get_values(name, 'r', 'uint8');
-                let g = await get_values(name, 'g', 'uint8');
-                let b = await get_values(name, 'b', 'uint8');
+                let r = await get_values(name, 'r', 'uint8', 0);
+                let g = await get_values(name, 'g', 'uint8', 0);
+                let b = await get_values(name, 'b', 'uint8', 0);
                 
                 updateText('loader', 'Loading Point Sizes for "' + name + '" ...');
                 let s = await get_values(name, 's');
@@ -525,11 +529,11 @@
                 legendItem.id = 'legend-' + value.name;
                 legendItem.classList.add('legend-section');
                 legendItem.setAttribute('data-name', value.name);
-                legendItem.innerHTML = '<h3>' + value.legend_title + '</h3>';
+                legendItem.innerHTML = '<h3>' + value.legend_title[0] + '</h3>';
                 legendContainer.appendChild(legendItem);
                 
-                if (!value.is_range) {
-                    for (let v of value.legend) {
+                if (!value.is_range[0]) {
+                    for (let v of value.legend[0]) {
                         let legendElement = document.createElement('div');
                         legendElement.classList.add('legend-element');
                         legendElement.innerHTML += '<div class="color-box" style="background-color:rgba(' + (v[0][0] * 255) + ', ' + (v[0][1] * 255) + ', ' + (v[0][2] * 255) + ', ' + v[0][3] + ')"></div>';
@@ -538,7 +542,7 @@
                     }
                 } else {
                     let legendElement = document.createElement('div');
-                    for (let v of value.legend) {
+                    for (let v of value.legend[0]) {
                         legendElement.classList.add('legend-element-range');
                         legendElement.innerHTML += '<div class="color-stripe" style="background-color:rgba(' + (v[0][0] * 255) + ', ' + (v[0][1] * 255) + ', ' + (v[0][2] * 255) + ', ' + v[0][3] + ')"></div>';
                         legendElement.innerHTML += '<div class="legend-label max">' + value.max_c + '</div>';
@@ -731,7 +735,7 @@
             updateText('loader', 'Loading Meta ...');
             get_meta().then((result) => {
                 meta = result;
-                console.log(meta);
+
                 theme = themes[meta.theme];
                 document.getElementById("title").innerHTML = meta.title;
                 setTheme();

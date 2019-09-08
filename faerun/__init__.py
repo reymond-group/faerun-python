@@ -4,6 +4,7 @@ from faerun.web import host
 
 _ROOT = os.path.abspath(os.path.dirname(__file__))
 
+
 def get_asset(path):
     """Gets the path to the assets folder
     
@@ -13,4 +14,5 @@ def get_asset(path):
     Returns:
         str -- The full path to the asset
     """
-    return os.path.join(_ROOT, 'assets', path)
+    return os.path.join(_ROOT, "assets", path)
+

@@ -4,7 +4,7 @@
     <meta charset="UTF-8" />
     <link rel="shortcut icon" href="data:image/vnd.microsoft.icon;base64,AAABAAEAEBAQAAEABAAoAQAAFgAAACgAAAAQAAAAIAAAAAEABAAAAAAAgAAAAAAAAAAAAAAAEAAAAAAAAAAAAAAA25g0AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAERAAAAAAAAAREAAAAAAAABEQAAAAAAAAERAAAAAAAAARERERAAAAABEREREAAAAAEREREQAAAAAREAAAAAAAABEQAAAAAAAAEREREQAAAAARERERAAAAABEREREAAAAAAAAAAAAAAAAAAAAAAAD//wAA//8AAPH/AADx/wAA8f8AAPH/AADwDwAA8A8AAPAPAADx/wAA8f8AAPAPAADwDwAA8A8AAP//AAD//wAA" />
     <title>faerun-example</title>
-    <script src="https://unpkg.com/lore-engine@1.0.29/dist/lore.min.js"></script>
+    <script src="https://unpkg.com/lore-engine@1.0.31/dist/lore.min.js"></script>
     <link
       href="https://fonts.googleapis.com/css?family=Open+Sans:400,600"
       rel="stylesheet"
@@ -150,6 +150,10 @@
         
       }
 
+      #legend .legend-section {
+        width: 100%;
+      }
+
       #legend .legend-section:not(:first-child) {
         
       }
@@ -168,9 +172,22 @@
       #legend h3 {
         font-size: 0.8em;
         margin-top: 10px;
-        margin-bottom: 6px;
+        margin-bottom: 0px;
         max-width: 250px;
         white-space: normal;
+      }
+
+      #legend select {
+        width: 100%;
+        margin-bottom: 2px;
+        background: transparent;
+        color: #fff;
+        border-radius: 2px;
+        font-size: 0.75em;
+      }
+
+      #legend select option {
+        background: #000;
       }
 
       #legend .legend-element, #legend .legend-element-range {
@@ -179,6 +196,7 @@
         flex: auto;
         align-items: flex-start;
         padding-bottom: 2px;
+        padding-top: 5px;
       }
 
       #legend .legend-element {
@@ -245,49 +263,17 @@
     <canvas id="lore"></canvas>
 
     
-      <div id="legend">
-        
-          <h2>Legend</h2>
-        
-        <div class="container">
-           
-            
-              <div id="legend-helix"
-                  class="legend-section"
-                  data-name="helix">
-                <h3 onclick="toggleLegendSection('helix')">
-                  helix
-                </h3>
-                
-                  
-                    <div class="legend-element">
-                    <div class="color-box"
-                         style="background-color: rgba(27.0, 158.0, 119.0, 1.0);
-                                border-color: rgba(27.0, 158.0, 119.0, 1.0)">
-                    </div>
-                    <div class="legend-label">Zero</div>
-                    </div>
-                  
-                    <div class="legend-element">
-                    <div class="color-box"
-                         style="background-color: rgba(217.0, 95.0, 2.0, 1.0);
-                                border-color: rgba(217.0, 95.0, 2.0, 1.0)">
-                    </div>
-                    <div class="legend-label">One</div>
-                    </div>
-                   
-                
-              </div>
-            
-          
-        </div>
-      </div>
-    
 
     
       <script src="helix.js"></script>
     
     <script>
+        let scatterMeta = [{"categorical": [true], "colormap": ["Dark2"], "fog_intensity": 0.0, "has_legend": true, "interactive": true, "is_range": [false], "legend": [[[[0.10588235294117647, 0.6196078431372549, 0.4666666666666667, 1.0], "Zero"], [[0.8509803921568627, 0.37254901960784315, 0.00784313725490196, 1.0], "One"]]], "legend_title": ["helix"], "mapping": {"c": "c", "cs": "cs", "labels": "labels", "s": "s", "x": "x", "y": "y", "z": "z"}, "max_c": [1.0], "max_legend_label": ["1.00"], "max_point_size": 100.0, "min_c": [0.0], "min_legend_label": ["0.00"], "name": "helix", "point_scale": 5.0, "series_title": [null], "shader": "sphere"}];
+        let seriesState = {}
+        scatterMeta.forEach(s => {
+            seriesState[s.name] = 0;
+        });
+
         let clearColor = '#222222';
         let cc = Lore.Core.Color.fromHex(clearColor);
         let currentPoint = null;
@@ -323,22 +309,24 @@
         let maxZ = -Number.MAX_VALUE;
         let maxRadius = -Number.MAX_VALUE;
 
-        
-          phNames.push('helix')
+        scatterMeta.forEach(s => {
+          phNames.push(s.name)
           phName = phNames[phNames.length - 1];
 
-          pointHelpers.push(new Lore.Helpers.PointHelper(lore, phName, 'sphere', 
-                                                         { maxPointSize: parseFloat('100.0') }));
+          pointHelpers.push(
+            new Lore.Helpers.PointHelper(lore, phName, s.shader, 
+                                         { maxPointSize: s.max_point_size })
+          );
           
           phNameToPhIndex[phName] = pointHelpers.length - 1;
           ph = pointHelpers[pointHelpers.length - 1];
 
           ph.setXYZRGBS(data[phName].x, data[phName].y, data[phName].z, 
-                        data[phName].r, data[phName].g, data[phName].b, data[phName].s);
+                        data[phName]['colors'][0].r, data[phName]['colors'][0].g, data[phName]['colors'][0].b, data[phName].s);
 
-          ph.setPointScale(parseFloat('5.0'));
+          ph.setPointScale(s.point_scale);
           ph.setFog([cc.components[0], cc.components[1], cc.components[2], cc.components[3]], 
-                    parseFloat('0.0'))
+                    s.fog_intensity)
 
           minX = min(data[phName].x, minX);
           minY = min(data[phName].y, minY);
@@ -348,11 +336,11 @@
           maxZ = max(data[phName].z, maxZ);
           maxRadius = ph.getMaxRadius();
 
-          
+          if (s.interactive) {
             octreeHelpers.push(new Lore.Helpers.OctreeHelper(lore, 'Octree_' + phName, 'tree', ph));
             ohIndexToPhName.push(phName);
-          
-        
+          }
+        });
 
         // Coordinates
         
@@ -514,6 +502,109 @@
         updateYAxis(true);
       }, 500)
 
+      renderLegend();
+      function renderLegend() {
+        
+        let body = document.getElementsByTagName('body')[0];
+        let legend = document.getElementById('legend');
+        if (legend)
+          body.removeChild(legend);
+        legend = createElement('div', { id: 'legend' });
+        body.appendChild(legend)
+        
+        legend.appendChild(createElement('h2', { content: 'Legend' }));
+        
+        
+        let container = createElement('div', { classes: 'container' });
+        legend.appendChild(container);
+
+        scatterMeta.forEach(s => {
+          let index = seriesState[s.name];
+          if (s.has_legend) {
+            legendSection = []
+            if (!s.is_range[index]) {
+              s.legend[index].forEach(v => {
+                legendSection.push(createElement('div', { classes: 'legend-element' }, [
+                  createColorBox(v[0]),
+                  createElement('div', { classes: 'legend-label', content: v[1] }),
+                ]))
+              })
+            } else {
+              legendSection.push(createElement('div', { classes: 'legend-element-range' }, [
+                ...createColorScale(s.legend[index]),
+                createElement('div', { classes: 'legend-label max', content: s.max_legend_label[index] }),
+                createElement('div', { classes: 'legend-label min', content: s.min_legend_label[index] }),
+              ]))
+            }
+
+            let series = [];
+            for (var i = 0; i < s.series_title.length; i++) {
+              series.push(
+                createElement('option', { value: i, content: s.series_title[i], selected: i === index})
+              );
+            }
+
+            container.appendChild(
+              createElement('div', { id: `legend-${s.name}`, 
+                                    classes: 'legend-section', 
+                                    'data-name': `${s.name}` }, [
+                  createElement('h3', { onclick: `toggleLegendSection('${s.name}')`,
+                                        content: s.legend_title[index] }),
+                  createElement('select', { id: `select-${s.name}`, 
+                                            classes: 'series-selector',
+                                            'data-name': s.name,
+                                            hidden: s.series_title.length < 2,
+                                            onchange: `changeSeries(this.value, '${s.name}')`}, [
+                    ...series
+                  ]),
+                  ...legendSection
+                ]
+              )
+            );
+          }
+        });
+        
+      }
+
+      function changeSeries(value, name) {
+        value = parseInt(value);
+        seriesState[name] = value;
+        renderLegend();
+
+        pointHelpers[phNameToPhIndex[name]].setRGBFromArrays(data[name]['colors'][value].r, data[name]['colors'][value].g, data[name]['colors'][value].b)
+      }
+
+      function createColorBox(value) {
+        return createElement(
+          'div', 
+          { 
+            classes: 'color-box', 
+            style: `background-color: rgba(${value[0] * 255}, ${value[1] * 255 }, ${value[2] * 255 }, ${value[3] });
+                    border-color: rgba(${value[0] * 255 }, ${value[1] * 255 }, ${value[2] * 255 }, ${value[3] })`
+          }
+        );
+      }
+
+      function createColorScale(values) {
+        let scale = [];
+
+        values.forEach(value => {
+          scale.push(
+            createElement(
+              'div', 
+              { 
+                classes: 'color-stripe', 
+                style: `background-color: rgba(${value[0][0] * 255}, ${value[0][1] * 255}, ${value[0][2] * 255}, ${value[0][3]});
+                        border-color: rgba(${value[0][0] * 255}, ${value[0][1] * 255}, ${value[0][2] * 255}, ${value[0][3]})`,
+                alt: value[1]
+              }
+            ),
+          )
+        });
+
+        return scale;
+      }
+
       function updateTitle(first = false) {
         if ('faerun-example' === '')
           return;
@@ -560,23 +651,55 @@
       }
 
       // DLHs
-      function min(arr, other = Number.MAX_VALUE) {
-          let m = Number.MAX_VALUE;
-          for (var i = 0; i < arr.length; i++)
-              if (arr[i] < m) m = arr[i];
-          if (m < other)
-              return m;
+      function createElement(tag, values, children) {
+        let element = document.createElement(tag);
+
+        for (const key of Object.keys(values)) {
+          if (key === 'classes')
+            element.classList.add(...values[key].split(' '));
+          else if (key === 'content')
+            element.innerHTML = values[key];
+          else if (key === 'hidden') {
+            if (values[key])
+              element.setAttribute('hidden', true);
+          }
+          else if (key === 'selected') {
+            if (values[key])
+              element.setAttribute('selected', true);
+          }
           else
-              return other;
+            element.setAttribute(key, values[key]);
+        }
+
+        if (children) {
+          if (Array.isArray(children)) {
+            children.forEach(child => {
+              element.appendChild(child);
+            })
+          } else {
+            element.appendChild(children);
+          }
+        }
+
+        return element;
+      }
+      function min(arr, other = Number.MAX_VALUE) {
+        let m = Number.MAX_VALUE;
+        for (var i = 0; i < arr.length; i++)
+            if (arr[i] < m) m = arr[i];
+        if (m < other)
+            return m;
+        else
+            return other;
       }
       function max(arr, other = -Number.MAX_VALUE) {
-          let m = -Number.MAX_VALUE;
-          for (var i = 0; i < arr.length; i++)
-              if (arr[i] > m) m = arr[i];
-          if (m > other)
-              return m;
-          else
-              return other;
+        let m = -Number.MAX_VALUE;
+        for (var i = 0; i < arr.length; i++)
+            if (arr[i] > m) m = arr[i];
+        if (m > other)
+            return m;
+        else
+            return other;
       }
     </script>
   </body>
