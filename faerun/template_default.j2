@@ -5,7 +5,12 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <link rel="shortcut icon" href="data:image/vnd.microsoft.icon;base64,AAABAAEAEBAQAAEABAAoAQAAFgAAACgAAAAQAAAAIAAAAAEABAAAAAAAgAAAAAAAAAAAAAAAEAAAAAAAAAAAAAAA25g0AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAERAAAAAAAAAREAAAAAAAABEQAAAAAAAAERAAAAAAAAARERERAAAAABEREREAAAAAEREREQAAAAAREAAAAAAAABEQAAAAAAAAEREREQAAAAARERERAAAAABEREREAAAAAAAAAAAAAAAAAAAAAAAD//wAA//8AAPH/AADx/wAA8f8AAPH/AADwDwAA8A8AAPAPAADx/wAA8f8AAPAPAADwDwAA8A8AAP//AAD//wAA" />
     <title>{{ title }}</title>
-    <script src="https://unpkg.com/lore-engine@1.0.38/dist/lore.min.js"></script>
+    <script src="https://unpkg.com/lore-engine@1.1.5/dist/lore.min.js"></script>
+    <link 
+      rel="stylesheet" 
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.10.2/css/all.css" 
+      integrity="sha256-piqEf7Ap7CMps8krDQsSOTZgF+MU/0MPyPW2enj5I40=" 
+      crossorigin="anonymous" />
     <link
       href="https://fonts.googleapis.com/css?family=Open+Sans:400,600"
       rel="stylesheet"
@@ -61,7 +66,7 @@
         {% endfor %}
       }
 
-      #tip-image-container {
+      #tip {
         position: absolute;
         z-index: 9999;
         padding: 5px;
@@ -75,12 +80,12 @@
         filter: drop-shadow(0px 0px 10px rgba(0, 0, 0, 1.0));
       }
 
-      #tip-image-container.show {
+      #tip.show {
         opacity: 1.0;
         transition: opacity 0.1s ease-out;
       }
 
-      #text-container {
+      #tip-text {
         position: relative;
         max-width: 500px;
         white-space: normal;
@@ -207,12 +212,62 @@
         margin-left: 15px;
       }
 
-      #selected-container {
+      #selected {
         position: absolute;
+        display: none;
         z-index: 99999;
+        width: 250px;
         {% for key, value in style["selected"].items() %}
           {{key}}: {{value}};
         {% endfor %}
+      }
+
+      #selected #selected-controls {
+        display: flex;
+        align-items: center;
+        justify-content: flex-end;
+        padding: 5px 10px;
+        border-bottom: 1px solid #262626;
+        font-size: 0.8em;
+        font-weight: bold;
+      }
+
+      #selected #selected-controls * {
+        display: inline-block;
+      }
+
+      #selected #selected-controls #selected-title {
+        flex-grow: 1;
+        white-space: nowrap; 
+        overflow: hidden;
+        text-overflow: ellipsis;
+        color: #aaa;
+      }
+
+      #selected #selected-controls a {
+        margin-left: 2px;
+        font-size: 1.5em;
+        color: #fff;
+      }
+
+      #selected #selected-container {
+        padding: 10px;
+        font-size: 0.8em;
+      }
+
+      #selected #selected-container .label {
+        font-weight: bold;
+        color: #aaa;
+        font-size: 0.7em;
+      }
+
+      #selected #selected-container .label:not(:first-child) {
+        margin-top: 2px;
+      }
+
+      #selected #selected-container .content a {
+        text-decoration: none;
+        color: #3498db;
       }
 
       .show {
@@ -232,12 +287,32 @@
       <div id="y-axis">{{y_title}}</div>
     {% endif %}
 
-    <div id="selected-container"></div>
-    <div id="hover-indicator"></div>
-    <div id="tip-image-container"><div id="text-container"></div></div>
+    <div id="selected" data-bind="selected">
+      <div id="selected-controls" data-bind="selectedControls">
+        <span id="selected-title" data-bind="selectedTitle"></span>
+        <span>&nbsp;&nbsp;</span>
+        <span id="selected-current" data-bind="selectedCurrent" data-bind="selectedCurrent">0</span><span> / </span><span id="selected-total" data-bind="selectedTotal">0</span>
+        <span>&nbsp;&nbsp;</span>
+        <a id="selected-prev" data-bind="selectedPrev" href="#">
+          <i class="fas fa-angle-left"></i>
+        </a>
+        <span>&nbsp;</span>
+        <a id="selected-next" data-bind="selectedNext" href="#">
+          <i class="fas fa-angle-right"></i>
+        </a>
+      </div>
+      <div id="selected-container" data-bind="selectedContainer">
+        <div class="label">Title</div>
+        <div class="content">This is a test</div>
+        <div class="label">Hyperlink</div>
+        <div class="content"><a href="http://www.google.ch">Test</a></div>
+      </div>
+    </div>
+    <div id="hover-indicator" data-bind="hoverIndicator"></div>
+    <div id="tip" data-bind="tip">
+      <div id="tip-text" data-bind="tipText"></div>
+    </div>
     <canvas id="lore"></canvas>
-
-    
 
     {% if data %}
       <script>
@@ -247,10 +322,17 @@
       <script src="{{file_name}}"></script>
     {% endif %}
     <script>
-        let scatterMeta = {{point_helpers|tojson}};
-        let seriesState = {}
-        scatterMeta.forEach(s => {
-            seriesState[s.name] = 0;
+        let app = {
+          selectedItems: [],
+          selectedCurrent: 0,
+          scatterMeta: {{point_helpers|tojson}},
+          treeMeta: {{tree_helpers}},
+          seriesState: {},
+          el: bindElements()
+        }
+
+        app.scatterMeta.forEach(s => {
+            app.seriesState[s.name] = 0;
         });
 
         let clearColor = '{{clear_color|safe}}';
@@ -260,35 +342,28 @@
         let alphaBlending = view === 'free' ? false : true
 
         let lore = Lore.init('lore', {
-          antialiasing: true,
+          antialiasing: {{anti_aliasing}},
           clearColor: clearColor,
           alphaBlending: alphaBlending || {{alpha_blending}},
         });
 
         // Tree plots
         let treeHelpers = [];
-        let th = null;
-        let thNames = [];
-        let thName = null;
-        {% for tree_helper in tree_helpers %}
-          thNames.push('{{tree_helper["name"]|safe}}')
-          thName = thNames[thNames.length - 1];
-          treeHelpers.push(new Lore.Helpers.TreeHelper(lore, thName, 'tree'));
-          th = treeHelpers[treeHelpers.length - 1];
-          th.setXYZHexS(data[thName].x, data[thName].y, data[thName].z, 
-                        '{{tree_helper["color"]|safe}}');
+        app.treeMeta.forEach(t => {
+          let th = new Lore.Helpers.TreeHelper(lore, t.name, 'tree');
+          th.setXYZHexS(data[t.name].x, data[t.name].y, data[t.name].z, 
+                        t.color);
           th.setFog([cc.components[0], cc.components[1], cc.components[2], cc.components[3]], 
-                    parseFloat('{{tree_helper["fog_intensity"]}}'));
-        {% endfor %}
+                    t.fog_intensity);
+          treeHelpers.push(th);
+        });
 
         // Scatter plots
         let pointHelpers = [];
         let octreeHelpers = [];
-        let ph = null;
-        let phNames = [];
         let ohIndexToPhName = [];
-        let phNameToPhIndex = {};
-        let phName = null;
+        let ohIndexToPhIndex = [];
+        let phIndexMap = {};
         let minX = Number.MAX_VALUE;
         let minY = Number.MAX_VALUE;
         let minZ = Number.MAX_VALUE;
@@ -297,97 +372,93 @@
         let maxZ = -Number.MAX_VALUE;
         let maxRadius = -Number.MAX_VALUE;
 
-        scatterMeta.forEach(s => {
-          phNames.push(s.name)
-          phName = phNames[phNames.length - 1];
+        app.scatterMeta.forEach(s => {          
+          phIndexMap[s.name] = pointHelpers.length;
+          let ph = new Lore.Helpers.PointHelper(lore, s.name, s.shader, 
+                                                { maxPointSize: s.max_point_size })
 
-          pointHelpers.push(
-            new Lore.Helpers.PointHelper(lore, phName, s.shader, 
-                                         { maxPointSize: s.max_point_size })
-          );
-          
-          phNameToPhIndex[phName] = pointHelpers.length - 1;
-          ph = pointHelpers[pointHelpers.length - 1];
-
-          ph.setXYZRGBS(data[phName].x, data[phName].y, data[phName].z, 
-                        data[phName]['colors'][0].r, data[phName]['colors'][0].g, data[phName]['colors'][0].b, data[phName].s);
+          ph.setXYZRGBS(data[s.name].x, data[s.name].y, data[s.name].z, 
+                        data[s.name]['colors'][0].r, data[s.name]['colors'][0].g, 
+                        data[s.name]['colors'][0].b, data[s.name].s);
 
           ph.setPointScale(s.point_scale);
-          ph.setFog([cc.components[0], cc.components[1], cc.components[2], cc.components[3]], 
-                    s.fog_intensity)
+          ph.setFog([cc.components[0], cc.components[1], cc.components[2],
+                     cc.components[3]], s.fog_intensity)
+          
+          pointHelpers.push(ph);
 
-          minX = min(data[phName].x, minX);
-          minY = min(data[phName].y, minY);
-          minZ = min(data[phName].z, minZ);
-          maxX = max(data[phName].x, maxX);
-          maxY = max(data[phName].y, maxY);
-          maxZ = max(data[phName].z, maxZ);
+          minX = min(data[s.name].x, minX);
+          minY = min(data[s.name].y, minY);
+          minZ = min(data[s.name].z, minZ);
+          maxX = max(data[s.name].x, maxX);
+          maxY = max(data[s.name].y, maxY);
+          maxZ = max(data[s.name].z, maxZ);
           maxRadius = ph.getMaxRadius();
 
           if (s.interactive) {
-            octreeHelpers.push(new Lore.Helpers.OctreeHelper(lore, 'Octree_' + phName, 'tree', ph));
-            ohIndexToPhName.push(phName);
+            octreeHelpers.push(
+              new Lore.Helpers.OctreeHelper(lore, 'Octree_' + s.name, 'tree', ph)
+            );
+
+            ohIndexToPhName.push(s.name);
+            ohIndexToPhIndex.push(phIndexMap[s.name]);
           }
         });
 
         // Coordinates
         {% if coords %}
-        init_coords(minX, minY, minZ, maxX, maxY, maxZ, {{coords_grid}}, {{coords_ticks}}, {{coords_tick_count}}, {{coords_tick_length}}, '{{coords_color}}', {{coords_box}}, {{coords_offset}})
+        init_coords(minX, minY, minZ, maxX, maxY, maxZ,
+                    {{coords_grid}}, {{coords_ticks}}, {{coords_tick_count}},
+                    {{coords_tick_length}}, '{{coords_color}}', {{coords_box}}, 
+                    {{coords_offset}})
         {% endif %}
 
-        let center = new Lore.Math.Vector3f((maxX + minX) / 2.0, (maxY + minY) / 2.0, (maxZ + minZ) / 2.0);
+        let center = new Lore.Math.Vector3f((maxX + minX) / 2.0, (maxY + minY) / 2.0, 
+                                            (maxZ + minZ) / 2.0);
         lore.controls.setLookAt(center);
         lore.controls.setRadius(maxRadius + 100);
         lore.controls.setView(0.9, -0.5)
 
-        let tip = document.getElementById('tip-image-container');
-        let tip_text = document.getElementById('text-container');
-        let hoverIndicator = document.getElementById('hover-indicator');
-        let selectedContainer = document.getElementById('selected-container');
-
         Lore.Helpers.OctreeHelper.joinHoveredChanged(octreeHelpers, e => {
-          if (e.e && data[ohIndexToPhName[e.source]].labels) {
+          let phName = ohIndexToPhName[e.source];
+          if (e.e && data[phName].labels) {
+            let fullLabel = data[phName].labels[e.e.index];
+            let labelIndex = app.scatterMeta[ohIndexToPhIndex[e.source]]
+                                .label_index[app.seriesState[phName]];
             currentPoint = {
               index: e.e.index,
-              label: data[ohIndexToPhName[e.source]].labels[e.e.index],
-              source: ohIndexToPhName[e.source]
+              fullLabel: fullLabel,
+              source: phName,
+              label: fullLabel.split('__')[labelIndex]
             }
 
             let rgbColor = pointHelpers[e.source].getColor(e.e.index);
             let hexColor = Lore.Core.Color.rgbToHex(rgbColor[0], rgbColor[1], rgbColor[2]);
 
-            tip_text.innerHTML = currentPoint.label;
-            tip.style.borderColor = hexColor;
-            tip.classList.add('show');
+            app.el.tipText.innerHTML = currentPoint.label;
+            app.el.tip.style.borderColor = hexColor;
+            app.el.tip.classList.add('show');
 
             let pointSize = pointHelpers[e.source].getPointSize();
             let x = e.e.screenPosition[0];
             let y = e.e.screenPosition[1];
 
-            hoverIndicator.style.width = pointSize + 'px';
-            hoverIndicator.style.height = pointSize + 'px';
-            hoverIndicator.style.left = (x - pointSize / 2.0 - 1) + 'px';
-            hoverIndicator.style.top = (y - pointSize / 2.0 - 1) + 'px';
+            app.el.hoverIndicator.style.width = pointSize + 'px';
+            app.el.hoverIndicator.style.height = pointSize + 'px';
+            app.el.hoverIndicator.style.left = (x - pointSize / 2.0 - 1) + 'px';
+            app.el.hoverIndicator.style.top = (y - pointSize / 2.0 - 1) + 'px';
 
-            hoverIndicator.classList.add('show');
+            app.el.hoverIndicator.classList.add('show');
           } else {
             currentPoint = null;
-            tip.classList.remove('show');
-            hoverIndicator.classList.remove('show');
+            app.el.tip.classList.remove('show');
+            app.el.hoverIndicator.classList.remove('show');
           }
         });
 
-        Lore.Helpers.OctreeHelper.joinSelectedChanged(octreeHelpers, e => {
-          let html = '';
-
-          e.forEach((group, i) => {
-            html += `Octree: ${i}<br />`;
-            group.selected.forEach((element, j) => {
-              html += `Element: ${element.index}<br />`;
-            });
-          });
-
-          selectedContainer.innerHTML = html;
+        Lore.Helpers.OctreeHelper.joinSelectedChanged(octreeHelpers, items => {
+          app.selectedItems = items;
+          updateSelected();
         });
 
         document.addEventListener('dblclick', e => {
@@ -395,57 +466,38 @@
             var index = currentPoint.index;
             var labels = currentPoint.label.split('__');
             var source = currentPoint.source;
-            eval(scatterMeta[phNameToPhIndex[source]].ondblclick[seriesState[source]]);
+            eval(app.scatterMeta[phIndexMap[source]].ondblclick[app.seriesState[source]]);
           }
         });
 
-        {% if view == 'front' %}
-          lore.controls.setFrontView();
-        {% endif %}
-        {% if view == 'back' %}
-          lore.controls.setBackView();
-        {% endif %}
-        {% if view == 'left' %}
-          lore.controls.setLeftView();
-        {% endif %}
-        {% if view == 'right' %}
-          lore.controls.setRightView();
-        {% endif %}
-        {% if view == 'top' %}
-          lore.controls.setTopView();
-        {% endif %}
-        {% if view == 'bottom' %}
-          lore.controls.setBottomView();
-        {% endif %}
+        lore.controls.setViewByName(view);
 
         document.addEventListener('mousemove', function (event) {
-          let tip = document.getElementById('tip-image-container');
-
           let x = event.clientX;
           let y = event.clientY;
 
-          if (x > window.innerWidth - tip.offsetWidth - 20) {
-            x -= tip.offsetWidth;
+          if (x > window.innerWidth - app.el.tip.offsetWidth - 20) {
+            x -= app.el.tip.offsetWidth;
           } else {
             x += 10;
           }
 
-          if (y > window.innerHeight - tip.offsetHeight - 20) {
-            y -= tip.offsetHeight;
+          if (y > window.innerHeight - app.el.tip.offsetHeight - 20) {
+            y -= app.el.tip.offsetHeight;
           } else {
             y += 10;
           }
 
-          if (tip) {
-            tip.style.top = y + 'px';
-            tip.style.left = x + 'px';
+          if (app.el.tip) {
+            app.el.tip.style.top = y + 'px';
+            app.el.tip.style.left = x + 'px';
           }
         });
 
         // Legend
         function toggleLegendSection(name) {
           let section = document.getElementById('legend-' + name);
-          let geometry = pointHelpers[phNameToPhIndex[name]].geometry;
+          let geometry = pointHelpers[phIndexMap[name]].geometry;
           let isVisible = geometry.isVisible;
 
           if (isVisible) {
@@ -537,8 +589,9 @@
         {% if has_legend %}
         let body = document.getElementsByTagName('body')[0];
         let legend = document.getElementById('legend');
-        if (legend)
-          body.removeChild(legend);
+        
+        if (legend) body.removeChild(legend);
+
         legend = createElement('div', { id: 'legend' });
         body.appendChild(legend)
         {% if legend_title %}
@@ -548,8 +601,8 @@
         let container = createElement('div', { classes: 'container' });
         legend.appendChild(container);
 
-        scatterMeta.forEach(s => {
-          let index = seriesState[s.name];
+        app.scatterMeta.forEach(s => {
+          let index = app.seriesState[s.name];
           if (s.has_legend) {
             legendSection = []
             if (!s.is_range[index]) {
@@ -598,10 +651,12 @@
 
       function changeSeries(value, name) {
         value = parseInt(value);
-        seriesState[name] = value;
+        app.seriesState[name] = value;
         renderLegend();
 
-        pointHelpers[phNameToPhIndex[name]].setRGBFromArrays(data[name]['colors'][value].r, data[name]['colors'][value].g, data[name]['colors'][value].b)
+        pointHelpers[phIndexMap[name]].setRGBFromArrays(data[name]['colors'][value].r, 
+                                                        data[name]['colors'][value].g, 
+                                                        data[name]['colors'][value].b)
       }
 
       function createColorBox(value) {
@@ -633,6 +688,32 @@
         });
 
         return scale;
+      }
+
+      function updateSelected(current = -1) {
+        let n = app.selectedItems.length
+        // Hide the container if no items are selected
+        if (n === 0) {
+          app.el.selected.style.display = 'none';
+          return;
+        } else {
+          app.el.selected.style.display = 'block';
+        }
+
+        if (current < 0) current = n - 1;
+        if (current >= n) current = 0;
+        app.selectedCurrent = current;
+
+        let item = app.selectedItems[current];
+
+        let phName = ohIndexToPhName[item.source];
+        let fullLabel = data[phName].labels[item.item.index].split('__');
+        let labelIndex = app.scatterMeta[ohIndexToPhIndex[item.source]]
+                            .label_index[app.seriesState[phName]];
+
+        app.el.selectedCurrent.innerHTML = current + 1;
+        app.el.selectedTotal.innerHTML = n;
+        app.el.selectedTitle.innerHTML = fullLabel[labelIndex];
       }
 
       function updateTitle(first = false) {
@@ -670,7 +751,8 @@
           return;
           
         let bb = yAxis.getBoundingClientRect();
-        let scenePosition = new Lore.Math.Vector3f(minX, (maxY + minY) / 2.0, (maxZ + minZ) / 2.0);
+        let scenePosition = new Lore.Math.Vector3f(minX, (maxY + minY) / 2.0, 
+                                                   (maxZ + minZ) / 2.0);
         let screenPosition = lore.controls.camera.sceneToScreen(scenePosition, lore);
         
         yAxis.style.left = (screenPosition[0] - bb.height) + 'px';
@@ -679,6 +761,19 @@
         if (first)
           yAxis.classList.add('show');
       }
+
+      // Event listeners
+      app.el.selectedPrev.addEventListener('click', e => {
+        e.preventDefault();
+        updateSelected(app.selectedCurrent - 1);
+        return false;
+      });
+
+      app.el.selectedNext.addEventListener('click', e => {
+        e.preventDefault();
+        updateSelected(app.selectedCurrent + 1);
+        return false;
+      });
 
       // DLHs
       function createElement(tag, values, children) {
@@ -713,6 +808,15 @@
 
         return element;
       }
+
+      function bindElements() {
+        let result = {};
+        document.querySelectorAll('[data-bind]').forEach(e => {
+          result[e.getAttribute('data-bind')] = e;
+        });
+        return result;
+      }
+
       function min(arr, other = Number.MAX_VALUE) {
         let m = Number.MAX_VALUE;
         for (var i = 0; i < arr.length; i++)
@@ -722,6 +826,7 @@
         else
             return other;
       }
+
       function max(arr, other = -Number.MAX_VALUE) {
         let m = -Number.MAX_VALUE;
         for (var i = 0; i < arr.length; i++)

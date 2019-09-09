@@ -1,5 +1,5 @@
 {
-    "python.pythonPath": "C:\\Users\\daenu\\Miniconda3\\python.exe",
+    "python.pythonPath": "/home/daenu/miniconda3/bin/python",
     "restructuredtext.confPath": "${workspaceFolder}/doc",
     "python.formatting.provider": "black"
 }

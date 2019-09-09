@@ -1,7 +1,7 @@
 """
 faerun.py
 ====================================
-The main module containing the Faerun class. 
+The main module containing the Faerun class.
 """
 
 import math
@@ -47,6 +47,7 @@ class Faerun(object):
         view: str = "free",
         scale: float = 750.0,
         alpha_blending=False,
+        anti_aliasing=True,
         style: Dict[str, Dict[str, Any]] = {},
     ):
         """Constructor for Faerun.
@@ -71,6 +72,7 @@ class Faerun(object):
             view (:obj:`str`, optional): The view (front, back, top, bottom, left, right, free)
             scale (:obj:`float`, optional): To what size to scale the coordinates (which are normalized)
             alpha_blending (:obj:`bool`, optional): Whether to activate alpha blending (required for smoothCircle shader)
+            anti_aliasing (:obj:`bool`, optional): Whether to activate anti-aliasing. Might improve quality at the cost of (substantial) rendering performance
             style (:obj:`Dict[str, Dict[str, Any]]`, optional): The css styles to apply to the HTML elements
         """
         self.title = title
@@ -92,6 +94,7 @@ class Faerun(object):
         self.view = view
         self.scale = scale
         self.alpha_blending = alpha_blending
+        self.anti_aliasing = anti_aliasing
         self.style = style
 
         self.trees = {}
@@ -105,7 +108,7 @@ class Faerun(object):
                 "bottom": "10px",
                 "right": "10px",
                 "padding": "10px",
-                "border": "1px solid #111111",
+                "border": "1px solid #262626",
                 "border-radius": "2px",
                 "background-color": "#111111",
                 "filter": "drop-shadow(0px 0px 10px rgba(0, 0, 0, 0.5))",
@@ -115,8 +118,8 @@ class Faerun(object):
             "selected": {
                 "bottom": "10px",
                 "left": "10px",
-                "padding": "10px",
-                "border": "1px solid #111111",
+                "padding": "0px",
+                "border": "1px solid #262626",
                 "border-radius": "2px",
                 "background-color": "#111111",
                 "filter": "drop-shadow(0px 0px 10px rgba(0, 0, 0, 0.5))",
@@ -223,6 +226,8 @@ class Faerun(object):
         max_legend_label: Union[str, float, List[str], List[float]] = None,
         series_title: Union[str, List[str]] = None,
         ondblclick: Union[str, List[str]] = None,
+        selected_dict: Union[Dict, List[Dict]] = None,
+        label_index: Union[int, List[int]] = 0
     ):
         """Add a scatter layer to the plot.
 
@@ -232,21 +237,23 @@ class Faerun(object):
 
         Keyword Arguments:
             mapping (:obj:`dict`, optional): The keys which contain the data in the input dict or the column names in the pandas :obj:`DataFrame`
-            colormap (:obj:`str`, :obj:`Colormap`, :obj:`List[str]`, or :obj:`List[Colormap]` optional): The name of the colormap (can also be a matplotlib Colormap object). A list when visualizing multiple properties
+            colormap (:obj:`str`, :obj:`Colormap`, :obj:`List[str]`, or :obj:`List[Colormap]` optional): The name of the colormap (can also be a matplotlib Colormap object). A list when visualizing multiple series
             shader (:obj:`str`, optional): The name of the shader to use for the data point visualization
             point_scale (:obj:`float`, optional): The relative size of the data points
             max_point_size (:obj:`int`, optional): The maximum size of the data points when zooming in
             fog_intensity (:obj:`float`, optional): The intensity of the distance fog
-            saturation_limit (:obj:`float` or :obj:`List[float]`, optional): The minimum saturation to avoid "gray soup". A list when visualizing multiple properties
-            categorical (:obj:`bool` or :obj:`List[bool]`, optional): Whether this scatter layer is categorical. A list when visualizing multiple properties
+            saturation_limit (:obj:`float` or :obj:`List[float]`, optional): The minimum saturation to avoid "gray soup". A list when visualizing multiple series
+            categorical (:obj:`bool` or :obj:`List[bool]`, optional): Whether this scatter layer is categorical. A list when visualizing multiple series
             interactive (:obj:`bool`, optional): Whether this scatter layer is interactive
             has_legend (:obj:`bool`, optional): Whether or not to draw a legend
-            legend_title (:obj:`str` or :obj:`List[str]`, optional): The title of the legend. A list when visualizing multiple properties
-            legend_labels (:obj:`Dict` or :obj:`List[Dict]`, optional): A dict mapping values to legend labels. A list when visualizing multiple properties
-            min_legend_label (:obj:`str`, :obj:`float`, :obj:`List[str]` or :obj:`List[float]`, optional): The label used for the miminum value in a ranged (non-categorical) legend. A list when visualizing multiple properties
-            max_legend_label (:obj:`str`, :obj:`float`, :obj:`List[str]` or :obj:`List[float]`, optional): The label used for the maximum value in a ranged (non-categorical) legend. A list when visualizing multiple properties
-            series_title (:obj:`str` or :obj:`List[str]`, optional): The name of the series (used when multiple properites supplied). A list when visualizing multiple properties
-            ondblclick (:obj:`str` or :obj:`List[str]`, optional): A JavaScript snippet that is executed on double-clicking on a data point. A list when visualizing multiple properties
+            legend_title (:obj:`str` or :obj:`List[str]`, optional): The title of the legend. A list when visualizing multiple series
+            legend_labels (:obj:`Dict` or :obj:`List[Dict]`, optional): A dict mapping values to legend labels. A list when visualizing multiple series
+            min_legend_label (:obj:`str`, :obj:`float`, :obj:`List[str]` or :obj:`List[float]`, optional): The label used for the miminum value in a ranged (non-categorical) legend. A list when visualizing multiple series
+            max_legend_label (:obj:`str`, :obj:`float`, :obj:`List[str]` or :obj:`List[float]`, optional): The label used for the maximum value in a ranged (non-categorical) legend. A list when visualizing multiple series
+            series_title (:obj:`str` or :obj:`List[str]`, optional): The name of the series (used when multiple properites supplied). A list when visualizing multiple series
+            ondblclick (:obj:`str` or :obj:`List[str]`, optional): A JavaScript snippet that is executed on double-clicking on a data point. A list when visualizing multiple series
+            selected_dict: (:obj:`Dict` or :obj:`List[Dict]`, optional): A dictionary of label values to show in the selected box. A list when visualizing multiple series
+            label_index: (:obj:`int` or :obj:`List[int]`, optional): The index of the label value to use as the actual label (when __ is used to specify multiple values). A list when visualizing multiple series
         """
         if mapping["z"] not in data:
             data[mapping["z"]] = [0] * len(data[mapping["x"]])
@@ -281,6 +288,8 @@ class Faerun(object):
         max_legend_label = Faerun.make_list(max_legend_label)
         series_title = Faerun.make_list(series_title)
         ondblclick = Faerun.make_list(ondblclick)
+        selected_dict = Faerun.make_list(selected_dict)
+        label_index = Faerun.make_list(label_index)
 
         # If any argument list is shorter than the number of series,
         # repeat the last element
@@ -297,6 +306,8 @@ class Faerun(object):
         )
         series_title = Faerun.expand_list(series_title, n_series, with_value="Series")
         ondblclick = Faerun.expand_list(ondblclick, n_series, with_none=True)
+        selected_dict = Faerun.expand_list(selected_dict, n_series, with_none=True)
+        label_index = Faerun.expand_list(label_index, n_series, with_value=0)
 
         # # The c and cs values in the data are a special case, as they should
         # # never be expanded
@@ -409,6 +420,8 @@ class Faerun(object):
             "max_legend_label": max_legend_label,
             "series_title": series_title,
             "ondblclick": ondblclick,
+            "selcted_dict": selected_dict,
+            "label_index": label_index
         }
 
         self.scatters_data[name] = data
@@ -466,6 +479,7 @@ class Faerun(object):
             "legend_title": self.legend_title,
             "legend_orientation": self.legend_orientation,
             "alpha_blending": str(self.alpha_blending).lower(),
+            "anti_aliasing": str(self.anti_aliasing).lower(),
             "style": self.style,
             "in_notebook": Faerun.in_notebook(),
         }
