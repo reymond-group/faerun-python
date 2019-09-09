@@ -315,255 +315,266 @@
     <canvas id="lore"></canvas>
 
     {% if data %}
-      <script>
-        {{data | safe}}
-      </script>
+    <script>
+      {{data | safe}}
+    </script>
     {% else %}
-      <script src="{{file_name}}"></script>
+    <script src="{{file_name}}"></script>
     {% endif %}
     <script>
-        let app = {
-          selectedItems: [],
-          selectedCurrent: 0,
-          scatterMeta: {{point_helpers|tojson}},
-          treeMeta: {{tree_helpers}},
-          seriesState: {},
-          el: bindElements()
+      class Faerun {
+        this.selectedItems = [];
+        this.selectedCurrent = [];
+        this.scatterMeta = {{pointHelpers|tojson}};
+        this.treeMeta = {{tree_helpers|tojson};
+        this.seriesState = {};
+
+        construtor() {
+          this.scatterMeta.forEach(s => {
+            this.seriesState[s.name] = 0;
+          })
+        }
+      }
+      
+      let app = {
+        selectedItems: [],
+        selectedCurrent: 0,
+        scatterMeta: {{point_helpers|tojson}},
+        treeMeta: {{tree_helpers|tojson}},
+        seriesState: {},
+        el: bindElements()
+      }
+
+      app.scatterMeta.forEach(s => {
+          app.seriesState[s.name] = 0;
+      });
+
+      let clearColor = '{{clear_color|safe}}';
+      let cc = Lore.Core.Color.fromHex(clearColor);
+      let currentPoint = null;
+      let view = '{{view}}';
+      let alphaBlending = view === 'free' ? false : true
+
+      let lore = Lore.init('lore', {
+        antialiasing: {{anti_aliasing}},
+        clearColor: clearColor,
+        alphaBlending: alphaBlending || {{alpha_blending}},
+      });
+
+      // Tree plots
+      let treeHelpers = [];
+      app.treeMeta.forEach(t => {
+        let th = new Lore.Helpers.TreeHelper(lore, t.name, 'tree');
+        th.setXYZHexS(data[t.name].x, data[t.name].y, data[t.name].z, 
+                      t.color);
+        th.setFog([cc.components[0], cc.components[1], cc.components[2], cc.components[3]], 
+                  t.fog_intensity);
+        treeHelpers.push(th);
+      });
+
+      // Scatter plots
+      let pointHelpers = [];
+      let octreeHelpers = [];
+      let ohIndexToPhName = [];
+      let ohIndexToPhIndex = [];
+      let phIndexMap = {};
+
+      let min = [Number.MAX_VALUE, Number.MAX_VALUE, Number.MAX_VALUE]
+      let max = [-Number.MAX_VALUE, -Number.MAX_VALUE, -Number.MAX_VALUE]
+      let maxRadius = -Number.MAX_VALUE;
+
+      app.scatterMeta.forEach(s => {          
+        phIndexMap[s.name] = pointHelpers.length;
+        let ph = new Lore.Helpers.PointHelper(lore, s.name, s.shader, 
+                                              { maxPointSize: s.max_point_size })
+
+        ph.setXYZRGBS(data[s.name].x, data[s.name].y, data[s.name].z, 
+                      data[s.name]['colors'][0].r, data[s.name]['colors'][0].g, 
+                      data[s.name]['colors'][0].b, data[s.name].s);
+
+        ph.setPointScale(s.point_scale);
+        ph.setFog([cc.components[0], cc.components[1], cc.components[2],
+                    cc.components[3]], s.fog_intensity)
+        
+        pointHelpers.push(ph);
+
+        min[0] = getMin(data[s.name].x, min[0]);
+        min[1] = getMin(data[s.name].y, min[1]);
+        min[2] = getMin(data[s.name].z, min[2]);
+        max[0] = getMax(data[s.name].x, max[0]);
+        max[1] = getMax(data[s.name].y, max[1]);
+        max[2] = getMax(data[s.name].z, max[2]);
+        maxRadius = ph.getMaxRadius();
+
+        if (s.interactive) {
+          octreeHelpers.push(
+            new Lore.Helpers.OctreeHelper(lore, 'Octree_' + s.name, 'tree', ph)
+          );
+
+          ohIndexToPhName.push(s.name);
+          ohIndexToPhIndex.push(phIndexMap[s.name]);
+        }
+      });
+
+      // Coordinates
+      {% if coords %}
+      init_coords(min, max, {{coords_grid}}, {{coords_ticks}}, {{coords_tick_count}},
+                  {{coords_tick_length}}, '{{coords_color}}', {{coords_box}}, 
+                  {{coords_offset}})
+      {% endif %}
+
+      let center = new Lore.Math.Vector3f((max[0] + min[0]) / 2.0, (max[1] + min[1]) / 2.0, 
+                                          (max[2] + min[2]) / 2.0);
+      lore.controls.setLookAt(center);
+      lore.controls.setRadius(maxRadius + 100);
+      lore.controls.setView(0.9, -0.5)
+
+      Lore.Helpers.OctreeHelper.joinHoveredChanged(octreeHelpers, e => {
+        let phName = ohIndexToPhName[e.source];
+        if (e.e && data[phName].labels) {
+          let fullLabel = data[phName].labels[e.e.index];
+          let labelIndex = app.scatterMeta[ohIndexToPhIndex[e.source]]
+                              .label_index[app.seriesState[phName]];
+          currentPoint = {
+            index: e.e.index,
+            fullLabel: fullLabel,
+            source: phName,
+            label: fullLabel.split('__')[labelIndex]
+          }
+
+          let rgbColor = pointHelpers[e.source].getColor(e.e.index);
+          let hexColor = Lore.Core.Color.rgbToHex(rgbColor[0], rgbColor[1], rgbColor[2]);
+
+          app.el.tipText.innerHTML = currentPoint.label;
+          app.el.tip.style.borderColor = hexColor;
+          app.el.tip.classList.add('show');
+
+          let pointSize = pointHelpers[e.source].getPointSize() / window.devicePixelRatio;
+          let x = e.e.screenPosition[0];
+          let y = e.e.screenPosition[1];
+
+          app.el.hoverIndicator.style.width = pointSize + 'px';
+          app.el.hoverIndicator.style.height = pointSize + 'px';
+          app.el.hoverIndicator.style.left = (x - pointSize / 2.0 - 1) + 'px';
+          app.el.hoverIndicator.style.top = (y - pointSize / 2.0 - 1) + 'px';
+
+          app.el.hoverIndicator.classList.add('show');
+        } else {
+          currentPoint = null;
+          app.el.tip.classList.remove('show');
+          app.el.hoverIndicator.classList.remove('show');
+        }
+      });
+
+      Lore.Helpers.OctreeHelper.joinSelectedChanged(octreeHelpers, items => {
+        app.selectedItems = items;
+        updateSelected();
+      });
+
+      document.addEventListener('dblclick', e => {
+        if (currentPoint) {
+          var index = currentPoint.index;
+          var labels = currentPoint.label.split('__');
+          var source = currentPoint.source;
+          eval(app.scatterMeta[phIndexMap[source]].ondblclick[app.seriesState[source]]);
+        }
+      });
+
+      lore.controls.setViewByName(view);
+
+      document.addEventListener('mousemove', function (event) {
+        let x = event.clientX;
+        let y = event.clientY;
+
+        if (x > window.innerWidth - app.el.tip.offsetWidth - 20) {
+          x -= app.el.tip.offsetWidth;
+        } else {
+          x += 10;
         }
 
-        app.scatterMeta.forEach(s => {
-            app.seriesState[s.name] = 0;
-        });
+        if (y > window.innerHeight - app.el.tip.offsetHeight - 20) {
+          y -= app.el.tip.offsetHeight;
+        } else {
+          y += 10;
+        }
 
-        let clearColor = '{{clear_color|safe}}';
-        let cc = Lore.Core.Color.fromHex(clearColor);
-        let currentPoint = null;
-        let view = '{{view}}';
-        let alphaBlending = view === 'free' ? false : true
+        if (app.el.tip) {
+          app.el.tip.style.top = y + 'px';
+          app.el.tip.style.left = x + 'px';
+        }
+      });
 
-        let lore = Lore.init('lore', {
-          antialiasing: {{anti_aliasing}},
-          clearColor: clearColor,
-          alphaBlending: alphaBlending || {{alpha_blending}},
-        });
+      // Legend
+      function toggleLegendSection(name) {
+        let section = document.getElementById('legend-' + name);
+        let geometry = pointHelpers[phIndexMap[name]].geometry;
+        let isVisible = geometry.isVisible;
 
-        // Tree plots
-        let treeHelpers = [];
-        app.treeMeta.forEach(t => {
-          let th = new Lore.Helpers.TreeHelper(lore, t.name, 'tree');
-          th.setXYZHexS(data[t.name].x, data[t.name].y, data[t.name].z, 
-                        t.color);
-          th.setFog([cc.components[0], cc.components[1], cc.components[2], cc.components[3]], 
-                    t.fog_intensity);
-          treeHelpers.push(th);
-        });
+        if (isVisible) {
+          geometry.isVisible = false;
+          section.style.opacity = 0.5;
+        } else {
+          geometry.isVisible = true;
+          section.style.opacity = 1.0;
+        }
+      }
 
-        // Scatter plots
-        let pointHelpers = [];
-        let octreeHelpers = [];
-        let ohIndexToPhName = [];
-        let ohIndexToPhIndex = [];
-        let phIndexMap = {};
-        let minX = Number.MAX_VALUE;
-        let minY = Number.MAX_VALUE;
-        let minZ = Number.MAX_VALUE;
-        let maxX = -Number.MAX_VALUE;
-        let maxY = -Number.MAX_VALUE;
-        let maxZ = -Number.MAX_VALUE;
-        let maxRadius = -Number.MAX_VALUE;
+      // Coordinates
+      function init_coords(min, max, grid=true, ticks=true, 
+                           tickCount=100, tickLength=2.0, color='#eeeeee', 
+                           box=true, offset=5.0) {
+        for (var i = 0; i < 3; i++) {
+          min[i] -= offset;
+          max[i] += offset;
+        }
 
-        app.scatterMeta.forEach(s => {          
-          phIndexMap[s.name] = pointHelpers.length;
-          let ph = new Lore.Helpers.PointHelper(lore, s.name, s.shader, 
-                                                { maxPointSize: s.max_point_size })
-
-          ph.setXYZRGBS(data[s.name].x, data[s.name].y, data[s.name].z, 
-                        data[s.name]['colors'][0].r, data[s.name]['colors'][0].g, 
-                        data[s.name]['colors'][0].b, data[s.name].s);
-
-          ph.setPointScale(s.point_scale);
-          ph.setFog([cc.components[0], cc.components[1], cc.components[2],
-                     cc.components[3]], s.fog_intensity)
-          
-          pointHelpers.push(ph);
-
-          minX = min(data[s.name].x, minX);
-          minY = min(data[s.name].y, minY);
-          minZ = min(data[s.name].z, minZ);
-          maxX = max(data[s.name].x, maxX);
-          maxY = max(data[s.name].y, maxY);
-          maxZ = max(data[s.name].z, maxZ);
-          maxRadius = ph.getMaxRadius();
-
-          if (s.interactive) {
-            octreeHelpers.push(
-              new Lore.Helpers.OctreeHelper(lore, 'Octree_' + s.name, 'tree', ph)
-            );
-
-            ohIndexToPhName.push(s.name);
-            ohIndexToPhIndex.push(phIndexMap[s.name]);
-          }
-        });
-
-        // Coordinates
-        {% if coords %}
-        init_coords(minX, minY, minZ, maxX, maxY, maxZ,
-                    {{coords_grid}}, {{coords_ticks}}, {{coords_tick_count}},
-                    {{coords_tick_length}}, '{{coords_color}}', {{coords_box}}, 
-                    {{coords_offset}})
-        {% endif %}
-
-        let center = new Lore.Math.Vector3f((maxX + minX) / 2.0, (maxY + minY) / 2.0, 
-                                            (maxZ + minZ) / 2.0);
-        lore.controls.setLookAt(center);
-        lore.controls.setRadius(maxRadius + 100);
-        lore.controls.setView(0.9, -0.5)
-
-        Lore.Helpers.OctreeHelper.joinHoveredChanged(octreeHelpers, e => {
-          let phName = ohIndexToPhName[e.source];
-          if (e.e && data[phName].labels) {
-            let fullLabel = data[phName].labels[e.e.index];
-            let labelIndex = app.scatterMeta[ohIndexToPhIndex[e.source]]
-                                .label_index[app.seriesState[phName]];
-            currentPoint = {
-              index: e.e.index,
-              fullLabel: fullLabel,
-              source: phName,
-              label: fullLabel.split('__')[labelIndex]
+        var coordinatesHelper = new Lore.Helpers.CoordinatesHelper(lore, 'Coordinates', 'coordinates', {
+          position: new Lore.Math.Vector3f(min[0], min[1], min[2]),
+          axis: {
+            x: {
+              length: max[0] - min[0],
+              color: Lore.Core.Color.fromHex(color)
+            },
+            y: {
+              length: max[1] - min[1],
+              color: Lore.Core.Color.fromHex(color)
+            },
+            z: {
+              length: max[2] - min[2],
+              color: Lore.Core.Color.fromHex(color)
             }
-
-            let rgbColor = pointHelpers[e.source].getColor(e.e.index);
-            let hexColor = Lore.Core.Color.rgbToHex(rgbColor[0], rgbColor[1], rgbColor[2]);
-
-            app.el.tipText.innerHTML = currentPoint.label;
-            app.el.tip.style.borderColor = hexColor;
-            app.el.tip.classList.add('show');
-
-            let pointSize = pointHelpers[e.source].getPointSize();
-            let x = e.e.screenPosition[0];
-            let y = e.e.screenPosition[1];
-
-            app.el.hoverIndicator.style.width = pointSize + 'px';
-            app.el.hoverIndicator.style.height = pointSize + 'px';
-            app.el.hoverIndicator.style.left = (x - pointSize / 2.0 - 1) + 'px';
-            app.el.hoverIndicator.style.top = (y - pointSize / 2.0 - 1) + 'px';
-
-            app.el.hoverIndicator.classList.add('show');
-          } else {
-            currentPoint = null;
-            app.el.tip.classList.remove('show');
-            app.el.hoverIndicator.classList.remove('show');
+          },
+          ticks: {
+            enabled: ticks,
+            x: {
+              length: tickLength,
+              color: Lore.Core.Color.fromHex(color),
+              count: tickCount
+            },
+            y: {
+              length: tickLength,
+              color: Lore.Core.Color.fromHex(color),
+              count: tickCount
+            },
+            z: {
+              length: tickLength,
+              color: Lore.Core.Color.fromHex(color),
+              count: tickCount
+            }
+          },
+          box: {
+            enabled: box,
+            x: {
+              color: Lore.Core.Color.fromHex(color)
+            },
+            y: {
+              color: Lore.Core.Color.fromHex(color)
+            },
+            z: {
+              color: Lore.Core.Color.fromHex(color)
+            }
           }
         });
-
-        Lore.Helpers.OctreeHelper.joinSelectedChanged(octreeHelpers, items => {
-          app.selectedItems = items;
-          updateSelected();
-        });
-
-        document.addEventListener('dblclick', e => {
-          if (currentPoint) {
-            var index = currentPoint.index;
-            var labels = currentPoint.label.split('__');
-            var source = currentPoint.source;
-            eval(app.scatterMeta[phIndexMap[source]].ondblclick[app.seriesState[source]]);
-          }
-        });
-
-        lore.controls.setViewByName(view);
-
-        document.addEventListener('mousemove', function (event) {
-          let x = event.clientX;
-          let y = event.clientY;
-
-          if (x > window.innerWidth - app.el.tip.offsetWidth - 20) {
-            x -= app.el.tip.offsetWidth;
-          } else {
-            x += 10;
-          }
-
-          if (y > window.innerHeight - app.el.tip.offsetHeight - 20) {
-            y -= app.el.tip.offsetHeight;
-          } else {
-            y += 10;
-          }
-
-          if (app.el.tip) {
-            app.el.tip.style.top = y + 'px';
-            app.el.tip.style.left = x + 'px';
-          }
-        });
-
-        // Legend
-        function toggleLegendSection(name) {
-          let section = document.getElementById('legend-' + name);
-          let geometry = pointHelpers[phIndexMap[name]].geometry;
-          let isVisible = geometry.isVisible;
-
-          if (isVisible) {
-            geometry.isVisible = false;
-            section.style.opacity = 0.5;
-          } else {
-            geometry.isVisible = true;
-            section.style.opacity = 1.0;
-          }
-        }
-
-        // Coordinates
-        function init_coords(minX, minY, minZ, maxX, maxY, maxZ, grid=true, ticks=true, tickCount=100, tickLength=2.0, color='#eeeeee', box=true, offset=5.0) {
-          minX -= offset;
-          minY -= offset;
-          minZ -= offset;
-          maxX += offset;
-          maxY += offset;
-          maxZ += offset;
-          var coordinatesHelper = new Lore.Helpers.CoordinatesHelper(lore, 'Coordinates', 'coordinates', {
-              position: new Lore.Math.Vector3f(minX, minY, minZ),
-              axis: {
-                  x: {
-                      length: maxX - minX,
-                      color: Lore.Core.Color.fromHex(color)
-                  },
-                  y: {
-                      length: maxY - minY,
-                      color: Lore.Core.Color.fromHex(color)
-                  },
-                  z: {
-                      length: maxZ - minZ,
-                      color: Lore.Core.Color.fromHex(color)
-                  }
-              },
-              ticks: {
-                  enabled: ticks,
-                  x: {
-                      length: tickLength,
-                      color: Lore.Core.Color.fromHex(color),
-                      count: tickCount
-                  },
-                  y: {
-                      length: tickLength,
-                      color: Lore.Core.Color.fromHex(color),
-                      count: tickCount
-                  },
-                  z: {
-                      length: tickLength,
-                      color: Lore.Core.Color.fromHex(color),
-                      count: tickCount
-                  }
-              },
-              box: {
-                  enabled: box,
-                  x: {
-                      color: Lore.Core.Color.fromHex(color)
-                  },
-                  y: {
-                      color: Lore.Core.Color.fromHex(color)
-                  },
-                  z: {
-                      color: Lore.Core.Color.fromHex(color)
-                  }
-              }
-          });
       }
 
       let titleElement = document.getElementById('title');
@@ -721,7 +732,7 @@
           return;
 
         let bb = titleElement.getBoundingClientRect();
-        let scenePosition = new Lore.Math.Vector3f((maxX + minX) / 2.0, maxY, (maxZ + minZ) / 2.0);
+        let scenePosition = new Lore.Math.Vector3f((min[0] + min[0]) / 2.0, min[1], (min[2] + min[2]) / 2.0);
         let screenPosition = lore.controls.camera.sceneToScreen(scenePosition, lore);
         
         titleElement.style.left = (screenPosition[0] - (bb.width / 2.0)) + 'px';
@@ -736,7 +747,7 @@
           return;
         
         let bb = xAxis.getBoundingClientRect();
-        let scenePosition = new Lore.Math.Vector3f((maxX + minX) / 2.0, minY, (maxZ + minZ) / 2.0);
+        let scenePosition = new Lore.Math.Vector3f((min[0] + min[0]) / 2.0, min[1], (min[2] + min[2]) / 2.0);
         let screenPosition = lore.controls.camera.sceneToScreen(scenePosition, lore);
         
         xAxis.style.left = (screenPosition[0] - (bb.width / 2.0)) + 'px';
@@ -751,8 +762,8 @@
           return;
           
         let bb = yAxis.getBoundingClientRect();
-        let scenePosition = new Lore.Math.Vector3f(minX, (maxY + minY) / 2.0, 
-                                                   (maxZ + minZ) / 2.0);
+        let scenePosition = new Lore.Math.Vector3f(min[0], (min[1] + min[1]) / 2.0, 
+                                                   (min[2] + min[2]) / 2.0);
         let screenPosition = lore.controls.camera.sceneToScreen(scenePosition, lore);
         
         yAxis.style.left = (screenPosition[0] - bb.height) + 'px';
@@ -817,7 +828,7 @@
         return result;
       }
 
-      function min(arr, other = Number.MAX_VALUE) {
+      function getMin(arr, other = Number.MAX_VALUE) {
         let m = Number.MAX_VALUE;
         for (var i = 0; i < arr.length; i++)
             if (arr[i] < m) m = arr[i];
@@ -827,7 +838,7 @@
             return other;
       }
 
-      function max(arr, other = -Number.MAX_VALUE) {
+      function getMax(arr, other = -Number.MAX_VALUE) {
         let m = -Number.MAX_VALUE;
         for (var i = 0; i < arr.length; i++)
             if (arr[i] > m) m = arr[i];
