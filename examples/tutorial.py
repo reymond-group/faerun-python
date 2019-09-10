@@ -24,6 +24,7 @@ def main():
         categorical=True,
         has_legend=True,
         legend_labels=[(0, "Zero"), (1, "One")],
+        selected_labels=["None", "Just a Small Test"],
     )
 
     f.add_tree(

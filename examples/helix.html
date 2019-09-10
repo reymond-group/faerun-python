@@ -301,7 +301,7 @@
       }
 
       #selected #selected-controls a {
-        margin-left: 2px;
+        margin: 0px 2px;
         font-size: 1.5em;
         color: #fff;
       }
@@ -352,10 +352,6 @@
         </a>
       </div>
       <div id="selected-container" data-bind="selectedContainer">
-        <div class="label">Title</div>
-        <div class="content">This is a test</div>
-        <div class="label">Hyperlink</div>
-        <div class="content"><a href="http://www.google.ch">Test</a></div>
       </div>
     </div>
     <div id="hover-indicator" data-bind="hoverIndicator"></div>
@@ -369,521 +365,614 @@
     
     <script>
       class Faerun {
-        construtor() {
+        constructor() {
+          this.selectedItems = [];
+          this.selectedCurrent = [];
+          this.scatterMeta = [{"categorical": [true], "colormap": ["Dark2"], "fog_intensity": 0.0, "has_legend": true, "interactive": true, "is_range": [false], "label_index": [0], "legend": [[[[0.10588235294117647, 0.6196078431372549, 0.4666666666666667, 1.0], "Zero"], [[0.8509803921568627, 0.37254901960784315, 0.00784313725490196, 1.0], "One"]]], "legend_title": ["helix"], "mapping": {"c": "c", "cs": "cs", "labels": "labels", "s": "s", "x": "x", "y": "y", "z": "z"}, "max_c": [1.0], "max_legend_label": ["1.00"], "max_point_size": 100.0, "min_c": [0.0], "min_legend_label": ["0.00"], "name": "helix", "ondblclick": [null], "point_scale": 5.0, "selected_labels": [["None", "Just a Small Test"]], "series_title": [null], "shader": "smoothCircle"}];
+          this.treeMeta = [{"color": "#666666", "colormap": "plasma", "fog_intensity": 0.0, "mapping": {"c": "c", "from": "from", "to": "to", "x": "x", "y": "y", "z": "z"}, "name": "helixtree", "point_helper": "helix"}];
+          this.seriesState = {};
+          this.el = {};
 
+          this.currentPoint = null;
+
+          this.lore = null;
+          this.clearColorHex = '#222222';
+          this.clearColor = null;
+          this.view = 'front';
+          this.antiAliasing = true;
+          this.alphaBlending = false;
+
+          this.treeHelpers = [];
+          this.pointHelpers = [];
+          this.octreeHelpers = [];
+          this.coordinatesHelper = null;
+
+          this.min = [Number.MAX_VALUE, Number.MAX_VALUE, Number.MAX_VALUE];
+          this.max = [-Number.MAX_VALUE, -Number.MAX_VALUE, -Number.MAX_VALUE];
+          this.maxRadius = -Number.MAX_VALUE;
+
+          this.octreeHelpers = [];
+          this.ohIndexToPhName = [];
+          this.ohIndexToPhIndex = [];
+          this.phIndexMap = {};
+
+          this.coords = {
+            show: true,
+            grid: false,
+            ticks: true,
+            tickCount: 10,
+            tickLength: 2.0,
+            color: '#888888',
+            box: false,
+            offset: 5.0
+          };
+
+          this.legend = {
+            show: true,
+            title: 'Legend'
+          };
+
+          this.el = Faerun.bindElements();
+
+          this.scatterMeta.forEach(s => {
+            this.seriesState[s.name] = 0;
+          });
+
+          this.clearColor = Lore.Core.Color.fromHex(this.clearColorHex);
+          this.alphaBlending = (this.view === 'free' ? false : true) || this.alphaBlending;
+
+          this.initLore();
+          this.initTreeHelpers();
+          this.initPointHelpers();
+          this.initCoords();
+          this.initAxes();
+          this.initView();
+          this.initEvents();
+          this.renderLegend();
         }
-      }
-      let app = {
-        selectedItems: [],
-        selectedCurrent: 0,
-        scatterMeta: [{"categorical": [true], "colormap": ["Dark2"], "fog_intensity": 0.0, "has_legend": true, "interactive": true, "is_range": [false], "label_index": [0], "legend": [[[[0.10588235294117647, 0.6196078431372549, 0.4666666666666667, 1.0], "Zero"], [[0.8509803921568627, 0.37254901960784315, 0.00784313725490196, 1.0], "One"]]], "legend_title": ["helix"], "mapping": {"c": "c", "cs": "cs", "labels": "labels", "s": "s", "x": "x", "y": "y", "z": "z"}, "max_c": [1.0], "max_legend_label": ["1.00"], "max_point_size": 100.0, "min_c": [0.0], "min_legend_label": ["0.00"], "name": "helix", "ondblclick": [null], "point_scale": 5.0, "selcted_dict": [null], "series_title": [null], "shader": "smoothCircle"}],
-        treeMeta: [{'name': 'helixtree', 'color': '#666666', 'fog_intensity': 0.0, 'mapping': {'from': 'from', 'to': 'to', 'x': 'x', 'y': 'y', 'z': 'z', 'c': 'c'}, 'colormap': 'plasma', 'point_helper': 'helix'}],
-        seriesState: {},
-        el: bindElements()
-      }
 
-      app.scatterMeta.forEach(s => {
-          app.seriesState[s.name] = 0;
-      });
-
-      let clearColor = '#222222';
-      let cc = Lore.Core.Color.fromHex(clearColor);
-      let currentPoint = null;
-      let view = 'front';
-      let alphaBlending = view === 'free' ? false : true
-
-      let lore = Lore.init('lore', {
-        antialiasing: true,
-        clearColor: clearColor,
-        alphaBlending: alphaBlending || false,
-      });
-
-      // Tree plots
-      let treeHelpers = [];
-      app.treeMeta.forEach(t => {
-        let th = new Lore.Helpers.TreeHelper(lore, t.name, 'tree');
-        th.setXYZHexS(data[t.name].x, data[t.name].y, data[t.name].z, 
-                      t.color);
-        th.setFog([cc.components[0], cc.components[1], cc.components[2], cc.components[3]], 
-                  t.fog_intensity);
-        treeHelpers.push(th);
-      });
-
-      // Scatter plots
-      let pointHelpers = [];
-      let octreeHelpers = [];
-      let ohIndexToPhName = [];
-      let ohIndexToPhIndex = [];
-      let phIndexMap = {};
-
-      let min = [Number.MAX_VALUE, Number.MAX_VALUE, Number.MAX_VALUE]
-      let max = [-Number.MAX_VALUE, -Number.MAX_VALUE, -Number.MAX_VALUE]
-      let maxRadius = -Number.MAX_VALUE;
-
-      app.scatterMeta.forEach(s => {          
-        phIndexMap[s.name] = pointHelpers.length;
-        let ph = new Lore.Helpers.PointHelper(lore, s.name, s.shader, 
-                                              { maxPointSize: s.max_point_size })
-
-        ph.setXYZRGBS(data[s.name].x, data[s.name].y, data[s.name].z, 
-                      data[s.name]['colors'][0].r, data[s.name]['colors'][0].g, 
-                      data[s.name]['colors'][0].b, data[s.name].s);
-
-        ph.setPointScale(s.point_scale);
-        ph.setFog([cc.components[0], cc.components[1], cc.components[2],
-                    cc.components[3]], s.fog_intensity)
-        
-        pointHelpers.push(ph);
-
-        min[0] = getMin(data[s.name].x, min[0]);
-        min[1] = getMin(data[s.name].y, min[1]);
-        min[2] = getMin(data[s.name].z, min[2]);
-        max[0] = getMax(data[s.name].x, max[0]);
-        max[1] = getMax(data[s.name].y, max[1]);
-        max[2] = getMax(data[s.name].z, max[2]);
-        maxRadius = ph.getMaxRadius();
-
-        if (s.interactive) {
-          octreeHelpers.push(
-            new Lore.Helpers.OctreeHelper(lore, 'Octree_' + s.name, 'tree', ph)
-          );
-
-          ohIndexToPhName.push(s.name);
-          ohIndexToPhIndex.push(phIndexMap[s.name]);
+        initLore() {
+          this.lore = Lore.init('lore', {
+            antialiasing: this.antiAliasing,
+            clearColor: this.clearColorHex,
+            alphaBlending: this.alphaBlending
+          });
         }
-      });
 
-      // Coordinates
-      
-      init_coords(min, max, false, true, 10,
-                  2.0, '#888888', false, 
-                  5.0)
-      
+        initTreeHelpers() {
+          this.treeMeta.forEach(t => {
+            let th = new Lore.Helpers.TreeHelper(this.lore, t.name, 'tree');
+            th.setXYZHexS(data[t.name].x, data[t.name].y, data[t.name].z, t.color);
+            th.setFog([this.clearColor.components[0], this.clearColor.components[1], 
+                       this.clearColor.components[2], this.clearColor.components[3]],
+                      t.fog_intensity);
+            this.treeHelpers.push(th);
+          });
+        }
 
-      let center = new Lore.Math.Vector3f((max[0] + min[0]) / 2.0, (max[1] + min[1]) / 2.0, 
-                                          (max[2] + min[2]) / 2.0);
-      lore.controls.setLookAt(center);
-      lore.controls.setRadius(maxRadius + 100);
-      lore.controls.setView(0.9, -0.5)
+        initPointHelpers() {
+          this.scatterMeta.forEach(s => {           
+            let ph = new Lore.Helpers.PointHelper(
+              this.lore, s.name, s.shader, { maxPointSize: s.max_point_size }
+            );
 
-      Lore.Helpers.OctreeHelper.joinHoveredChanged(octreeHelpers, e => {
-        let phName = ohIndexToPhName[e.source];
-        if (e.e && data[phName].labels) {
-          let fullLabel = data[phName].labels[e.e.index];
-          let labelIndex = app.scatterMeta[ohIndexToPhIndex[e.source]]
-                              .label_index[app.seriesState[phName]];
-          currentPoint = {
-            index: e.e.index,
-            fullLabel: fullLabel,
-            source: phName,
-            label: fullLabel.split('__')[labelIndex]
+            ph.setXYZRGBS(data[s.name].x, data[s.name].y, data[s.name].z, 
+                          data[s.name]['colors'][0].r, data[s.name]['colors'][0].g, 
+                          data[s.name]['colors'][0].b, data[s.name].s);
+
+            ph.setPointScale(s.point_scale);
+            ph.setFog([this.clearColor.components[0], this.clearColor.components[1],
+                       this.clearColor.components[2], this.clearColor.components[3]],
+                      s.fog_intensity)
+
+            this.phIndexMap[s.name] = this.pointHelpers.length;
+            this.pointHelpers.push(ph);
+
+            this.min[0] = Faerun.getMin(data[s.name].x, this.min[0]);
+            this.min[1] = Faerun.getMin(data[s.name].y, this.min[1]);
+            this.min[2] = Faerun.getMin(data[s.name].z, this.min[2]);
+            this.max[0] = Faerun.getMax(data[s.name].x, this.max[0]);
+            this.max[1] = Faerun.getMax(data[s.name].y, this.max[1]);
+            this.max[2] = Faerun.getMax(data[s.name].z, this.max[2]);
+            this.maxRadius = ph.getMaxRadius();
+    
+            if (s.interactive && data[s.name].labels) {
+              this.octreeHelpers.push(
+                new Lore.Helpers.OctreeHelper(this.lore, 'Octree_' + s.name, 'tree', ph)
+              );
+
+              this.ohIndexToPhName.push(s.name);
+              this.ohIndexToPhIndex.push(this.phIndexMap[s.name]);
+            }
+          });
+        }
+
+        initCoords() {
+          if (!this.coords.show) return;
+
+          let min = [0, 0, 0];
+          let max = [0, 0, 0];
+
+          for (var i = 0; i < 3; i++) {
+            min[i] = this.min[i] - this.coords.offset;
+            max[i] = this.max[i] + this.coords.offset;
           }
 
-          let rgbColor = pointHelpers[e.source].getColor(e.e.index);
-          let hexColor = Lore.Core.Color.rgbToHex(rgbColor[0], rgbColor[1], rgbColor[2]);
-
-          app.el.tipText.innerHTML = currentPoint.label;
-          app.el.tip.style.borderColor = hexColor;
-          app.el.tip.classList.add('show');
-
-          let pointSize = pointHelpers[e.source].getPointSize() / window.devicePixelRatio;
-          let x = e.e.screenPosition[0];
-          let y = e.e.screenPosition[1];
-
-          app.el.hoverIndicator.style.width = pointSize + 'px';
-          app.el.hoverIndicator.style.height = pointSize + 'px';
-          app.el.hoverIndicator.style.left = (x - pointSize / 2.0 - 1) + 'px';
-          app.el.hoverIndicator.style.top = (y - pointSize / 2.0 - 1) + 'px';
-
-          app.el.hoverIndicator.classList.add('show');
-        } else {
-          currentPoint = null;
-          app.el.tip.classList.remove('show');
-          app.el.hoverIndicator.classList.remove('show');
-        }
-      });
-
-      Lore.Helpers.OctreeHelper.joinSelectedChanged(octreeHelpers, items => {
-        app.selectedItems = items;
-        updateSelected();
-      });
-
-      document.addEventListener('dblclick', e => {
-        if (currentPoint) {
-          var index = currentPoint.index;
-          var labels = currentPoint.label.split('__');
-          var source = currentPoint.source;
-          eval(app.scatterMeta[phIndexMap[source]].ondblclick[app.seriesState[source]]);
-        }
-      });
-
-      lore.controls.setViewByName(view);
-
-      document.addEventListener('mousemove', function (event) {
-        let x = event.clientX;
-        let y = event.clientY;
-
-        if (x > window.innerWidth - app.el.tip.offsetWidth - 20) {
-          x -= app.el.tip.offsetWidth;
-        } else {
-          x += 10;
-        }
-
-        if (y > window.innerHeight - app.el.tip.offsetHeight - 20) {
-          y -= app.el.tip.offsetHeight;
-        } else {
-          y += 10;
-        }
-
-        if (app.el.tip) {
-          app.el.tip.style.top = y + 'px';
-          app.el.tip.style.left = x + 'px';
-        }
-      });
-
-      // Legend
-      function toggleLegendSection(name) {
-        let section = document.getElementById('legend-' + name);
-        let geometry = pointHelpers[phIndexMap[name]].geometry;
-        let isVisible = geometry.isVisible;
-
-        if (isVisible) {
-          geometry.isVisible = false;
-          section.style.opacity = 0.5;
-        } else {
-          geometry.isVisible = true;
-          section.style.opacity = 1.0;
-        }
-      }
-
-      // Coordinates
-      function init_coords(min, max, grid=true, ticks=true, 
-                           tickCount=100, tickLength=2.0, color='#eeeeee', 
-                           box=true, offset=5.0) {
-        for (var i = 0; i < 3; i++) {
-          min[i] -= offset;
-          max[i] += offset;
-        }
-
-        var coordinatesHelper = new Lore.Helpers.CoordinatesHelper(lore, 'Coordinates', 'coordinates', {
-          position: new Lore.Math.Vector3f(min[0], min[1], min[2]),
-          axis: {
-            x: {
-              length: max[0] - min[0],
-              color: Lore.Core.Color.fromHex(color)
+          this.coordinatesHelper = new Lore.Helpers.CoordinatesHelper(this.lore, 'Coordinates', 'coordinates', {
+            position: new Lore.Math.Vector3f(min[0], min[1], min[2]),
+            axis: {
+              x: {
+                length: max[0] - min[0],
+                color: Lore.Core.Color.fromHex(this.coords.color)
+              },
+              y: {
+                length: max[1] - min[1],
+                color: Lore.Core.Color.fromHex(this.coords.color)
+              },
+              z: {
+                length: max[2] - min[2],
+                color: Lore.Core.Color.fromHex(this.coords.color)
+              }
             },
-            y: {
-              length: max[1] - min[1],
-              color: Lore.Core.Color.fromHex(color)
+            ticks: {
+              enabled: this.coords.ticks,
+              x: {
+                length: this.coords.tickLength,
+                color: Lore.Core.Color.fromHex(this.coords.color),
+                count: this.coords.tickCount
+              },
+              y: {
+                length: this.coords.tickLength,
+                color: Lore.Core.Color.fromHex(this.coords.color),
+                count: this.coords.tickCount
+              },
+              z: {
+                length: this.coords.tickLength,
+                color: Lore.Core.Color.fromHex(this.coords.color),
+                count: this.coords.tickCount
+              }
             },
-            z: {
-              length: max[2] - min[2],
-              color: Lore.Core.Color.fromHex(color)
+            box: {
+              enabled: this.coords.box,
+              x: {
+                color: Lore.Core.Color.fromHex(this.coords.color)
+              },
+              y: {
+                color: Lore.Core.Color.fromHex(this.coords.color)
+              },
+              z: {
+                color: Lore.Core.Color.fromHex(this.coords.color)
+              }
             }
-          },
-          ticks: {
-            enabled: ticks,
-            x: {
-              length: tickLength,
-              color: Lore.Core.Color.fromHex(color),
-              count: tickCount
-            },
-            y: {
-              length: tickLength,
-              color: Lore.Core.Color.fromHex(color),
-              count: tickCount
-            },
-            z: {
-              length: tickLength,
-              color: Lore.Core.Color.fromHex(color),
-              count: tickCount
-            }
-          },
-          box: {
-            enabled: box,
-            x: {
-              color: Lore.Core.Color.fromHex(color)
-            },
-            y: {
-              color: Lore.Core.Color.fromHex(color)
-            },
-            z: {
-              color: Lore.Core.Color.fromHex(color)
-            }
-          }
-        });
-      }
+          });
+        }
 
-      let titleElement = document.getElementById('title');
-      let xAxis = document.getElementById('x-axis');
-      let yAxis = document.getElementById('y-axis');
+        initAxes() {
+          // Wait for DOM to get ready
+          setTimeout(() => {
+            this.updateTitle(true);
+            this.updateXAxis(true);
+            this.updateYAxis(true);
+          }, 500);
+        }
 
-      // Update annotations
-      lore.controls.addEventListener('updated', () => {
-        updateTitle();
-        updateYAxis();
-        updateXAxis();
-      });
+        initView() {
+          let center = new Lore.Math.Vector3f(
+              (this.max[0] + this.min[0]) / 2.0, 
+              (this.max[1] + this.min[1]) / 2.0, 
+              (this.max[2] + this.min[2]) / 2.0
+            );
+          this.lore.controls.setLookAt(center);
+          this.lore.controls.setRadius(this.maxRadius + 100);
+          this.lore.controls.setView(0.9, -0.5)
+          this.lore.controls.setViewByName(this.view);
+        }
 
-      // Wait for DOM to get ready
-      setTimeout(() => {
-        updateTitle(true);
-        updateXAxis(true);
-        updateYAxis(true);
-      }, 500)
+        initEvents() {
+          this.lore.controls.addEventListener('updated', () => {
+            // Update the position / content of the annotations every time
+            // the view changes
+            this.updateTitle();
+            this.updateYAxis();
+            this.updateXAxis();
+          });
 
-      renderLegend();
-      function renderLegend() {
-        
-        let body = document.getElementsByTagName('body')[0];
-        let legend = document.getElementById('legend');
-        
-        if (legend) body.removeChild(legend);
+          Lore.Helpers.OctreeHelper.joinHoveredChanged(this.octreeHelpers, e => {
+            let phName = this.ohIndexToPhName[e.source];
+            if (e.e && data[phName].labels) {
+              let fullLabel = data[phName].labels[e.e.index];
+              let labelIndex = this.scatterMeta[this.ohIndexToPhIndex[e.source]]
+                                  .label_index[this.seriesState[phName]];
 
-        legend = createElement('div', { id: 'legend' });
-        body.appendChild(legend)
-        
-        legend.appendChild(createElement('h2', { content: 'Legend' }));
-        
-        
-        let container = createElement('div', { classes: 'container' });
-        legend.appendChild(container);
+              let rgbColor = this.pointHelpers[e.source].getColor(e.e.index);
+              let hexColor = Lore.Core.Color.rgbToHex(rgbColor[0], rgbColor[1], rgbColor[2]);
 
-        app.scatterMeta.forEach(s => {
-          let index = app.seriesState[s.name];
-          if (s.has_legend) {
-            legendSection = []
-            if (!s.is_range[index]) {
-              s.legend[index].forEach(v => {
-                legendSection.push(createElement('div', { classes: 'legend-element' }, [
-                  createColorBox(v[0]),
-                  createElement('div', { classes: 'legend-label', content: v[1] }),
-                ]))
-              })
+              this.currentPoint = {
+                index: e.e.index,
+                fullLabel: fullLabel,
+                source: phName,
+                label: fullLabel.split('__')[labelIndex],
+                color: hexColor
+              }
+              
+              this.setTipContent();
+              this.el.tip.classList.add('show');
+
+              let pointSize = this.pointHelpers[e.source].getPointSize() / window.devicePixelRatio;
+              let x = e.e.screenPosition[0];
+              let y = e.e.screenPosition[1];
+
+              this.el.hoverIndicator.style.width = pointSize + 'px';
+              this.el.hoverIndicator.style.height = pointSize + 'px';
+              this.el.hoverIndicator.style.left = (x - pointSize / 2.0 - 1) + 'px';
+              this.el.hoverIndicator.style.top = (y - pointSize / 2.0 - 1) + 'px';
+
+              this.el.hoverIndicator.classList.add('show');
             } else {
-              legendSection.push(createElement('div', { classes: 'legend-element-range' }, [
-                ...createColorScale(s.legend[index]),
-                createElement('div', { classes: 'legend-label max', content: s.max_legend_label[index] }),
-                createElement('div', { classes: 'legend-label min', content: s.min_legend_label[index] }),
-              ]))
+              this.currentPoint = null;
+              this.el.tip.classList.remove('show');
+              this.el.hoverIndicator.classList.remove('show');
+            }
+          });
+
+          Lore.Helpers.OctreeHelper.joinSelectedChanged(this.octreeHelpers, items => {
+            this.selectedItems = items;
+            this.updateSelected();
+          });
+
+          // Event listeners
+          this.el.selectedPrev.addEventListener('click', e => {
+            e.preventDefault();
+            this.updateSelected(this.selectedCurrent - 1);
+            return false;
+          });
+
+          this.el.selectedNext.addEventListener('click', e => {
+            e.preventDefault();
+            this.updateSelected(this.selectedCurrent + 1);
+            return false;
+          });
+
+          document.addEventListener('dblclick', e => {
+            if (this.currentPoint) {
+              var index = this.currentPoint.index;
+              var labels = this.currentPoint.label.split('__');
+              var source = this.currentPoint.source;
+              eval(this.scatterMeta[this.phIndexMap[source]].ondblclick[this.seriesState[source]]);
+            }
+          });
+
+          document.addEventListener('mousemove', e => {
+            let x = e.clientX;
+            let y = e.clientY;
+
+            if (x > window.innerWidth - this.el.tip.offsetWidth - 20) {
+              x -= this.el.tip.offsetWidth;
+            } else {
+              x += 10;
             }
 
-            let series = [];
-            for (var i = 0; i < s.series_title.length; i++) {
-              series.push(
-                createElement('option', { value: i, content: s.series_title[i], selected: i === index})
+            if (y > window.innerHeight - this.el.tip.offsetHeight - 20) {
+              y -= this.el.tip.offsetHeight;
+            } else {
+              y += 10;
+            }
+
+            if (this.el.tip) {
+              this.el.tip.style.top = y + 'px';
+              this.el.tip.style.left = x + 'px';
+            }
+          });
+        }
+
+        setTipContent() {
+          this.el.tipText.innerHTML = this.currentPoint.label;
+          this.el.tip.style.borderColor = this.currentPoint.color;
+        }
+
+        setSelectedContent(fullLabel, labelIndex, selectedLabels) {
+          this.el.selectedContainer.innerHTML = '';
+          fullLabel.forEach((l, i) => {
+            if (i === labelIndex) return;
+            this.el.selectedContainer.appendChild(
+              Faerun.createElement('div', { classes: 'label', content: selectedLabels[i] })
+            );
+            this.el.selectedContainer.appendChild(
+              Faerun.createElement('div', { classes: 'content', content: l })
+            );
+          });
+        }
+
+        renderLegend() {
+          if (!this.legend.show) return;
+
+          let body = document.getElementsByTagName('body')[0];
+          let legend = document.getElementById('legend');
+          
+          if (legend) body.removeChild(legend);
+
+          legend = Faerun.createElement('div', { id: 'legend' });
+          body.appendChild(legend)
+          
+          if (this.legend.title && this.legend.title !== '')
+            legend.appendChild(Faerun.createElement('h2', { content: 'Legend' }));
+          
+          let container = Faerun.createElement('div', { classes: 'container' });
+          legend.appendChild(container);
+
+          this.scatterMeta.forEach(s => {
+            let index = this.seriesState[s.name];
+            if (s.has_legend) {
+              let legendSection = []
+              if (!s.is_range[index]) {
+                s.legend[index].forEach(v => {
+                  legendSection.push(Faerun.createElement('div', { classes: 'legend-element' }, [
+                    Faerun.createColorBox(v[0]),
+                    Faerun.createElement('div', { classes: 'legend-label', content: v[1] }),
+                  ]))
+                })
+              } else {
+                legendSection.push(Faerun.createElement('div', { classes: 'legend-element-range' }, [
+                  ...Faerun.createColorScale(s.legend[index]),
+                  Faerun.createElement('div', { 
+                    classes: 'legend-label max', 
+                    content: s.max_legend_label[index] 
+                  }),
+                  Faerun.createElement('div', {
+                    classes: 'legend-label min',
+                    content: s.min_legend_label[index] 
+                  })
+                ]))
+              }
+
+              let series = [];
+              for (var i = 0; i < s.series_title.length; i++) {
+                series.push(
+                  Faerun.createElement('option', { 
+                    value: i, 
+                    content: s.series_title[i], 
+                    selected: i === index
+                  })
+                );
+              }
+
+
+              let sectionHeader = Faerun.createElement(
+                'h3', { content: s.legend_title[index] }
+              );
+              sectionHeader.addEventListener('click', e => {
+                this.toggleLegendSection(s.name);
+              });
+
+              let seriesSelector = Faerun.createElement(
+                'select', 
+                { 
+                  id: `select-${s.name}`, 
+                  classes: 'series-selector',
+                  'data-name': s.name,
+                  hidden: s.series_title.length < 2,
+                }, 
+                [ ...series ]
+              );
+              seriesSelector.addEventListener('change', e => {
+                let value = document.getElementById(`select-${s.name}`).value;
+                this.changeSeries(value, s.name);
+              });
+
+
+              container.appendChild(
+                Faerun.createElement(
+                  'div', { id: `legend-${s.name}`, 
+                  classes: 'legend-section', 
+                  'data-name': `${s.name}` },
+                  [ sectionHeader, seriesSelector, ...legendSection ]
+                )
               );
             }
-
-            container.appendChild(
-              createElement('div', { id: `legend-${s.name}`, 
-                                    classes: 'legend-section', 
-                                    'data-name': `${s.name}` }, [
-                  createElement('h3', { onclick: `toggleLegendSection('${s.name}')`,
-                                        content: s.legend_title[index] }),
-                  createElement('select', { id: `select-${s.name}`, 
-                                            classes: 'series-selector',
-                                            'data-name': s.name,
-                                            hidden: s.series_title.length < 2,
-                                            onchange: `changeSeries(this.value, '${s.name}')`}, [
-                    ...series
-                  ]),
-                  ...legendSection
-                ]
-              )
-            );
-          }
-        });
-        
-      }
-
-      function changeSeries(value, name) {
-        value = parseInt(value);
-        app.seriesState[name] = value;
-        renderLegend();
-
-        pointHelpers[phIndexMap[name]].setRGBFromArrays(data[name]['colors'][value].r, 
-                                                        data[name]['colors'][value].g, 
-                                                        data[name]['colors'][value].b)
-      }
-
-      function createColorBox(value) {
-        return createElement(
-          'div', 
-          { 
-            classes: 'color-box', 
-            style: `background-color: rgba(${value[0] * 255}, ${value[1] * 255 }, ${value[2] * 255 }, ${value[3] });
-                    border-color: rgba(${value[0] * 255 }, ${value[1] * 255 }, ${value[2] * 255 }, ${value[3] })`
-          }
-        );
-      }
-
-      function createColorScale(values) {
-        let scale = [];
-
-        values.forEach(value => {
-          scale.push(
-            createElement(
-              'div', 
-              { 
-                classes: 'color-stripe', 
-                style: `background-color: rgba(${value[0][0] * 255}, ${value[0][1] * 255}, ${value[0][2] * 255}, ${value[0][3]});
-                        border-color: rgba(${value[0][0] * 255}, ${value[0][1] * 255}, ${value[0][2] * 255}, ${value[0][3]})`,
-                alt: value[1]
-              }
-            ),
-          )
-        });
-
-        return scale;
-      }
-
-      function updateSelected(current = -1) {
-        let n = app.selectedItems.length
-        // Hide the container if no items are selected
-        if (n === 0) {
-          app.el.selected.style.display = 'none';
-          return;
-        } else {
-          app.el.selected.style.display = 'block';
+          });
         }
 
-        if (current < 0) current = n - 1;
-        if (current >= n) current = 0;
-        app.selectedCurrent = current;
+        toggleLegendSection(name) {
+          let section = document.getElementById('legend-' + name);
+          let geometry = this.pointHelpers[this.phIndexMap[name]].geometry;
+          let isVisible = geometry.isVisible;
 
-        let item = app.selectedItems[current];
-
-        let phName = ohIndexToPhName[item.source];
-        let fullLabel = data[phName].labels[item.item.index].split('__');
-        let labelIndex = app.scatterMeta[ohIndexToPhIndex[item.source]]
-                            .label_index[app.seriesState[phName]];
-
-        app.el.selectedCurrent.innerHTML = current + 1;
-        app.el.selectedTotal.innerHTML = n;
-        app.el.selectedTitle.innerHTML = fullLabel[labelIndex];
-      }
-
-      function updateTitle(first = false) {
-        if ('' === '')
-          return;
-
-        let bb = titleElement.getBoundingClientRect();
-        let scenePosition = new Lore.Math.Vector3f((min[0] + min[0]) / 2.0, min[1], (min[2] + min[2]) / 2.0);
-        let screenPosition = lore.controls.camera.sceneToScreen(scenePosition, lore);
-        
-        titleElement.style.left = (screenPosition[0] - (bb.width / 2.0)) + 'px';
-        titleElement.style.top = (screenPosition[1] - bb.height) + 'px';
-
-        if (first)
-          titleElement.classList.add('show');
-      }
-
-      function updateXAxis(first = false) {
-        if ('' === '')
-          return;
-        
-        let bb = xAxis.getBoundingClientRect();
-        let scenePosition = new Lore.Math.Vector3f((min[0] + min[0]) / 2.0, min[1], (min[2] + min[2]) / 2.0);
-        let screenPosition = lore.controls.camera.sceneToScreen(scenePosition, lore);
-        
-        xAxis.style.left = (screenPosition[0] - (bb.width / 2.0)) + 'px';
-        xAxis.style.top = (screenPosition[1]) + 'px';
-
-        if (first)
-          xAxis.classList.add('show');
-      }
-
-      function updateYAxis(first = false) {
-        if ('' === '')
-          return;
-          
-        let bb = yAxis.getBoundingClientRect();
-        let scenePosition = new Lore.Math.Vector3f(min[0], (min[1] + min[1]) / 2.0, 
-                                                   (min[2] + min[2]) / 2.0);
-        let screenPosition = lore.controls.camera.sceneToScreen(scenePosition, lore);
-        
-        yAxis.style.left = (screenPosition[0] - bb.height) + 'px';
-        yAxis.style.top = (screenPosition[1] - bb.width / 2.0) + 'px';
-
-        if (first)
-          yAxis.classList.add('show');
-      }
-
-      // Event listeners
-      app.el.selectedPrev.addEventListener('click', e => {
-        e.preventDefault();
-        updateSelected(app.selectedCurrent - 1);
-        return false;
-      });
-
-      app.el.selectedNext.addEventListener('click', e => {
-        e.preventDefault();
-        updateSelected(app.selectedCurrent + 1);
-        return false;
-      });
-
-      // DLHs
-      function createElement(tag, values, children) {
-        let element = document.createElement(tag);
-
-        for (const key of Object.keys(values)) {
-          if (key === 'classes')
-            element.classList.add(...values[key].split(' '));
-          else if (key === 'content')
-            element.innerHTML = values[key];
-          else if (key === 'hidden') {
-            if (values[key])
-              element.setAttribute('hidden', true);
-          }
-          else if (key === 'selected') {
-            if (values[key])
-              element.setAttribute('selected', true);
-          }
-          else
-            element.setAttribute(key, values[key]);
-        }
-
-        if (children) {
-          if (Array.isArray(children)) {
-            children.forEach(child => {
-              element.appendChild(child);
-            })
+          if (isVisible) {
+            geometry.isVisible = false;
+            section.style.opacity = 0.5;
           } else {
-            element.appendChild(children);
+            geometry.isVisible = true;
+            section.style.opacity = 1.0;
           }
         }
 
-        return element;
+        updateSelected(current = -1) {
+          let n = this.selectedItems.length
+          // Hide the container if no items are selected
+          if (n === 0) {
+            this.el.selected.style.display = 'none';
+            return;
+          } else {
+            this.el.selected.style.display = 'block';
+          }
+
+          if (current < 0) current = n - 1;
+          if (current >= n) current = 0;
+          this.selectedCurrent = current;
+
+          let item = this.selectedItems[current];
+
+          let meta = this.scatterMeta[this.ohIndexToPhIndex[item.source]];
+          let phName = this.ohIndexToPhName[item.source];
+          let seriesState = this.seriesState[phName];
+          
+          let fullLabel = data[phName].labels[item.item.index].split('__');
+
+          let labelIndex = meta.label_index[seriesState];
+          let selectedLabels = meta.selected_labels[seriesState];
+
+          this.el.selectedCurrent.innerHTML = current + 1;
+          this.el.selectedTotal.innerHTML = n;
+          this.el.selectedTitle.innerHTML = fullLabel[labelIndex];
+
+          this.setSelectedContent(fullLabel, labelIndex, selectedLabels);
+        }
+
+        updateTitle(first = false) {
+          if (this.el.title === undefined) return;
+
+          let bb = this.el.title.getBoundingClientRect();
+          let scenePosition = new Lore.Math.Vector3f(
+            (this.min[0] + this.min[0]) / 2.0, this.min[1], 
+            (this.min[2] + this.min[2]) / 2.0
+          );
+
+          let screenPosition = this.lore.controls.camera.sceneToScreen(scenePosition, this.lore);
+          
+          this.el.title.style.left = (screenPosition[0] - (bb.width / 2.0)) + 'px';
+          this.el.title.style.top = (screenPosition[1] - bb.height) + 'px';
+
+          if (first) this.el.title.classList.add('show');
+        }
+
+        updateXAxis(first = false) {
+          if (this.el.xAxis === undefined) return;
+          
+          let bb = this.el.xAxis.getBoundingClientRect();
+          let scenePosition = new Lore.Math.Vector3f(
+            (this.min[0] + this.min[0]) / 2.0, this.min[1], 
+            (this.min[2] + this.min[2]) / 2.0
+          );
+
+          let screenPosition = this.lore.controls.camera.sceneToScreen(scenePosition, this.lore);
+          
+          this.el.xAxis.style.left = (screenPosition[0] - (bb.width / 2.0)) + 'px';
+          this.el.xAxis.style.top = (screenPosition[1]) + 'px';
+
+          if (first) this.el.xAxis.classList.add('show');
+        }
+
+        updateYAxis(first = false) {
+          if (this.el.yAxis === undefined) return;
+            
+          let bb = this.el.yAxis.getBoundingClientRect();
+          let scenePosition = new Lore.Math.Vector3f(
+            this.min[0], (this.min[1] + this.min[1]) / 2.0, 
+            (this.min[2] + this.min[2]) / 2.0
+          );
+          
+          let screenPosition = this.lore.controls.camera.sceneToScreen(scenePosition, this.lore);
+          
+          this.el.yAxis.style.left = (screenPosition[0] - bb.height) + 'px';
+          this.el.yAxis.style.top = (screenPosition[1] - bb.width / 2.0) + 'px';
+
+          if (first) this.el.yAxis.classList.add('show');
+        }
+
+        changeSeries(value, name) {
+          value = parseInt(value);
+          this.seriesState[name] = value;
+          this.renderLegend();
+
+          this.pointHelpers[this.phIndexMap[name]].setRGBFromArrays(
+            data[name]['colors'][value].r, 
+            data[name]['colors'][value].g, 
+            data[name]['colors'][value].b
+          );
+        }
+
+        static createColorBox(value) {
+          return Faerun.createElement(
+            'div', 
+            { 
+              classes: 'color-box', 
+              style: `background-color: rgba(${value[0] * 255}, ${value[1] * 255 }, ${value[2] * 255 }, ${value[3] });
+                      border-color: rgba(${value[0] * 255 }, ${value[1] * 255 }, ${value[2] * 255 }, ${value[3] })`
+            }
+          );
+        }
+
+        static createColorScale(values) {
+          let scale = [];
+
+          values.forEach(value => {
+            scale.push(
+              Faerun.createElement(
+                'div', 
+                { 
+                  classes: 'color-stripe', 
+                  style: `background-color: rgba(${value[0][0] * 255}, ${value[0][1] * 255}, ${value[0][2] * 255}, ${value[0][3]});
+                          border-color: rgba(${value[0][0] * 255}, ${value[0][1] * 255}, ${value[0][2] * 255}, ${value[0][3]})`,
+                  alt: value[1]
+                }
+              ),
+            )
+          });
+
+          return scale;
+        }
+        
+        static createElement(tag, values, children) {
+          let element = document.createElement(tag);
+
+          for (const key of Object.keys(values)) {
+            if (key === 'classes')
+              element.classList.add(...values[key].split(' '));
+            else if (key === 'content')
+              element.innerHTML = values[key];
+            else if (key === 'hidden') {
+              if (values[key])
+                element.setAttribute('hidden', true);
+            }
+            else if (key === 'selected') {
+              if (values[key])
+                element.setAttribute('selected', true);
+            }
+            else
+              element.setAttribute(key, values[key]);
+          }
+
+          if (children) {
+            if (Array.isArray(children)) {
+              children.forEach(child => {
+                element.appendChild(child);
+              })
+            } else {
+              element.appendChild(children);
+            }
+          }
+
+          return element;
+        }
+
+        static bindElements() {
+          let result = {};
+          document.querySelectorAll('[data-bind]').forEach(e => {
+            result[e.getAttribute('data-bind')] = e;
+          });
+          return result;
+        }
+
+        static getMin(arr, other = Number.MAX_VALUE) {
+          let m = Number.MAX_VALUE;
+          for (var i = 0; i < arr.length; i++)
+              if (arr[i] < m) m = arr[i];
+          
+          if (m < other) return m;
+          return other;
+        }
+
+        static getMax(arr, other = -Number.MAX_VALUE) {
+          let m = -Number.MAX_VALUE;
+          for (var i = 0; i < arr.length; i++)
+              if (arr[i] > m) m = arr[i];
+          
+          if (m > other) return m;
+          return other;
+        }
       }
 
-      function bindElements() {
-        let result = {};
-        document.querySelectorAll('[data-bind]').forEach(e => {
-          result[e.getAttribute('data-bind')] = e;
-        });
-        return result;
-      }
-
-      function getMin(arr, other = Number.MAX_VALUE) {
-        let m = Number.MAX_VALUE;
-        for (var i = 0; i < arr.length; i++)
-            if (arr[i] < m) m = arr[i];
-        if (m < other)
-            return m;
-        else
-            return other;
-      }
-
-      function getMax(arr, other = -Number.MAX_VALUE) {
-        let m = -Number.MAX_VALUE;
-        for (var i = 0; i < arr.length; i++)
-            if (arr[i] > m) m = arr[i];
-        if (m > other)
-            return m;
-        else
-            return other;
-      }
+      let f = new Faerun();
     </script>
   </body>
 </html>
