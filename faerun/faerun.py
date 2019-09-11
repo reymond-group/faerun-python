@@ -226,8 +226,8 @@ class Faerun(object):
         max_legend_label: Union[str, float, List[str], List[float]] = None,
         series_title: Union[str, List[str]] = None,
         ondblclick: Union[str, List[str]] = None,
-        selected_dict: Union[Dict, List[Dict]] = None,
-        label_index: Union[int, List[int]] = 0
+        selected_labels: Union[List, List[List]] = None,
+        label_index: Union[int, List[int]] = 0,
     ):
         """Add a scatter layer to the plot.
 
@@ -252,7 +252,7 @@ class Faerun(object):
             max_legend_label (:obj:`str`, :obj:`float`, :obj:`List[str]` or :obj:`List[float]`, optional): The label used for the maximum value in a ranged (non-categorical) legend. A list when visualizing multiple series
             series_title (:obj:`str` or :obj:`List[str]`, optional): The name of the series (used when multiple properites supplied). A list when visualizing multiple series
             ondblclick (:obj:`str` or :obj:`List[str]`, optional): A JavaScript snippet that is executed on double-clicking on a data point. A list when visualizing multiple series
-            selected_dict: (:obj:`Dict` or :obj:`List[Dict]`, optional): A dictionary of label values to show in the selected box. A list when visualizing multiple series
+            selected_labels: (:obj:`Dict` or :obj:`List[Dict]`, optional): A list of label values to show in the selected box. A list when visualizing multiple series
             label_index: (:obj:`int` or :obj:`List[int]`, optional): The index of the label value to use as the actual label (when __ is used to specify multiple values). A list when visualizing multiple series
         """
         if mapping["z"] not in data:
@@ -288,7 +288,7 @@ class Faerun(object):
         max_legend_label = Faerun.make_list(max_legend_label)
         series_title = Faerun.make_list(series_title)
         ondblclick = Faerun.make_list(ondblclick)
-        selected_dict = Faerun.make_list(selected_dict)
+        selected_labels = Faerun.make_list(selected_labels, make_list_list=True)
         label_index = Faerun.make_list(label_index)
 
         # If any argument list is shorter than the number of series,
@@ -306,7 +306,7 @@ class Faerun(object):
         )
         series_title = Faerun.expand_list(series_title, n_series, with_value="Series")
         ondblclick = Faerun.expand_list(ondblclick, n_series, with_none=True)
-        selected_dict = Faerun.expand_list(selected_dict, n_series, with_none=True)
+        selected_labels = Faerun.expand_list(selected_labels, n_series, with_none=True)
         label_index = Faerun.expand_list(label_index, n_series, with_value=0)
 
         # # The c and cs values in the data are a special case, as they should
@@ -420,8 +420,8 @@ class Faerun(object):
             "max_legend_label": max_legend_label,
             "series_title": series_title,
             "ondblclick": ondblclick,
-            "selcted_dict": selected_dict,
-            "label_index": label_index
+            "selected_labels": selected_labels,
+            "label_index": label_index,
         }
 
         self.scatters_data[name] = data
@@ -463,7 +463,7 @@ class Faerun(object):
             "file_name": file_name + ".js",
             "clear_color": self.clear_color,
             "view": self.view,
-            "coords": self.coords,
+            "coords": str(self.coords).lower(),
             "coords_color": self.coords_color,
             "coords_box": str(self.coords_box).lower(),
             "coords_ticks": str(self.coords_ticks).lower(),
@@ -475,7 +475,7 @@ class Faerun(object):
             "y_title": self.y_title,
             "tree_helpers": list(self.trees.values()),
             "point_helpers": list(self.scatters.values()),
-            "has_legend": has_legend,
+            "has_legend": str(has_legend).lower(),
             "legend_title": self.legend_title,
             "legend_orientation": self.legend_orientation,
             "alpha_blending": str(self.alpha_blending).lower(),
@@ -844,6 +844,7 @@ class Faerun(object):
             obj (:obj:`Any`): A Python object
 
         Keyword Arguments:
+            make_list_list (:obj:`bool`): Whether to make a list a list of a list
 
 
         Returns:

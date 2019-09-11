@@ -1,0 +1,745 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="shortcut icon" href="data:image/vnd.microsoft.icon;base64,AAABAAEAEBAQAAEABAAoAQAAFgAAACgAAAAQAAAAIAAAAAEABAAAAAAAgAAAAAAAAAAAAAAAEAAAAAAAAAAAAAAA25g0AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAERAAAAAAAAAREAAAAAAAABEQAAAAAAAAERAAAAAAAAARERERAAAAABEREREAAAAAEREREQAAAAAREAAAAAAAABEQAAAAAAAAEREREQAAAAARERERAAAAABEREREAAAAAAAAAAAAAAAAAAAAAAAD//wAA//8AAPH/AADx/wAA8f8AAPH/AADwDwAA8A8AAPAPAADx/wAA8f8AAPAPAADwDwAA8A8AAP//AAD//wAA" />
+    <title>{{ title }}</title>
+    <script src="https://unpkg.com/lore-engine@1.1.5/dist/lore.min.js"></script>
+    <script src="https://unpkg.com/smiles-drawer@1.1.22/dist/smiles-drawer.min.js"></script>
+    <link
+      href="https://fonts.googleapis.com/css?family=Open+Sans:400,600"
+      rel="stylesheet"
+    />
+    <style>
+      body {
+        margin: 0px;
+        padding: 0px;
+        height: 100%;
+        user-select: none;
+        overflow: hidden;
+        white-space: nowrap;
+      }
+
+      #lore {
+        position: absolute;
+        width: 100%;
+        height: 100%;
+      }
+
+      #smiles-canvas {
+        position: absolute;
+        z-index: 9999;
+        left: -999px;
+        top: -999px;
+        width: 250px;
+        height: 250px;
+      }
+
+      #title {
+        position: absolute;
+        z-index: 9999;
+        pointer-events: none;
+        text-height: 1;
+        opacity: 0.0;
+        transition: opacity 0.5s ease-in;
+        {% for key, value in style["title"].items() %}
+          {{key}}: {{value}};
+        {% endfor %}
+      }
+
+      #x-axis {
+        position: absolute;
+        z-index: 9999;
+        pointer-events: none;
+        text-height: 1;
+        opacity: 0.0;
+        transition: opacity 0.5s ease-in;
+        {% for key, value in style["x-axis"].items() %}
+          {{key}}: {{value}};
+        {% endfor %}
+      }
+
+      #y-axis {
+        position: absolute;
+        z-index: 9999;
+        pointer-events: none;
+        text-height: 1;
+        transition: opacity 0.5s ease-in;
+        {% for key, value in style["y-axis"].items() %}
+          {{key}}: {{value}};
+        {% endfor %}
+      }
+
+      #tip-image-container {
+        position: absolute;
+        z-index: 9999;
+        padding: 5px;
+        font-family: 'Open Sans';
+        background-color: rgba(255, 255, 255, 1.0);
+        border-radius: 2px;
+        border-left: 5px solid #000;
+        pointer-events: none;
+        opacity: 0.0;
+        transition: opacity 0.1s ease-out;
+        filter: drop-shadow(0px 0px 20px rgba(0, 0, 0, 1.0));
+      }
+
+      #tip-image-container.show {
+        opacity: 1.0;
+        transition: opacity 0.1s ease-out;
+      }
+
+      #tip-image {
+        pointer-events: none;
+        filter: drop-shadow(0px 0px 5px rgba(255, 255, 255, 1.0));
+      }
+
+      #text-container {
+        position: relative;
+        width: 250px;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        font-size: 0.75em;
+        font-weight: bold;
+        text-align: center;
+      }
+
+      #hover-indicator {
+        display: none;
+        position: absolute;
+        z-index: 999;
+        border: 1px solid #fff;
+        background-color: rgba(255, 255, 255, 0.25);
+        border-radius: 50%;
+        pointer-events: none;
+      }
+
+      #hover-indicator.show {
+        display: block !important
+      }
+
+      #legend {
+        position: absolute;
+        {% for key, value in style["legend"].items() %}
+          {{key}}: {{value}};
+        {% endfor %}
+      }
+
+      #legend .container {
+        display: flex;
+        flex: auto;
+        align-items: flex-start;
+        {% if legend_orientation == 'vertical' %}
+        flex-direction: column;
+        {% else %}
+        flex-direction: row;
+        {% endif %}
+      }
+
+      #legend .legend-section {
+        width: 100%;
+      }
+
+      #legend .legend-section:not(:first-child) {
+        {% if legend_orientation == 'horizontal' %}
+        margin-left: 20px;
+        {% endif %}
+      }
+
+      #legend h2 {
+        font-size: 1em;
+        font-weight: 600;
+        padding-top: 0;
+        margin-top: 0;
+        margin-bottom: 5px;
+        text-align: center;
+        max-width: 250px;
+        white-space: normal;
+      }
+
+      #legend h3 {
+        font-size: 0.8em;
+        margin-top: 10px;
+        margin-bottom: 0px;
+        max-width: 250px;
+        white-space: normal;
+      }
+
+      #legend select {
+        width: 100%;
+        margin-bottom: 5px;
+        background: transparent;
+        color: #fff;
+        border-radius: 2px;
+        font-size: 0.75em;
+      }
+
+      #legend select option {
+        background: #000;
+      }
+
+      #legend .legend-element, #legend .legend-element-range {
+        position: relative;
+        display: flex;
+        flex: auto;
+        align-items: flex-start;
+        padding-bottom: 2px;
+        padding-top: 2px;
+      }
+
+      #legend .legend-element {
+        align-items: flex-start;
+      }
+
+      #legend .legend-element-range {
+        flex-direction: column;
+      }
+
+      #legend .color-box {
+        {% for key, value in style["color-box"].items() %}
+          {{key}}: {{value}};
+        {% endfor %}
+      }
+
+      #legend .color-stripe {
+        {% for key, value in style["color-stripe"].items() %}
+          {{key}}: {{value}};
+        {% endfor %}
+      }
+
+      #legend .legend-label {
+        height: 15px;
+        font-size: 0.7em;
+        padding-left: 5px;
+      }
+
+      #legend .legend-label.max {
+        position: absolute;
+        top: 0px;
+        margin-left: 15px;
+      }
+
+      #legend .legend-label.min {
+        position: absolute;
+        bottom: 2px;
+        margin-left: 15px;
+      }
+
+      .show {
+        opacity: 1.0 !important;
+      }
+    </style>
+  </head>
+
+  <body>
+    {% if title %}
+      <div id="title">{{title}}</div>
+    {% endif %}
+    {% if x_title %}
+      <div id="x-axis">{{x_title}}</div>
+    {% endif %}
+    {% if y_title %}
+      <div id="y-axis">{{y_title}}</div>
+    {% endif %}
+    <canvas id="smiles-canvas"></canvas>
+    <div id="hover-indicator"></div>
+    <div id="tip-image-container"><div id="text-container"></div><img id="tip-image" /></div>
+    <canvas id="lore"></canvas>
+
+    {% if data %}
+      <script>
+        {{data | safe}}
+      </script>
+    {% else %}
+      <script src="{{file_name}}"></script>
+    {% endif %}
+    <script>
+        let scatterMeta = {{point_helpers|tojson}};
+        let seriesState = {}
+        scatterMeta.forEach(s => {
+            seriesState[s.name] = 0;
+        });
+
+        let clearColor = '{{clear_color|safe}}';
+        let cc = Lore.Core.Color.fromHex(clearColor);
+        let currentPoint = null;
+        let view = '{{view}}';
+        let alphaBlending = view === 'free' ? false : true
+
+        let lore = Lore.init('lore', {
+          antialiasing: true,
+          clearColor: clearColor,
+          alphaBlending: alphaBlending || {{alpha_blending}},
+        });
+
+        let smilesDrawer = new SmilesDrawer.Drawer({
+          width: 250,
+          height: 250
+        });
+
+        // Tree plots
+        let treeHelpers = [];
+        let th = null;
+        let thNames = [];
+        let thName = null;
+        {% for tree_helper in tree_helpers %}
+          thNames.push('{{tree_helper["name"]|safe}}')
+          thName = thNames[thNames.length - 1];
+          treeHelpers.push(new Lore.Helpers.TreeHelper(lore, thName, 'tree'));
+          th = treeHelpers[treeHelpers.length - 1];
+          th.setXYZHexS(data[thName].x, data[thName].y, data[thName].z, 
+                        '{{tree_helper["color"]|safe}}');
+          th.setFog([cc.components[0], cc.components[1], cc.components[2], cc.components[3]], 
+                    parseFloat('{{tree_helper["fog_intensity"]}}'));
+        {% endfor %}
+
+        // Scatter plots
+        let pointHelpers = [];
+        let octreeHelpers = [];
+        let ph = null;
+        let phNames = [];
+        let ohIndexToPhName = [];
+        let phNameToPhIndex = {};
+        let phName = null;
+        let minX = Number.MAX_VALUE;
+        let minY = Number.MAX_VALUE;
+        let minZ = Number.MAX_VALUE;
+        let maxX = -Number.MAX_VALUE;
+        let maxY = -Number.MAX_VALUE;
+        let maxZ = -Number.MAX_VALUE;
+        let maxRadius = -Number.MAX_VALUE;
+
+        scatterMeta.forEach(s => {
+          phNames.push(s.name)
+          phName = phNames[phNames.length - 1];
+
+          pointHelpers.push(
+            new Lore.Helpers.PointHelper(lore, phName, s.shader, 
+                                         { maxPointSize: s.max_point_size })
+          );
+          
+          phNameToPhIndex[phName] = pointHelpers.length - 1;
+          ph = pointHelpers[pointHelpers.length - 1];
+
+          ph.setXYZRGBS(data[phName].x, data[phName].y, data[phName].z, 
+                        data[phName]['colors'][0].r, data[phName]['colors'][0].g, data[phName]['colors'][0].b, data[phName].s);
+
+          ph.setPointScale(s.point_scale);
+          ph.setFog([cc.components[0], cc.components[1], cc.components[2], cc.components[3]], 
+                    s.fog_intensity)
+
+          minX = min(data[phName].x, minX);
+          minY = min(data[phName].y, minY);
+          minZ = min(data[phName].z, minZ);
+          maxX = max(data[phName].x, maxX);
+          maxY = max(data[phName].y, maxY);
+          maxZ = max(data[phName].z, maxZ);
+          maxRadius = ph.getMaxRadius();
+
+          if (s.interactive) {
+            octreeHelpers.push(new Lore.Helpers.OctreeHelper(lore, 'Octree_' + phName, 'tree', ph));
+            ohIndexToPhName.push(phName);
+          }
+        });
+
+        // Coordinates
+        {% if coords %}
+        init_coords(minX, minY, minZ, maxX, maxY, maxZ, {{coords_grid}}, {{coords_ticks}}, {{coords_tick_count}}, {{coords_tick_length}}, '{{coords_color}}', {{coords_box}}, {{coords_offset}})
+        {% endif %}
+
+        let center = new Lore.Math.Vector3f((maxX + minX) / 2.0, (maxY + minY) / 2.0, (maxZ + minZ) / 2.0);
+        lore.controls.setLookAt(center);
+        lore.controls.setRadius(maxRadius + 100);
+        lore.controls.setView(0.9, -0.5)
+
+        let tip = document.getElementById('tip-image-container');
+        let canvas = document.getElementById('smiles-canvas');
+        let tipImage = document.getElementById('tip-image');
+        let tip_text = document.getElementById('text-container');
+        let hoverIndicator = document.getElementById('hover-indicator');
+
+        Lore.Helpers.OctreeHelper.joinHoveredChanged(octreeHelpers, e => {
+          if (e.e && data[ohIndexToPhName[e.source]].labels) {
+            currentPoint = {
+              index: e.e.index,
+              label: data[ohIndexToPhName[e.source]].labels[e.e.index],
+              source: ohIndexToPhName[e.source]
+            }
+
+            let rgbColor = pointHelpers[e.source].getColor(e.e.index);
+            let hexColor = Lore.Core.Color.rgbToHex(rgbColor[0], rgbColor[1], rgbColor[2]);
+
+            let labels = currentPoint.label.split('__');
+
+            SmilesDrawer.parse(labels[0], function (tree) {
+              smilesDrawer.draw(tree, 'smiles-canvas', 'light', false);
+              tipImage.src = canvas.toDataURL();
+              if (labels.length > 1)
+                tip_text.innerHTML = labels[1];
+              tip.style.borderColor = hexColor;
+              tip.classList.add('show');
+            });
+
+            let pointSize = pointHelpers[e.source].getPointSize();
+            let x = e.e.screenPosition[0];
+            let y = e.e.screenPosition[1];
+
+            hoverIndicator.style.width = pointSize + 'px';
+            hoverIndicator.style.height = pointSize + 'px';
+            hoverIndicator.style.left = (x - pointSize / 2.0 - 1) + 'px';
+            hoverIndicator.style.top = (y - pointSize / 2.0 - 1) + 'px';
+
+            hoverIndicator.classList.add('show');
+          } else {
+            currentPoint = null;
+            tip.classList.remove('show');
+            hoverIndicator.classList.remove('show');
+          }
+        });
+
+        document.addEventListener('dblclick', e => {
+          if (currentPoint) {
+            var index = currentPoint.index;
+            var labels = currentPoint.label.split('__');
+            var source = currentPoint.source;
+            eval(scatterMeta[phNameToPhIndex[source]].ondblclick[seriesState[source]]);
+          }
+        });
+
+        {% if view == 'front' %}
+          lore.controls.setFrontView();
+        {% endif %}
+        {% if view == 'back' %}
+          lore.controls.setBackView();
+        {% endif %}
+        {% if view == 'left' %}
+          lore.controls.setLeftView();
+        {% endif %}
+        {% if view == 'right' %}
+          lore.controls.setRightView();
+        {% endif %}
+        {% if view == 'top' %}
+          lore.controls.setTopView();
+        {% endif %}
+        {% if view == 'bottom' %}
+          lore.controls.setBottomView();
+        {% endif %}
+
+        document.addEventListener('mousemove', function (event) {
+          let tip = document.getElementById('tip-image-container');
+
+          let x = event.clientX;
+          let y = event.clientY;
+
+          if (x > window.innerWidth - tip.offsetWidth - 20) {
+            x -= tip.offsetWidth;
+          } else {
+            x += 10;
+          }
+
+          if (y > window.innerHeight - tip.offsetHeight - 20) {
+            y -= tip.offsetHeight;
+          } else {
+            y += 10;
+          }
+
+          if (tip) {
+            tip.style.top = y + 'px';
+            tip.style.left = x + 'px';
+          }
+        });
+
+        // Legend
+        function toggleLegendSection(name) {
+          let section = document.getElementById('legend-' + name);
+          let geometry = pointHelpers[phNameToPhIndex[name]].geometry;
+          let isVisible = geometry.isVisible;
+
+          if (isVisible) {
+            geometry.isVisible = false;
+            section.style.opacity = 0.5;
+          } else {
+            geometry.isVisible = true;
+            section.style.opacity = 1.0;
+          }
+        }
+
+        // Coordinates
+        function init_coords(minX, minY, minZ, maxX, maxY, maxZ, grid=true, ticks=true, tickCount=100, tickLength=2.0, color='#eeeeee', box=true, offset=5.0) {
+          minX -= offset;
+          minY -= offset;
+          minZ -= offset;
+          maxX += offset;
+          maxY += offset;
+          maxZ += offset;
+          var coordinatesHelper = new Lore.Helpers.CoordinatesHelper(lore, 'Coordinates', 'coordinates', {
+              position: new Lore.Math.Vector3f(minX, minY, minZ),
+              axis: {
+                  x: {
+                      length: maxX - minX,
+                      color: Lore.Core.Color.fromHex(color)
+                  },
+                  y: {
+                      length: maxY - minY,
+                      color: Lore.Core.Color.fromHex(color)
+                  },
+                  z: {
+                      length: maxZ - minZ,
+                      color: Lore.Core.Color.fromHex(color)
+                  }
+              },
+              ticks: {
+                  enabled: ticks,
+                  x: {
+                      length: tickLength,
+                      color: Lore.Core.Color.fromHex(color),
+                      count: tickCount
+                  },
+                  y: {
+                      length: tickLength,
+                      color: Lore.Core.Color.fromHex(color),
+                      count: tickCount
+                  },
+                  z: {
+                      length: tickLength,
+                      color: Lore.Core.Color.fromHex(color),
+                      count: tickCount
+                  }
+              },
+              box: {
+                  enabled: box,
+                  x: {
+                      color: Lore.Core.Color.fromHex(color)
+                  },
+                  y: {
+                      color: Lore.Core.Color.fromHex(color)
+                  },
+                  z: {
+                      color: Lore.Core.Color.fromHex(color)
+                  }
+              }
+          });
+      }
+
+      let titleElement = document.getElementById('title');
+      let xAxis = document.getElementById('x-axis');
+      let yAxis = document.getElementById('y-axis');
+
+      // Update annotations
+      lore.controls.addEventListener('updated', () => {
+        updateTitle();
+        updateYAxis();
+        updateXAxis();
+      });
+
+      // Wait for DOM to get ready
+      setTimeout(() => {
+        updateTitle(true);
+        updateXAxis(true);
+        updateYAxis(true);
+      }, 500)
+
+      renderLegend();
+      function renderLegend() {
+        {% if has_legend %}
+        let body = document.getElementsByTagName('body')[0];
+        let legend = document.getElementById('legend');
+        if (legend)
+          body.removeChild(legend);
+        legend = createElement('div', { id: 'legend' });
+        body.appendChild(legend)
+        {% if legend_title %}
+        legend.appendChild(createElement('h2', { content: '{{legend_title}}' }));
+        {% endif %}
+        
+        let container = createElement('div', { classes: 'container' });
+        legend.appendChild(container);
+
+        scatterMeta.forEach(s => {
+          let index = seriesState[s.name];
+          if (s.has_legend) {
+            legendSection = []
+            if (!s.is_range[index]) {
+              s.legend[index].forEach(v => {
+                legendSection.push(createElement('div', { classes: 'legend-element' }, [
+                  createColorBox(v[0]),
+                  createElement('div', { classes: 'legend-label', content: v[1] }),
+                ]))
+              })
+            } else {
+              legendSection.push(createElement('div', { classes: 'legend-element-range' }, [
+                ...createColorScale(s.legend[index]),
+                createElement('div', { classes: 'legend-label max', content: s.max_legend_label[index] }),
+                createElement('div', { classes: 'legend-label min', content: s.min_legend_label[index] }),
+              ]))
+            }
+
+            let series = [];
+            for (var i = 0; i < s.series_title.length; i++) {
+              series.push(
+                createElement('option', { value: i, content: s.series_title[i], selected: i === index})
+              );
+            }
+
+            container.appendChild(
+              createElement('div', { id: `legend-${s.name}`, 
+                                    classes: 'legend-section', 
+                                    'data-name': `${s.name}` }, [
+                  createElement('h3', { onclick: `toggleLegendSection('${s.name}')`,
+                                        content: s.legend_title[index] }),
+                  createElement('select', { id: `select-${s.name}`, 
+                                            classes: 'series-selector',
+                                            'data-name': s.name,
+                                            hidden: s.series_title.length < 2,
+                                            onchange: `changeSeries(this.value, '${s.name}')`}, [
+                    ...series
+                  ]),
+                  ...legendSection
+                ]
+              )
+            );
+          }
+        });
+        {% endif %}
+      }
+
+      function changeSeries(value, name) {
+        value = parseInt(value);
+        seriesState[name] = value;
+        renderLegend();
+
+        pointHelpers[phNameToPhIndex[name]].setRGBFromArrays(data[name]['colors'][value].r, data[name]['colors'][value].g, data[name]['colors'][value].b)
+      }
+
+      function createColorBox(value) {
+        return createElement(
+          'div', 
+          { 
+            classes: 'color-box', 
+            style: `background-color: rgba(${value[0] * 255}, ${value[1] * 255 }, ${value[2] * 255 }, ${value[3] });
+                    border-color: rgba(${value[0] * 255 }, ${value[1] * 255 }, ${value[2] * 255 }, ${value[3] })`
+          }
+        );
+      }
+
+      function createColorScale(values) {
+        let scale = [];
+
+        values.forEach(value => {
+          scale.push(
+            createElement(
+              'div', 
+              { 
+                classes: 'color-stripe', 
+                style: `background-color: rgba(${value[0][0] * 255}, ${value[0][1] * 255}, ${value[0][2] * 255}, ${value[0][3]});
+                        border-color: rgba(${value[0][0] * 255}, ${value[0][1] * 255}, ${value[0][2] * 255}, ${value[0][3]})`,
+                alt: value[1]
+              }
+            ),
+          )
+        });
+
+        return scale;
+      }
+
+      function updateTitle(first = false) {
+        if ('{{title}}' === '')
+          return;
+
+        let bb = titleElement.getBoundingClientRect();
+        let scenePosition = new Lore.Math.Vector3f((maxX + minX) / 2.0, maxY, (maxZ + minZ) / 2.0);
+        let screenPosition = lore.controls.camera.sceneToScreen(scenePosition, lore);
+        
+        titleElement.style.left = (screenPosition[0] - (bb.width / 2.0)) + 'px';
+        titleElement.style.top = (screenPosition[1] - bb.height) + 'px';
+
+        if (first)
+          titleElement.classList.add('show');
+      }
+
+      function updateXAxis(first = false) {
+        if ('{{x_axis}}' === '')
+          return;
+        
+        let bb = xAxis.getBoundingClientRect();
+        let scenePosition = new Lore.Math.Vector3f((maxX + minX) / 2.0, minY, (maxZ + minZ) / 2.0);
+        let screenPosition = lore.controls.camera.sceneToScreen(scenePosition, lore);
+        
+        xAxis.style.left = (screenPosition[0] - (bb.width / 2.0)) + 'px';
+        xAxis.style.top = (screenPosition[1]) + 'px';
+
+        if (first)
+          xAxis.classList.add('show');
+      }
+
+      function updateYAxis(first = false) {
+        if ('{{y_axis}}' === '')
+          return;
+          
+        let bb = yAxis.getBoundingClientRect();
+        let scenePosition = new Lore.Math.Vector3f(minX, (maxY + minY) / 2.0, (maxZ + minZ) / 2.0);
+        let screenPosition = lore.controls.camera.sceneToScreen(scenePosition, lore);
+        
+        yAxis.style.left = (screenPosition[0] - bb.height) + 'px';
+        yAxis.style.top = (screenPosition[1] - bb.width / 2.0) + 'px';
+
+        if (first)
+          yAxis.classList.add('show');
+      }
+
+      // DLHs
+      function createElement(tag, values, children) {
+        let element = document.createElement(tag);
+
+        for (const key of Object.keys(values)) {
+          if (key === 'classes')
+            element.classList.add(...values[key].split(' '));
+          else if (key === 'content')
+            element.innerHTML = values[key];
+          else if (key === 'hidden') {
+            if (values[key])
+              element.setAttribute('hidden', true);
+          }
+          else if (key === 'selected') {
+            if (values[key])
+              element.setAttribute('selected', true);
+          }
+          else
+            element.setAttribute(key, values[key]);
+        }
+
+        if (children) {
+          if (Array.isArray(children)) {
+            children.forEach(child => {
+              element.appendChild(child);
+            })
+          } else {
+            element.appendChild(children);
+          }
+        }
+
+        return element;
+      }
+      function min(arr, other = Number.MAX_VALUE) {
+        let m = Number.MAX_VALUE;
+        for (var i = 0; i < arr.length; i++)
+            if (arr[i] < m) m = arr[i];
+        if (m < other)
+            return m;
+        else
+            return other;
+      }
+      function max(arr, other = -Number.MAX_VALUE) {
+        let m = -Number.MAX_VALUE;
+        for (var i = 0; i < arr.length; i++)
+            if (arr[i] > m) m = arr[i];
+        if (m > other)
+            return m;
+        else
+            return other;
+      }
+    </script>
+  </body>
+</html>

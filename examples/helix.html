@@ -125,6 +125,30 @@
         display: block !important
       }
 
+      .selected-indicator {
+        position: absolute;
+        z-index: 999;
+        pointer-events: none;
+      }
+
+      .selected-indicator .crosshair-x {
+        position: absolute;
+        top: 0; left: 0; bottom: 0; right: 0;
+        height: 2px;
+        width: 100%;
+        margin: auto;
+        background-color: #fff;
+      }
+
+      .selected-indicator .crosshair-y {
+        position: absolute;
+        top: 0; left: 0; bottom: 0; right: 0;
+        width: 2px;
+        height: 100%;
+        margin: auto;
+        background-color: #fff;
+      }
+
       #legend {
         position: absolute;
         
@@ -255,7 +279,7 @@
       #selected {
         position: absolute;
         display: none;
-        z-index: 99999;
+        z-index: 9998;
         width: 250px;
         
           bottom: 10px;
@@ -304,6 +328,12 @@
         margin: 0px 2px;
         font-size: 1.5em;
         color: #fff;
+        opacity: 0.75;
+        transition: 0.2s;
+      }
+
+      #selected #selected-controls a:hover {
+        opacity: 1.0;
       }
 
       #selected #selected-container {
@@ -329,6 +359,10 @@
       .show {
         opacity: 1.0 !important;
       }
+
+      .hide {
+        display: none !important;
+      }
     </style>
   </head>
 
@@ -337,8 +371,15 @@
     
     
 
+    <div id="tip" data-bind="tip">
+      <div id="tip-text" data-bind="tipText"></div>
+    </div>
     <div id="selected" data-bind="selected">
       <div id="selected-controls" data-bind="selectedControls">
+        <a id="selected-toggle" data-bind="selectedToggle" href="#">
+          <i class="fas fa-toggle-on"></i>
+        </a>
+        <span>&nbsp;&nbsp;</span>
         <span id="selected-title" data-bind="selectedTitle"></span>
         <span>&nbsp;&nbsp;</span>
         <span id="selected-current" data-bind="selectedCurrent" data-bind="selectedCurrent">0</span><span> / </span><span id="selected-total" data-bind="selectedTotal">0</span>
@@ -355,9 +396,6 @@
       </div>
     </div>
     <div id="hover-indicator" data-bind="hoverIndicator"></div>
-    <div id="tip" data-bind="tip">
-      <div id="tip-text" data-bind="tipText"></div>
-    </div>
     <canvas id="lore"></canvas>
 
     
@@ -366,7 +404,10 @@
     <script>
       class Faerun {
         constructor() {
+          this.body = document.getElementsByTagName('body')[0];
+
           this.selectedItems = [];
+          this.selectedIndicators = [];
           this.selectedCurrent = [];
           this.scatterMeta = [{"categorical": [true], "colormap": ["Dark2"], "fog_intensity": 0.0, "has_legend": true, "interactive": true, "is_range": [false], "label_index": [0], "legend": [[[[0.10588235294117647, 0.6196078431372549, 0.4666666666666667, 1.0], "Zero"], [[0.8509803921568627, 0.37254901960784315, 0.00784313725490196, 1.0], "One"]]], "legend_title": ["helix"], "mapping": {"c": "c", "cs": "cs", "labels": "labels", "s": "s", "x": "x", "y": "y", "z": "z"}, "max_c": [1.0], "max_legend_label": ["1.00"], "max_point_size": 100.0, "min_c": [0.0], "min_legend_label": ["0.00"], "name": "helix", "ondblclick": [null], "point_scale": 5.0, "selected_labels": [["None", "Just a Small Test"]], "series_title": [null], "shader": "smoothCircle"}];
           this.treeMeta = [{"color": "#666666", "colormap": "plasma", "fog_intensity": 0.0, "mapping": {"c": "c", "from": "from", "to": "to", "x": "x", "y": "y", "z": "z"}, "name": "helixtree", "point_helper": "helix"}];
@@ -575,6 +616,7 @@
             this.updateTitle();
             this.updateYAxis();
             this.updateXAxis();
+            this.updateSelectedIndicators();
           });
 
           Lore.Helpers.OctreeHelper.joinHoveredChanged(this.octreeHelpers, e => {
@@ -663,6 +705,14 @@
               this.el.tip.style.left = x + 'px';
             }
           });
+
+          this.el.selectedToggle.addEventListener('click', e => {
+            this.el.selectedContainer.classList.toggle('hide');
+            if (this.el.selectedContainer.classList.contains('hide'))
+              this.el.selectedToggle.innerHTML = '<i class="fas fa-toggle-off"></i>';
+            else
+              this.el.selectedToggle.innerHTML = '<i class="fas fa-toggle-on"></i>';
+          });
         }
 
         setTipContent() {
@@ -674,25 +724,29 @@
           this.el.selectedContainer.innerHTML = '';
           fullLabel.forEach((l, i) => {
             if (i === labelIndex) return;
-            this.el.selectedContainer.appendChild(
-              Faerun.createElement('div', { classes: 'label', content: selectedLabels[i] })
-            );
+            if (selectedLabels && selectedLabels[i]) {
+              this.el.selectedContainer.appendChild(
+                Faerun.createElement('div', { classes: 'label', content: selectedLabels[i] })
+              );
+            }
             this.el.selectedContainer.appendChild(
               Faerun.createElement('div', { classes: 'content', content: l })
             );
           });
+
+          // Update the indicator
+          this.updateSelectedIndicators();
         }
 
         renderLegend() {
           if (!this.legend.show) return;
 
-          let body = document.getElementsByTagName('body')[0];
           let legend = document.getElementById('legend');
           
-          if (legend) body.removeChild(legend);
+          if (legend) this.body.removeChild(legend);
 
           legend = Faerun.createElement('div', { id: 'legend' });
-          body.appendChild(legend)
+          this.body.appendChild(legend)
           
           if (this.legend.title && this.legend.title !== '')
             legend.appendChild(Faerun.createElement('h2', { content: 'Legend' }));
@@ -802,10 +856,11 @@
 
           let item = this.selectedItems[current];
 
-          let meta = this.scatterMeta[this.ohIndexToPhIndex[item.source]];
+          let phIndex = this.ohIndexToPhIndex[item.source];
+          let meta = this.scatterMeta[phIndex];
           let phName = this.ohIndexToPhName[item.source];
           let seriesState = this.seriesState[phName];
-          
+
           let fullLabel = data[phName].labels[item.item.index].split('__');
 
           let labelIndex = meta.label_index[seriesState];
@@ -816,6 +871,47 @@
           this.el.selectedTitle.innerHTML = fullLabel[labelIndex];
 
           this.setSelectedContent(fullLabel, labelIndex, selectedLabels);
+
+          // Remove all indicators
+          this.selectedIndicators.forEach(indicator => {
+            indicator.element.parentElement.removeChild(indicator.element);
+          });
+          this.selectedIndicators.length = 0;
+
+          // Add the indicator for this object
+          let indicatorElement = Faerun.createElement(
+            'div', 
+            { classes: 'selected-indicator' },
+            [
+              Faerun.createElement('div', { classes: 'crosshair-x' }),
+              Faerun.createElement('div', { classes: 'crosshair-y' })
+            ]
+          );
+
+          this.body.appendChild(indicatorElement);
+          this.selectedIndicators.push({
+            element: indicatorElement,
+            index: item.item.index,
+            ohIndex: item.source,
+            phIndex: phIndex
+          });
+          this.updateSelectedIndicators();
+        }
+
+        updateSelectedIndicators() {
+          this.selectedIndicators.forEach(indicator => {
+            let pointSize = this.pointHelpers[indicator.phIndex].getPointSize();
+            let screenPosition = this.octreeHelpers[indicator.ohIndex]
+                                     .getScreenPosition(indicator.index);
+            
+            // Make the crosshairs larger than the point
+            pointSize *= 1.5;
+            let halfPointSize = pointSize / 2.0;
+            indicator.element.style.left = (screenPosition[0] - halfPointSize) + 'px';
+            indicator.element.style.top = (screenPosition[1] - halfPointSize) + 'px';
+            indicator.element.style.width = pointSize + 'px';
+            indicator.element.style.height = pointSize + 'px';
+          });
         }
 
         updateTitle(first = false) {
