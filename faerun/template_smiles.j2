@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <link rel="shortcut icon" href="data:image/vnd.microsoft.icon;base64,AAABAAEAEBAQAAEABAAoAQAAFgAAACgAAAAQAAAAIAAAAAEABAAAAAAAgAAAAAAAAAAAAAAAEAAAAAAAAAAAAAAA25g0AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAERAAAAAAAAAREAAAAAAAABEQAAAAAAAAERAAAAAAAAARERERAAAAABEREREAAAAAEREREQAAAAAREAAAAAAAABEQAAAAAAAAEREREQAAAAARERERAAAAABEREREAAAAAAAAAAAAAAAAAAAAAAAD//wAA//8AAPH/AADx/wAA8f8AAPH/AADwDwAA8A8AAPAPAADx/wAA8f8AAPAPAADwDwAA8A8AAP//AAD//wAA" />
     <title>{{ title }}</title>
-    <script src="https://unpkg.com/lore-engine@1.1.5/dist/lore.min.js"></script>
+    <script src="https://unpkg.com/lore-engine@1.1.9/dist/lore.min.js"></script>
     <script src="https://unpkg.com/smiles-drawer@1.1.22/dist/smiles-drawer.min.js"></script>
     <link 
       rel="stylesheet" 
@@ -635,6 +635,12 @@
             this.updateSelected();
           });
 
+          Lore.Helpers.OctreeHelper.joinReselected(this.octreeHelpers, item => {
+            this.updateSelected(
+              this.getSelectedIndex(item[0].source, item[0].item.e.index)
+            );
+          });
+
           // Event listeners
           this.el.selectedPrev.addEventListener('click', e => {
             e.preventDefault();
@@ -821,6 +827,17 @@
             geometry.isVisible = true;
             section.style.opacity = 1.0;
           }
+        }
+
+        getSelectedIndex(source, index) {
+          let selectedIndex = null;
+          this.selectedItems.forEach((item, i) => {
+            if (item.source == source && item.item.index == index) {
+              selectedIndex = i;
+              return;
+            }
+          });
+          return selectedIndex;
         }
 
         updateSelected(current = -1) {
