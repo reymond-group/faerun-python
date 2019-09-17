@@ -6,7 +6,8 @@ The main module containing the Faerun class.
 
 import math
 import os
-from typing import Union, Dict, Any, List
+import copy
+from typing import Union, Dict, Any, List, Tuple
 from collections.abc import Iterable
 
 import colour
@@ -126,6 +127,17 @@ class Faerun(object):
                 "color": "#eeeeee",
                 "font-family": "'Open Sans'",
             },
+            "controls": {
+                "top": "10px",
+                "right": "10px",
+                "padding": "2px",
+                "border": "1px solid #262626",
+                "border-radius": "2px",
+                "background-color": "#111111",
+                "filter": "drop-shadow(0px 0px 10px rgba(0, 0, 0, 0.5))",
+                "color": "#eeeeee",
+                "font-family": "'Open Sans'",
+            },
             "title": {
                 "padding-bottom": "20px",
                 "font-size": "1.0em",
@@ -147,6 +159,8 @@ class Faerun(object):
             },
             "color-box": {"width": "15px", "height": "15px", "border": "solid 0px"},
             "color-stripe": {"width": "15px", "height": "1px", "border": "solid 0px"},
+            "color-stripe": {"width": "15px", "height": "1px", "border": "solid 0px"},
+            "crosshair": {"background-color": "#fff"}
         }
 
         for key, _ in default_style.items():
@@ -228,6 +242,7 @@ class Faerun(object):
         ondblclick: Union[str, List[str]] = None,
         selected_labels: Union[List, List[List]] = None,
         label_index: Union[int, List[int]] = 0,
+        title_index: Union[int, List[int]] = 0,
     ):
         """Add a scatter layer to the plot.
 
@@ -254,6 +269,7 @@ class Faerun(object):
             ondblclick (:obj:`str` or :obj:`List[str]`, optional): A JavaScript snippet that is executed on double-clicking on a data point. A list when visualizing multiple series
             selected_labels: (:obj:`Dict` or :obj:`List[Dict]`, optional): A list of label values to show in the selected box. A list when visualizing multiple series
             label_index: (:obj:`int` or :obj:`List[int]`, optional): The index of the label value to use as the actual label (when __ is used to specify multiple values). A list when visualizing multiple series
+            title_index: (:obj:`int` or :obj:`List[int]`, optional): The index of the label value to use as the selected title (when __ is used to specify multiple values). A list when visualizing multiple series
         """
         if mapping["z"] not in data:
             data[mapping["z"]] = [0] * len(data[mapping["x"]])
@@ -290,6 +306,7 @@ class Faerun(object):
         ondblclick = Faerun.make_list(ondblclick)
         selected_labels = Faerun.make_list(selected_labels, make_list_list=True)
         label_index = Faerun.make_list(label_index)
+        title_index = Faerun.make_list(title_index)
 
         # If any argument list is shorter than the number of series,
         # repeat the last element
@@ -308,6 +325,7 @@ class Faerun(object):
         ondblclick = Faerun.expand_list(ondblclick, n_series, with_none=True)
         selected_labels = Faerun.expand_list(selected_labels, n_series, with_none=True)
         label_index = Faerun.expand_list(label_index, n_series, with_value=0)
+        title_index = Faerun.expand_list(title_index, n_series, with_value=0)
 
         # # The c and cs values in the data are a special case, as they should
         # # never be expanded
@@ -422,6 +440,7 @@ class Faerun(object):
             "ondblclick": ondblclick,
             "selected_labels": selected_labels,
             "label_index": label_index,
+            "title_index": title_index,
         }
 
         self.scatters_data[name] = data
@@ -458,6 +477,17 @@ class Faerun(object):
         if not self.show_legend:
             has_legend = False
 
+        # Drop colormaps before passing them to the document, as they are
+        # not JSON serializable.
+        trees_copy = copy.deepcopy(self.trees)
+        scatters_copy = copy.deepcopy(self.scatters)
+
+        for key, _ in trees_copy.items():
+            del trees_copy[key]["colormap"]
+
+        for key, _ in scatters_copy.items():
+            del scatters_copy[key]["colormap"]
+
         model = {
             "title": self.title,
             "file_name": file_name + ".js",
@@ -473,8 +503,8 @@ class Faerun(object):
             "coords_offset": self.coords_offset,
             "x_title": self.x_title,
             "y_title": self.y_title,
-            "tree_helpers": list(self.trees.values()),
-            "point_helpers": list(self.scatters.values()),
+            "tree_helpers": list(trees_copy.values()),
+            "point_helpers": list(scatters_copy.values()),
             "has_legend": str(has_legend).lower(),
             "legend_title": self.legend_title,
             "legend_orientation": self.legend_orientation,
@@ -921,3 +951,15 @@ class Faerun(object):
                 return False
         except NameError:
             return False
+
+    @staticmethod
+    def create_categories(values: List[str]) -> Tuple[List[Tuple[int, str]], List[int]]:
+        string_map = {}
+        for i, value in enumerate(set(values)):
+            string_map[value] = i
+
+        legend_labels = []
+        for key, value in string_map.items():
+            legend_labels.append((value, key))
+
+        return (legend_labels, [string_map[s] for s in values])

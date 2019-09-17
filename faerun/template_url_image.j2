@@ -6,6 +6,11 @@
     <link rel="shortcut icon" href="data:image/vnd.microsoft.icon;base64,AAABAAEAEBAQAAEABAAoAQAAFgAAACgAAAAQAAAAIAAAAAEABAAAAAAAgAAAAAAAAAAAAAAAEAAAAAAAAAAAAAAA25g0AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAERAAAAAAAAAREAAAAAAAABEQAAAAAAAAERAAAAAAAAARERERAAAAABEREREAAAAAEREREQAAAAAREAAAAAAAABEQAAAAAAAAEREREQAAAAARERERAAAAABEREREAAAAAAAAAAAAAAAAAAAAAAAD//wAA//8AAPH/AADx/wAA8f8AAPH/AADwDwAA8A8AAPAPAADx/wAA8f8AAPAPAADwDwAA8A8AAP//AAD//wAA" />
     <title>{{ title }}</title>
     <script src="https://unpkg.com/lore-engine@1.1.9/dist/lore.min.js"></script>
+    <link 
+      rel="stylesheet" 
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.10.2/css/all.css" 
+      integrity="sha256-piqEf7Ap7CMps8krDQsSOTZgF+MU/0MPyPW2enj5I40=" 
+      crossorigin="anonymous" />
     <link
       href="https://fonts.googleapis.com/css?family=Open+Sans:400,600"
       rel="stylesheet"
@@ -61,7 +66,7 @@
         {% endfor %}
       }
 
-      #tip-image-container {
+      #tip {
         position: absolute;
         z-index: 9999;
         padding: 5px;
@@ -72,28 +77,24 @@
         pointer-events: none;
         opacity: 0.0;
         transition: opacity 0.1s ease-out;
-        filter: drop-shadow(0px 0px 20px rgba(0, 0, 0, 1.0));
+        filter: drop-shadow(0px 0px 10px rgba(0, 0, 0, 1.0));
+        width: 250px;
+        max-width: 250px;
       }
 
-      #tip-image-container.show {
+      #tip img {
+        width: 100%;
+      }
+
+      #tip.show {
         opacity: 1.0;
         transition: opacity 0.1s ease-out;
       }
 
-      #tip-image {
-        pointer-events: none;
-        filter: drop-shadow(0px 0px 5px rgba(255, 255, 255, 1.0));
-      }
-
-      #text-container {
+      #tip-text {
         position: relative;
-        width: 250px;
-        white-space: nowrap;
-        overflow: hidden;
-        text-overflow: ellipsis;
-        font-size: 0.75em;
-        font-weight: bold;
-        text-align: center;
+        max-width: 500px;
+        white-space: normal;
       }
 
       #hover-indicator {
@@ -108,6 +109,34 @@
 
       #hover-indicator.show {
         display: block !important
+      }
+
+      .selected-indicator {
+        position: absolute;
+        z-index: 999;
+        pointer-events: none;
+      }
+
+      .selected-indicator .crosshair-x {
+        position: absolute;
+        top: 0; left: 0; bottom: 0; right: 0;
+        height: 2px;
+        width: 100%;
+        margin: auto;
+        {% for key, value in style["crosshair"].items() %}
+          {{key}}: {{value}};
+        {% endfor %}
+      }
+
+      .selected-indicator .crosshair-y {
+        position: absolute;
+        top: 0; left: 0; bottom: 0; right: 0;
+        width: 2px;
+        height: 100%;
+        margin: auto;
+        {% for key, value in style["crosshair"].items() %}
+          {{key}}: {{value}};
+        {% endfor %}
       }
 
       #legend {
@@ -217,225 +246,630 @@
         margin-left: 15px;
       }
 
+      #selected {
+        position: absolute;
+        display: none;
+        z-index: 9998;
+        width: 250px;
+        {% for key, value in style["selected"].items() %}
+          {{key}}: {{value}};
+        {% endfor %}
+      }
+
+      #selected #selected-controls {
+        display: flex;
+        align-items: center;
+        justify-content: flex-end;
+        padding: 5px 10px;
+        border-bottom: 1px solid #262626;
+        font-size: 0.8em;
+        font-weight: bold;
+      }
+
+      #selected #selected-controls * {
+        display: inline-block;
+      }
+
+      #selected #selected-controls #selected-title {
+        flex-grow: 1;
+        white-space: nowrap; 
+        overflow: hidden;
+        text-overflow: ellipsis;
+        color: #aaa;
+      }
+
+      #selected #selected-controls a {
+        margin: 0px 2px;
+        font-size: 1.5em;
+        color: #fff;
+        opacity: 0.75;
+        transition: 0.2s;
+      }
+
+      #selected #selected-controls a:hover {
+        opacity: 1.0;
+      }
+
+      #selected #selected-container {
+        padding: 10px;
+        font-size: 0.8em;
+      }
+
+      #selected #selected-container img {
+        max-width: 100%;
+      }
+
+      #selected #selected-container .label {
+        font-weight: bold;
+        color: #aaa;
+        font-size: 0.7em;
+      }
+
+      #selected #selected-container .label:not(:first-child) {
+        margin-top: 2px;
+      }
+
+      #selected #selected-container .content a {
+        text-decoration: none;
+        color: #3498db;
+      }
+
+      #controls {
+        position: absolute;
+        z-index: 9998;
+        {% for key, value in style["controls"].items() %}
+          {{key}}: {{value}};
+        {% endfor %}
+      }
+
+      #controls a {
+        display: inline-block;
+        padding: 5px 10px;
+        font-size: 1.2em;
+        color: #fff;
+        opacity: 0.75;
+        transition: 0.2s;
+      }
+
+      #controls a:hover {
+        opacity: 1.0;
+      }
+
+      #controls #more-controls {
+        display: inline-block;
+      }
+
       .show {
         opacity: 1.0 !important;
+      }
+
+      .hide {
+        display: none !important;
       }
     </style>
   </head>
 
   <body>
     {% if title %}
-      <div id="title">{{title}}</div>
+      <div id="title" data-bind="title">{{title}}</div>
     {% endif %}
     {% if x_title %}
-      <div id="x-axis">{{x_title}}</div>
+      <div id="x-axis" data-bind="xAxis">{{x_title}}</div>
     {% endif %}
     {% if y_title %}
-      <div id="y-axis">{{y_title}}</div>
+      <div id="y-axis" data-bind="yAxis">{{y_title}}</div>
     {% endif %}
 
-    <div id="hover-indicator"></div>
-    <div id="tip-image-container"><div id="text-container"></div><img id="tip-image" /></div>
+    <div id="tip" data-bind="tip">
+      <div id="tip-text" data-bind="tipText"></div>
+    </div>
+    <div id="selected" data-bind="selected">
+      <div id="selected-controls" data-bind="selectedControls">
+        <a id="selected-toggle" data-bind="selectedToggle" href="#">
+          <i class="fas fa-toggle-on"></i>
+        </a>
+        <span>&nbsp;&nbsp;</span>
+        <span id="selected-title" data-bind="selectedTitle"></span>
+        <span>&nbsp;&nbsp;</span>
+        <span id="selected-current" data-bind="selectedCurrent" data-bind="selectedCurrent">0</span><span> / </span><span id="selected-total" data-bind="selectedTotal">0</span>
+        <span>&nbsp;&nbsp;</span>
+        <a id="selected-prev" data-bind="selectedPrev" href="#">
+          <i class="fas fa-angle-left"></i>
+        </a>
+        <span>&nbsp;</span>
+        <a id="selected-next" data-bind="selectedNext" href="#">
+          <i class="fas fa-angle-right"></i>
+        </a>
+      </div>
+      <div id="selected-container" data-bind="selectedContainer">
+      </div>
+    </div>
+    <div id="controls" data-bind="controls">
+      <div id="more-controls" data-bind="moreControls" class="hide">
+        <a id="search" data-bind="search" href="#">
+          <i class="fas fa-search"></i>
+        </a>
+      </div>
+      <a id="show-controls" data-bind="showControls" href="#">
+        <i class="fas fa-bars"></i>
+      </a>
+    </div>
+    <div id="hover-indicator" data-bind="hoverIndicator"></div>
     <canvas id="lore"></canvas>
 
     {% if data %}
-      <script>
-        {{data | safe}}
-      </script>
+    <script>
+      {{data | safe}}
+    </script>
     {% else %}
-      <script src="{{file_name}}"></script>
+    <script src="{{file_name}}"></script>
     {% endif %}
     <script>
-        let scatterMeta = {{point_helpers|tojson}};
-        let seriesState = {}
-        scatterMeta.forEach(s => {
-            seriesState[s.name] = 0;
-        });
+      class Faerun {
+        constructor() {
+          this.body = document.getElementsByTagName('body')[0];
 
-        let clearColor = '{{clear_color|safe}}';
-        let cc = Lore.Core.Color.fromHex(clearColor);
-        let currentPoint = null;
-        let view = '{{view}}';
-        let alphaBlending = view === 'free' ? false : true
+          this.selectedItems = [];
+          this.selectedIndicators = [];
+          this.selectedCurrent = [];
+          this.scatterMeta = {{point_helpers|tojson}};
+          this.treeMeta = {{tree_helpers|tojson}};
+          this.seriesState = {};
+          this.el = {};
 
-        let lore = Lore.init('lore', {
-          antialiasing: true,
-          clearColor: clearColor,
-          alphaBlending: alphaBlending || {{alpha_blending}},
-        });
+          this.currentPoint = null;
 
-        // Tree plots
-        let treeHelpers = [];
-        let th = null;
-        let thNames = [];
-        let thName = null;
-        {% for tree_helper in tree_helpers %}
-          thNames.push('{{tree_helper["name"]|safe}}')
-          thName = thNames[thNames.length - 1];
-          treeHelpers.push(new Lore.Helpers.TreeHelper(lore, thName, 'tree'));
-          th = treeHelpers[treeHelpers.length - 1];
-          th.setXYZHexS(data[thName].x, data[thName].y, data[thName].z, 
-                        '{{tree_helper["color"]|safe}}');
-          th.setFog([cc.components[0], cc.components[1], cc.components[2], cc.components[3]], 
-                    parseFloat('{{tree_helper["fog_intensity"]}}'));
-        {% endfor %}
+          this.lore = null;
+          this.clearColorHex = '{{clear_color|safe}}';
+          this.clearColor = null;
+          this.view = '{{view}}';
+          this.antiAliasing = {{anti_aliasing}};
+          this.alphaBlending = {{alpha_blending}};
 
-        // Scatter plots
-        let pointHelpers = [];
-        let octreeHelpers = [];
-        let ph = null;
-        let phNames = [];
-        let ohIndexToPhName = [];
-        let phNameToPhIndex = {};
-        let phName = null;
-        let minX = Number.MAX_VALUE;
-        let minY = Number.MAX_VALUE;
-        let minZ = Number.MAX_VALUE;
-        let maxX = -Number.MAX_VALUE;
-        let maxY = -Number.MAX_VALUE;
-        let maxZ = -Number.MAX_VALUE;
-        let maxRadius = -Number.MAX_VALUE;
+          this.treeHelpers = [];
+          this.pointHelpers = [];
+          this.octreeHelpers = [];
+          this.coordinatesHelper = null;
 
-        scatterMeta.forEach(s => {
-          phNames.push(s.name)
-          phName = phNames[phNames.length - 1];
+          this.ohIndexToPhName = [];
+          this.ohIndexToPhIndex = [];
+          this.phIndexMap = {};
+          this.ohIndexMap = {};
 
-          pointHelpers.push(
-            new Lore.Helpers.PointHelper(lore, phName, s.shader, 
-                                         { maxPointSize: s.max_point_size })
-          );
-          
-          phNameToPhIndex[phName] = pointHelpers.length - 1;
-          ph = pointHelpers[pointHelpers.length - 1];
+          this.min = [Number.MAX_VALUE, Number.MAX_VALUE, Number.MAX_VALUE];
+          this.max = [-Number.MAX_VALUE, -Number.MAX_VALUE, -Number.MAX_VALUE];
+          this.maxRadius = -Number.MAX_VALUE;
 
-          ph.setXYZRGBS(data[phName].x, data[phName].y, data[phName].z, 
-                        data[phName]['colors'][0].r, data[phName]['colors'][0].g, data[phName]['colors'][0].b, data[phName].s);
+          this.coords = {
+            show: {{coords}},
+            grid: {{coords_grid}},
+            ticks: {{coords_ticks}},
+            tickCount: {{coords_tick_count}},
+            tickLength: {{coords_tick_length}},
+            color: '{{coords_color}}',
+            box: {{coords_box}},
+            offset: {{coords_offset}}
+          };
 
-          ph.setPointScale(s.point_scale);
-          ph.setFog([cc.components[0], cc.components[1], cc.components[2], cc.components[3]], 
-                    s.fog_intensity)
+          this.legend = {
+            show: {{has_legend}},
+            title: '{{legend_title}}'
+          };
 
-          minX = min(data[phName].x, minX);
-          minY = min(data[phName].y, minY);
-          minZ = min(data[phName].z, minZ);
-          maxX = max(data[phName].x, maxX);
-          maxY = max(data[phName].y, maxY);
-          maxZ = max(data[phName].z, maxZ);
-          maxRadius = ph.getMaxRadius();
+          this.el = Faerun.bindElements();
 
-          if (s.interactive) {
-            octreeHelpers.push(new Lore.Helpers.OctreeHelper(lore, 'Octree_' + phName, 'tree', ph));
-            ohIndexToPhName.push(phName);
+          this.scatterMeta.forEach(s => {
+            this.seriesState[s.name] = 0;
+          });
+
+          this.clearColor = Lore.Core.Color.fromHex(this.clearColorHex);
+          this.alphaBlending = (this.view === 'free' ? false : true) || this.alphaBlending;
+
+          this.initLore();
+          this.initTreeHelpers();
+          this.initPointHelpers();
+          this.initCoords();
+          this.initAxes();
+          this.initView();
+          this.initEvents();
+          this.renderLegend();
+        }
+
+        initLore() {
+          this.lore = Lore.init('lore', {
+            antialiasing: this.antiAliasing,
+            clearColor: this.clearColorHex,
+            alphaBlending: this.alphaBlending
+          });
+        }
+
+        initTreeHelpers() {
+          this.treeMeta.forEach(t => {
+            let th = new Lore.Helpers.TreeHelper(this.lore, t.name, 'tree');
+            th.setXYZHexS(data[t.name].x, data[t.name].y, data[t.name].z, t.color);
+            th.setFog([this.clearColor.components[0], this.clearColor.components[1], 
+                       this.clearColor.components[2], this.clearColor.components[3]],
+                      t.fog_intensity);
+            this.treeHelpers.push(th);
+          });
+        }
+
+        initPointHelpers() {
+          this.scatterMeta.forEach(s => {           
+            let ph = new Lore.Helpers.PointHelper(
+              this.lore, s.name, s.shader, { maxPointSize: s.max_point_size }
+            );
+
+            ph.setXYZRGBS(data[s.name].x, data[s.name].y, data[s.name].z, 
+                          data[s.name]['colors'][0].r, data[s.name]['colors'][0].g, 
+                          data[s.name]['colors'][0].b, data[s.name].s);
+
+            ph.setPointScale(s.point_scale);
+            ph.setFog([this.clearColor.components[0], this.clearColor.components[1],
+                       this.clearColor.components[2], this.clearColor.components[3]],
+                      s.fog_intensity)
+
+            this.phIndexMap[s.name] = this.pointHelpers.length;
+            this.pointHelpers.push(ph);
+
+            this.min[0] = Faerun.getMin(data[s.name].x, this.min[0]);
+            this.min[1] = Faerun.getMin(data[s.name].y, this.min[1]);
+            this.min[2] = Faerun.getMin(data[s.name].z, this.min[2]);
+            this.max[0] = Faerun.getMax(data[s.name].x, this.max[0]);
+            this.max[1] = Faerun.getMax(data[s.name].y, this.max[1]);
+            this.max[2] = Faerun.getMax(data[s.name].z, this.max[2]);
+            this.maxRadius = ph.getMaxRadius();
+    
+            if (s.interactive && data[s.name].labels) {
+              this.octreeHelpers.push(
+                new Lore.Helpers.OctreeHelper(this.lore, 'Octree_' + s.name, 'tree', ph)
+              );
+
+              this.ohIndexMap[s.name] = this.octreeHelpers.length - 1;
+              this.ohIndexToPhName.push(s.name);
+              this.ohIndexToPhIndex.push(this.phIndexMap[s.name]);
+            }
+          });
+        }
+
+        initCoords() {
+          if (!this.coords.show) return;
+
+          let min = [0, 0, 0];
+          let max = [0, 0, 0];
+
+          for (var i = 0; i < 3; i++) {
+            min[i] = this.min[i] - this.coords.offset;
+            max[i] = this.max[i] + this.coords.offset;
           }
-        });
 
-        // Coordinates
-        {% if coords %}
-        init_coords(minX, minY, minZ, maxX, maxY, maxZ, {{coords_grid}}, {{coords_ticks}}, {{coords_tick_count}}, {{coords_tick_length}}, '{{coords_color}}', {{coords_box}}, {{coords_offset}})
-        {% endif %}
+          this.coordinatesHelper = new Lore.Helpers.CoordinatesHelper(this.lore, 'Coordinates', 'coordinates', {
+            position: new Lore.Math.Vector3f(min[0], min[1], min[2]),
+            axis: {
+              x: {
+                length: max[0] - min[0],
+                color: Lore.Core.Color.fromHex(this.coords.color)
+              },
+              y: {
+                length: max[1] - min[1],
+                color: Lore.Core.Color.fromHex(this.coords.color)
+              },
+              z: {
+                length: max[2] - min[2],
+                color: Lore.Core.Color.fromHex(this.coords.color)
+              }
+            },
+            ticks: {
+              enabled: this.coords.ticks,
+              x: {
+                length: this.coords.tickLength,
+                color: Lore.Core.Color.fromHex(this.coords.color),
+                count: this.coords.tickCount
+              },
+              y: {
+                length: this.coords.tickLength,
+                color: Lore.Core.Color.fromHex(this.coords.color),
+                count: this.coords.tickCount
+              },
+              z: {
+                length: this.coords.tickLength,
+                color: Lore.Core.Color.fromHex(this.coords.color),
+                count: this.coords.tickCount
+              }
+            },
+            box: {
+              enabled: this.coords.box,
+              x: {
+                color: Lore.Core.Color.fromHex(this.coords.color)
+              },
+              y: {
+                color: Lore.Core.Color.fromHex(this.coords.color)
+              },
+              z: {
+                color: Lore.Core.Color.fromHex(this.coords.color)
+              }
+            }
+          });
+        }
 
-        let center = new Lore.Math.Vector3f((maxX + minX) / 2.0, (maxY + minY) / 2.0, (maxZ + minZ) / 2.0);
-        lore.controls.setLookAt(center);
-        lore.controls.setRadius(maxRadius + 100);
-        lore.controls.setView(0.9, -0.5)
+        initAxes() {
+          // Wait for DOM to get ready
+          setTimeout(() => {
+            this.updateTitle(true);
+            this.updateXAxis(true);
+            this.updateYAxis(true);
+          }, 500);
+        }
 
-        let tip = document.getElementById('tip-image-container');
-        let tipImage = document.getElementById('tip-image');
-        let tip_text = document.getElementById('text-container');
-        let hoverIndicator = document.getElementById('hover-indicator');
+        initView() {
+          let center = new Lore.Math.Vector3f(
+              (this.max[0] + this.min[0]) / 2.0, 
+              (this.max[1] + this.min[1]) / 2.0, 
+              (this.max[2] + this.min[2]) / 2.0
+            );
+          this.lore.controls.setLookAt(center);
+          this.lore.controls.setRadius(this.maxRadius + 100);
+          this.lore.controls.setView(0.9, -0.5)
+          this.lore.controls.setViewByName(this.view);
+        }
 
-        Lore.Helpers.OctreeHelper.joinHoveredChanged(octreeHelpers, e => {
-          if (e.e && data[ohIndexToPhName[e.source]].labels) {
-            currentPoint = {
-              index: e.e.index,
-              label: data[ohIndexToPhName[e.source]].labels[e.e.index],
-              source: ohIndexToPhName[e.source]
+        initEvents() {
+          this.lore.controls.addEventListener('updated', () => {
+            // Update the position / content of the annotations every time
+            // the view changes
+            this.updateTitle();
+            this.updateYAxis();
+            this.updateXAxis();
+            this.updateSelectedIndicators();
+          });
+
+          Lore.Helpers.OctreeHelper.joinHoveredChanged(this.octreeHelpers, e => {
+            let phName = this.ohIndexToPhName[e.source];
+            if (e.e && data[phName].labels) {
+              let fullLabel = data[phName].labels[e.e.index];
+              let labelIndex = this.scatterMeta[this.ohIndexToPhIndex[e.source]]
+                                  .label_index[this.seriesState[phName]];
+
+              let rgbColor = this.pointHelpers[e.source].getColor(e.e.index);
+              let hexColor = Lore.Core.Color.rgbToHex(rgbColor[0], rgbColor[1], rgbColor[2]);
+
+              this.currentPoint = {
+                index: e.e.index,
+                fullLabel: fullLabel,
+                source: phName,
+                label: fullLabel.split('__')[labelIndex],
+                color: hexColor
+              }
+              
+              this.setTipContent();
+              this.el.tip.classList.add('show');
+
+              let pointSize = this.pointHelpers[e.source].getPointSize() / window.devicePixelRatio;
+              let x = e.e.screenPosition[0];
+              let y = e.e.screenPosition[1];
+
+              this.el.hoverIndicator.style.width = pointSize + 'px';
+              this.el.hoverIndicator.style.height = pointSize + 'px';
+              this.el.hoverIndicator.style.left = (x - pointSize / 2.0 - 1) + 'px';
+              this.el.hoverIndicator.style.top = (y - pointSize / 2.0 - 1) + 'px';
+
+              this.el.hoverIndicator.classList.add('show');
+            } else {
+              this.currentPoint = null;
+              this.el.tip.classList.remove('show');
+              this.el.hoverIndicator.classList.remove('show');
+            }
+          });
+
+          Lore.Helpers.OctreeHelper.joinSelectedChanged(this.octreeHelpers, items => {
+            this.selectedItems = items;
+            this.updateSelected();
+          });
+
+          Lore.Helpers.OctreeHelper.joinReselected(this.octreeHelpers, item => {
+            this.updateSelected(
+              this.getSelectedIndex(item[0].source, item[0].item.e.index)
+            );
+          });
+
+          // Event listeners
+          this.el.selectedPrev.addEventListener('click', e => {
+            e.preventDefault();
+            this.updateSelected(this.selectedCurrent - 1);
+            return false;
+          });
+
+          this.el.selectedNext.addEventListener('click', e => {
+            e.preventDefault();
+            this.updateSelected(this.selectedCurrent + 1);
+            return false;
+          });
+
+          document.addEventListener('dblclick', e => {
+            if (this.currentPoint) {
+              var index = this.currentPoint.index;
+              var labels = this.currentPoint.label.split('__');
+              var source = this.currentPoint.source;
+              eval(this.scatterMeta[this.phIndexMap[source]].ondblclick[this.seriesState[source]]);
+            }
+          });
+
+          document.addEventListener('mousemove', e => {
+            let x = e.clientX;
+            let y = e.clientY;
+
+            if (x > window.innerWidth - this.el.tip.offsetWidth - 20) {
+              x -= this.el.tip.offsetWidth;
+            } else {
+              x += 10;
             }
 
-            let rgbColor = pointHelpers[e.source].getColor(e.e.index);
-            let hexColor = Lore.Core.Color.rgbToHex(rgbColor[0], rgbColor[1], rgbColor[2]);
+            if (y > window.innerHeight - this.el.tip.offsetHeight - 20) {
+              y -= this.el.tip.offsetHeight;
+            } else {
+              y += 10;
+            }
 
-            let labels = currentPoint.label.split('__');
+            if (this.el.tip) {
+              this.el.tip.style.top = y + 'px';
+              this.el.tip.style.left = x + 'px';
+            }
+          });
 
-            tipImage.src = labels[0];
-            if (labels.length > 1)
-              tip_text.innerHTML = labels[1];
-            tip.style.borderColor = hexColor;
-            tip.classList.add('show');
+          this.el.selectedToggle.addEventListener('click', e => {
+            this.el.selectedContainer.classList.toggle('hide');
+            if (this.el.selectedContainer.classList.contains('hide'))
+              this.el.selectedToggle.innerHTML = '<i class="fas fa-toggle-off"></i>';
+            else
+              this.el.selectedToggle.innerHTML = '<i class="fas fa-toggle-on"></i>';
+            
+            e.preventDefault();
+            return false;
+          });
 
-            let pointSize = pointHelpers[e.source].getPointSize();
-            let x = e.e.screenPosition[0];
-            let y = e.e.screenPosition[1];
+          this.el.showControls.addEventListener('click', e => {
+            this.el.moreControls.classList.toggle('hide');
+            e.preventDefault();
+            return false;
+          });
 
-            hoverIndicator.style.width = pointSize + 'px';
-            hoverIndicator.style.height = pointSize + 'px';
-            hoverIndicator.style.left = (x - pointSize / 2.0 - 1) + 'px';
-            hoverIndicator.style.top = (y - pointSize / 2.0 - 1) + 'px';
+          this.el.search.addEventListener('click', e => {
+            let searchTerm = prompt('Please enter a serch term:', '');
+            const results = this.search(searchTerm);
 
-            hoverIndicator.classList.add('show');
-          } else {
-            currentPoint = null;
-            tip.classList.remove('show');
-            hoverIndicator.classList.remove('show');
-          }
-        });
+            for (const [name, indices] of Object.entries(results)) {
+              if (!name in this.ohIndexMap) return;
+              indices.forEach(index => {
+                this.octreeHelpers[this.ohIndexMap[name]].addSelected(index);
+              });
+            }
+            
+            e.preventDefault();
+            return false;
+          });
+        }
 
-        document.addEventListener('dblclick', e => {
-          if (currentPoint) {
-            var index = currentPoint.index;
-            var labels = currentPoint.label.split('__');
-            var source = currentPoint.source;
-            eval(scatterMeta[phNameToPhIndex[source]].ondblclick[seriesState[source]]);
-          }
-        });
+        setTipContent() {
+          let tipImage = Faerun.createElement('img');
+          tipImage.src = this.currentPoint.label;
+          this.el.tipText.innerHTML = '';
+          this.el.tipText.appendChild(tipImage);
+          this.el.tip.style.borderColor = this.currentPoint.color;
+        }
 
-        {% if view == 'front' %}
-          lore.controls.setFrontView();
-        {% endif %}
-        {% if view == 'back' %}
-          lore.controls.setBackView();
-        {% endif %}
-        {% if view == 'left' %}
-          lore.controls.setLeftView();
-        {% endif %}
-        {% if view == 'right' %}
-          lore.controls.setRightView();
-        {% endif %}
-        {% if view == 'top' %}
-          lore.controls.setTopView();
-        {% endif %}
-        {% if view == 'bottom' %}
-          lore.controls.setBottomView();
-        {% endif %}
+        setSelectedContent(fullLabel, labelIndex, selectedLabels, img) {
+          this.el.selectedContainer.innerHTML = '';
+          if (img)
+            this.el.selectedContainer.appendChild(img);
 
-        document.addEventListener('mousemove', function (event) {
-          let tip = document.getElementById('tip-image-container');
+          fullLabel.forEach((l, i) => {
+            if (i === labelIndex) return;
+            if (selectedLabels && selectedLabels[i]) {
+              this.el.selectedContainer.appendChild(
+                Faerun.createElement('div', { classes: 'label', content: selectedLabels[i] })
+              );
+            }
+            this.el.selectedContainer.appendChild(
+              Faerun.createElement('div', { classes: 'content', content: l })
+            );
+          });
 
-          let x = event.clientX;
-          let y = event.clientY;
+          // Update the indicator
+          this.updateSelectedIndicators();
+        }
 
-          if (x > window.innerWidth - tip.offsetWidth - 20) {
-            x -= tip.offsetWidth;
-          } else {
-            x += 10;
-          }
+        renderLegend() {
+          if (!this.legend.show) return;
 
-          if (y > window.innerHeight - tip.offsetHeight - 20) {
-            y -= tip.offsetHeight;
-          } else {
-            y += 10;
-          }
+          
+          let legend = document.getElementById('legend');
+          
+          if (legend) this.body.removeChild(legend);
 
-          if (tip) {
-            tip.style.top = y + 'px';
-            tip.style.left = x + 'px';
-          }
-        });
+          legend = Faerun.createElement('div', { id: 'legend' });
+          this.body.appendChild(legend)
+          
+          if (this.legend.title && this.legend.title !== '')
+            legend.appendChild(Faerun.createElement('h2', { content: '{{legend_title}}' }));
+          
+          let container = Faerun.createElement('div', { classes: 'container' });
+          legend.appendChild(container);
 
-        // Legend
-        function toggleLegendSection(name) {
+          this.scatterMeta.forEach(s => {
+            let index = this.seriesState[s.name];
+            if (s.has_legend) {
+              let legendSection = []
+              if (!s.is_range[index]) {
+                s.legend[index].forEach(v => {
+                  legendSection.push(Faerun.createElement('div', { classes: 'legend-element' }, [
+                    Faerun.createColorBox(v[0]),
+                    Faerun.createElement('div', { classes: 'legend-label', content: v[1] }),
+                  ]))
+                })
+              } else {
+                legendSection.push(Faerun.createElement('div', { classes: 'legend-element-range' }, [
+                  ...Faerun.createColorScale(s.legend[index]),
+                  Faerun.createElement('div', { 
+                    classes: 'legend-label max', 
+                    content: s.max_legend_label[index] 
+                  }),
+                  Faerun.createElement('div', {
+                    classes: 'legend-label min',
+                    content: s.min_legend_label[index] 
+                  })
+                ]))
+              }
+
+              let series = [];
+              for (var i = 0; i < s.series_title.length; i++) {
+                series.push(
+                  Faerun.createElement('option', { 
+                    value: i, 
+                    content: s.series_title[i], 
+                    selected: i === index
+                  })
+                );
+              }
+
+
+              let sectionHeader = Faerun.createElement(
+                'h3', { content: s.legend_title[index] }
+              );
+              sectionHeader.addEventListener('click', e => {
+                this.toggleLegendSection(s.name);
+              });
+
+              let seriesSelector = Faerun.createElement(
+                'select', 
+                { 
+                  id: `select-${s.name}`, 
+                  classes: 'series-selector',
+                  'data-name': s.name,
+                  hidden: s.series_title.length < 2,
+                }, 
+                [ ...series ]
+              );
+              seriesSelector.addEventListener('change', e => {
+                let value = document.getElementById(`select-${s.name}`).value;
+                this.changeSeries(value, s.name);
+              });
+
+
+              container.appendChild(
+                Faerun.createElement(
+                  'div', { id: `legend-${s.name}`, 
+                  classes: 'legend-section', 
+                  'data-name': `${s.name}` },
+                  [ sectionHeader, seriesSelector, ...legendSection ]
+                )
+              );
+            }
+          });
+        }
+
+        toggleLegendSection(name) {
           let section = document.getElementById('legend-' + name);
-          let geometry = pointHelpers[phNameToPhIndex[name]].geometry;
+          let geometry = this.pointHelpers[this.phIndexMap[name]].geometry;
           let isVisible = geometry.isVisible;
 
           if (isVisible) {
@@ -447,280 +881,266 @@
           }
         }
 
-        // Coordinates
-        function init_coords(minX, minY, minZ, maxX, maxY, maxZ, grid=true, ticks=true, tickCount=100, tickLength=2.0, color='#eeeeee', box=true, offset=5.0) {
-          minX -= offset;
-          minY -= offset;
-          minZ -= offset;
-          maxX += offset;
-          maxY += offset;
-          maxZ += offset;
-          var coordinatesHelper = new Lore.Helpers.CoordinatesHelper(lore, 'Coordinates', 'coordinates', {
-              position: new Lore.Math.Vector3f(minX, minY, minZ),
-              axis: {
-                  x: {
-                      length: maxX - minX,
-                      color: Lore.Core.Color.fromHex(color)
-                  },
-                  y: {
-                      length: maxY - minY,
-                      color: Lore.Core.Color.fromHex(color)
-                  },
-                  z: {
-                      length: maxZ - minZ,
-                      color: Lore.Core.Color.fromHex(color)
-                  }
-              },
-              ticks: {
-                  enabled: ticks,
-                  x: {
-                      length: tickLength,
-                      color: Lore.Core.Color.fromHex(color),
-                      count: tickCount
-                  },
-                  y: {
-                      length: tickLength,
-                      color: Lore.Core.Color.fromHex(color),
-                      count: tickCount
-                  },
-                  z: {
-                      length: tickLength,
-                      color: Lore.Core.Color.fromHex(color),
-                      count: tickCount
-                  }
-              },
-              box: {
-                  enabled: box,
-                  x: {
-                      color: Lore.Core.Color.fromHex(color)
-                  },
-                  y: {
-                      color: Lore.Core.Color.fromHex(color)
-                  },
-                  z: {
-                      color: Lore.Core.Color.fromHex(color)
-                  }
-              }
+        getSelectedIndex(source, index) {
+          let selectedIndex = null;
+          this.selectedItems.forEach((item, i) => {
+            if (item.source == source && item.item.index == index) {
+              selectedIndex = i;
+              return;
+            }
           });
-      }
+          return selectedIndex;
+        }
 
-      let titleElement = document.getElementById('title');
-      let xAxis = document.getElementById('x-axis');
-      let yAxis = document.getElementById('y-axis');
+        updateSelected(current = -1) {
+          let n = this.selectedItems.length
+          // Hide the container if no items are selected
+          if (n === 0) {
+            this.el.selected.style.display = 'none';
+            return;
+          } else {
+            this.el.selected.style.display = 'block';
+          }
 
-      // Update annotations
-      lore.controls.addEventListener('updated', () => {
-        updateTitle();
-        updateYAxis();
-        updateXAxis();
-      });
+          if (current < 0) current = n - 1;
+          if (current >= n) current = 0;
+          this.selectedCurrent = current;
 
-      // Wait for DOM to get ready
-      setTimeout(() => {
-        updateTitle(true);
-        updateXAxis(true);
-        updateYAxis(true);
-      }, 500)
+          let item = this.selectedItems[current];
 
-      renderLegend();
-      function renderLegend() {
-        {% if has_legend %}
-        let body = document.getElementsByTagName('body')[0];
-        let legend = document.getElementById('legend');
-        if (legend)
-          body.removeChild(legend);
-        legend = createElement('div', { id: 'legend' });
-        body.appendChild(legend)
-        {% if legend_title %}
-        legend.appendChild(createElement('h2', { content: '{{legend_title}}' }));
-        {% endif %}
+          let phIndex = this.ohIndexToPhIndex[item.source];
+          let meta = this.scatterMeta[phIndex];
+          let phName = this.ohIndexToPhName[item.source];
+          let seriesState = this.seriesState[phName];
+
+          let fullLabel = data[phName].labels[item.item.index].split('__');
+
+          let labelIndex = meta.label_index[seriesState];
+          let titleIndex = meta.title_index[seriesState];
+          let selectedLabels = meta.selected_labels[seriesState];
+
+          let img = Faerun.createElement('img');
+          img.src = fullLabel[labelIndex];
+          
+          this.el.selectedCurrent.innerHTML = current + 1;
+          this.el.selectedTotal.innerHTML = n;
+          this.el.selectedTitle.innerHTML = fullLabel[titleIndex];
+
+          this.setSelectedContent(fullLabel, labelIndex, selectedLabels, img);
+
+          // Remove all indicators
+          this.selectedIndicators.forEach(indicator => {
+            indicator.element.parentElement.removeChild(indicator.element);
+          });
+          this.selectedIndicators.length = 0;
+
+          // Add the indicator for this object
+          let indicatorElement = Faerun.createElement(
+            'div', 
+            { classes: 'selected-indicator' },
+            [
+              Faerun.createElement('div', { classes: 'crosshair-x' }),
+              Faerun.createElement('div', { classes: 'crosshair-y' })
+            ]
+          );
+
+          this.body.appendChild(indicatorElement);
+          this.selectedIndicators.push({
+            element: indicatorElement,
+            index: item.item.index,
+            ohIndex: item.source,
+            phIndex: phIndex
+          });
+          this.updateSelectedIndicators();
+        }
+
+        updateSelectedIndicators() {
+          this.selectedIndicators.forEach(indicator => {
+            let pointSize = this.pointHelpers[indicator.phIndex].getPointSize();
+            let screenPosition = this.octreeHelpers[indicator.ohIndex]
+                                     .getScreenPosition(indicator.index);
+            
+            // Make the crosshairs larger than the point
+            pointSize *= 1.5;
+            let halfPointSize = pointSize / 2.0;
+            indicator.element.style.left = (screenPosition[0] - halfPointSize) + 'px';
+            indicator.element.style.top = (screenPosition[1] - halfPointSize) + 'px';
+            indicator.element.style.width = pointSize + 'px';
+            indicator.element.style.height = pointSize + 'px';
+          });
+        }
+
+        updateTitle(first = false) {
+          if (this.el.title === undefined) return;
+
+          let bb = this.el.title.getBoundingClientRect();
+          let scenePosition = new Lore.Math.Vector3f(
+            (this.min[0] + this.min[0]) / 2.0, this.min[1], 
+            (this.min[2] + this.min[2]) / 2.0
+          );
+
+          let screenPosition = this.lore.controls.camera.sceneToScreen(scenePosition, this.lore);
+          
+          this.el.title.style.left = (screenPosition[0] - (bb.width / 2.0)) + 'px';
+          this.el.title.style.top = (screenPosition[1] - bb.height) + 'px';
+
+          if (first) this.el.title.classList.add('show');
+        }
+
+        updateXAxis(first = false) {
+          if (this.el.xAxis === undefined) return;
+          
+          let bb = this.el.xAxis.getBoundingClientRect();
+          let scenePosition = new Lore.Math.Vector3f(
+            (this.min[0] + this.min[0]) / 2.0, this.min[1], 
+            (this.min[2] + this.min[2]) / 2.0
+          );
+
+          let screenPosition = this.lore.controls.camera.sceneToScreen(scenePosition, this.lore);
+          
+          this.el.xAxis.style.left = (screenPosition[0] - (bb.width / 2.0)) + 'px';
+          this.el.xAxis.style.top = (screenPosition[1]) + 'px';
+
+          if (first) this.el.xAxis.classList.add('show');
+        }
+
+        updateYAxis(first = false) {
+          if (this.el.yAxis === undefined) return;
+            
+          let bb = this.el.yAxis.getBoundingClientRect();
+          let scenePosition = new Lore.Math.Vector3f(
+            this.min[0], (this.min[1] + this.min[1]) / 2.0, 
+            (this.min[2] + this.min[2]) / 2.0
+          );
+          
+          let screenPosition = this.lore.controls.camera.sceneToScreen(scenePosition, this.lore);
+          
+          this.el.yAxis.style.left = (screenPosition[0] - bb.height) + 'px';
+          this.el.yAxis.style.top = (screenPosition[1] - bb.width / 2.0) + 'px';
+
+          if (first) this.el.yAxis.classList.add('show');
+        }
+
+        changeSeries(value, name) {
+          value = parseInt(value);
+          this.seriesState[name] = value;
+          this.renderLegend();
+
+          this.pointHelpers[this.phIndexMap[name]].setRGBFromArrays(
+            data[name]['colors'][value].r, 
+            data[name]['colors'][value].g, 
+            data[name]['colors'][value].b
+          );
+        }
+
+        search(term) {
+          let results = {}
+          let re = new RegExp(term, 'i');
+
+          Object.keys(data).forEach(name => {
+            if (!('labels' in data[name])) return;
+            results[name] = []
+            data[name]['labels'].forEach((label, i) => {
+              if (re.test(label))
+                results[name].push(i)
+            });
+          });
+
+          return results;
+        }
+
+        static createColorBox(value) {
+          return Faerun.createElement(
+            'div', 
+            { 
+              classes: 'color-box', 
+              style: `background-color: rgba(${value[0] * 255}, ${value[1] * 255 }, ${value[2] * 255 }, ${value[3] });
+                      border-color: rgba(${value[0] * 255 }, ${value[1] * 255 }, ${value[2] * 255 }, ${value[3] })`
+            }
+          );
+        }
+
+        static createColorScale(values) {
+          let scale = [];
+
+          values.forEach(value => {
+            scale.push(
+              Faerun.createElement(
+                'div', 
+                { 
+                  classes: 'color-stripe', 
+                  style: `background-color: rgba(${value[0][0] * 255}, ${value[0][1] * 255}, ${value[0][2] * 255}, ${value[0][3]});
+                          border-color: rgba(${value[0][0] * 255}, ${value[0][1] * 255}, ${value[0][2] * 255}, ${value[0][3]})`,
+                  alt: value[1]
+                }
+              ),
+            )
+          });
+
+          return scale;
+        }
         
-        let container = createElement('div', { classes: 'container' });
-        legend.appendChild(container);
+        static createElement(tag, values = {}, children = []) {
+          let element = document.createElement(tag);
 
-        scatterMeta.forEach(s => {
-          let index = seriesState[s.name];
-          if (s.has_legend) {
-            legendSection = []
-            if (!s.is_range[index]) {
-              s.legend[index].forEach(v => {
-                legendSection.push(createElement('div', { classes: 'legend-element' }, [
-                  createColorBox(v[0]),
-                  createElement('div', { classes: 'legend-label', content: v[1] }),
-                ]))
+          for (const key of Object.keys(values)) {
+            if (key === 'classes')
+              element.classList.add(...values[key].split(' '));
+            else if (key === 'content')
+              element.innerHTML = values[key];
+            else if (key === 'hidden') {
+              if (values[key])
+                element.setAttribute('hidden', true);
+            }
+            else if (key === 'selected') {
+              if (values[key])
+                element.setAttribute('selected', true);
+            }
+            else
+              element.setAttribute(key, values[key]);
+          }
+
+          if (children) {
+            if (Array.isArray(children)) {
+              children.forEach(child => {
+                element.appendChild(child);
               })
             } else {
-              legendSection.push(createElement('div', { classes: 'legend-element-range' }, [
-                ...createColorScale(s.legend[index]),
-                createElement('div', { classes: 'legend-label max', content: s.max_legend_label[index] }),
-                createElement('div', { classes: 'legend-label min', content: s.min_legend_label[index] }),
-              ]))
+              element.appendChild(children);
             }
-
-            let series = [];
-            for (var i = 0; i < s.series_title.length; i++) {
-              series.push(
-                createElement('option', { value: i, content: s.series_title[i], selected: i === index})
-              );
-            }
-
-            container.appendChild(
-              createElement('div', { id: `legend-${s.name}`, 
-                                    classes: 'legend-section', 
-                                    'data-name': `${s.name}` }, [
-                  createElement('h3', { onclick: `toggleLegendSection('${s.name}')`,
-                                        content: s.legend_title[index] }),
-                  createElement('select', { id: `select-${s.name}`, 
-                                            classes: 'series-selector',
-                                            'data-name': s.name,
-                                            hidden: s.series_title.length < 2,
-                                            onchange: `changeSeries(this.value, '${s.name}')`}, [
-                    ...series
-                  ]),
-                  ...legendSection
-                ]
-              )
-            );
           }
-        });
-        {% endif %}
-      }
 
-      function changeSeries(value, name) {
-        value = parseInt(value);
-        seriesState[name] = value;
-        renderLegend();
+          return element;
+        }
 
-        pointHelpers[phNameToPhIndex[name]].setRGBFromArrays(data[name]['colors'][value].r, data[name]['colors'][value].g, data[name]['colors'][value].b)
-      }
+        static bindElements() {
+          let result = {};
+          document.querySelectorAll('[data-bind]').forEach(e => {
+            result[e.getAttribute('data-bind')] = e;
+          });
+          return result;
+        }
 
-      function createColorBox(value) {
-        return createElement(
-          'div', 
-          { 
-            classes: 'color-box', 
-            style: `background-color: rgba(${value[0] * 255}, ${value[1] * 255 }, ${value[2] * 255 }, ${value[3] });
-                    border-color: rgba(${value[0] * 255 }, ${value[1] * 255 }, ${value[2] * 255 }, ${value[3] })`
-          }
-        );
-      }
-
-      function createColorScale(values) {
-        let scale = [];
-
-        values.forEach(value => {
-          scale.push(
-            createElement(
-              'div', 
-              { 
-                classes: 'color-stripe', 
-                style: `background-color: rgba(${value[0][0] * 255}, ${value[0][1] * 255}, ${value[0][2] * 255}, ${value[0][3]});
-                        border-color: rgba(${value[0][0] * 255}, ${value[0][1] * 255}, ${value[0][2] * 255}, ${value[0][3]})`,
-                alt: value[1]
-              }
-            ),
-          )
-        });
-
-        return scale;
-      }
-
-      function updateTitle(first = false) {
-        if ('{{title}}' === '')
-          return;
-
-        let bb = titleElement.getBoundingClientRect();
-        let scenePosition = new Lore.Math.Vector3f((maxX + minX) / 2.0, maxY, (maxZ + minZ) / 2.0);
-        let screenPosition = lore.controls.camera.sceneToScreen(scenePosition, lore);
-        
-        titleElement.style.left = (screenPosition[0] - (bb.width / 2.0)) + 'px';
-        titleElement.style.top = (screenPosition[1] - bb.height) + 'px';
-
-        if (first)
-          titleElement.classList.add('show');
-      }
-
-      function updateXAxis(first = false) {
-        if ('{{x_axis}}' === '')
-          return;
-        
-        let bb = xAxis.getBoundingClientRect();
-        let scenePosition = new Lore.Math.Vector3f((maxX + minX) / 2.0, minY, (maxZ + minZ) / 2.0);
-        let screenPosition = lore.controls.camera.sceneToScreen(scenePosition, lore);
-        
-        xAxis.style.left = (screenPosition[0] - (bb.width / 2.0)) + 'px';
-        xAxis.style.top = (screenPosition[1]) + 'px';
-
-        if (first)
-          xAxis.classList.add('show');
-      }
-
-      function updateYAxis(first = false) {
-        if ('{{y_axis}}' === '')
-          return;
+        static getMin(arr, other = Number.MAX_VALUE) {
+          let m = Number.MAX_VALUE;
+          for (var i = 0; i < arr.length; i++)
+              if (arr[i] < m) m = arr[i];
           
-        let bb = yAxis.getBoundingClientRect();
-        let scenePosition = new Lore.Math.Vector3f(minX, (maxY + minY) / 2.0, (maxZ + minZ) / 2.0);
-        let screenPosition = lore.controls.camera.sceneToScreen(scenePosition, lore);
-        
-        yAxis.style.left = (screenPosition[0] - bb.height) + 'px';
-        yAxis.style.top = (screenPosition[1] - bb.width / 2.0) + 'px';
-
-        if (first)
-          yAxis.classList.add('show');
-      }
-
-      // DLHs
-      function createElement(tag, values, children) {
-        let element = document.createElement(tag);
-
-        for (const key of Object.keys(values)) {
-          if (key === 'classes')
-            element.classList.add(...values[key].split(' '));
-          else if (key === 'content')
-            element.innerHTML = values[key];
-          else if (key === 'hidden') {
-            if (values[key])
-              element.setAttribute('hidden', true);
-          }
-          else if (key === 'selected') {
-            if (values[key])
-              element.setAttribute('selected', true);
-          }
-          else
-            element.setAttribute(key, values[key]);
+          if (m < other) return m;
+          return other;
         }
 
-        if (children) {
-          if (Array.isArray(children)) {
-            children.forEach(child => {
-              element.appendChild(child);
-            })
-          } else {
-            element.appendChild(children);
-          }
+        static getMax(arr, other = -Number.MAX_VALUE) {
+          let m = -Number.MAX_VALUE;
+          for (var i = 0; i < arr.length; i++)
+              if (arr[i] > m) m = arr[i];
+          
+          if (m > other) return m;
+          return other;
         }
+      }
 
-        return element;
-      }
-      function min(arr, other = Number.MAX_VALUE) {
-        let m = Number.MAX_VALUE;
-        for (var i = 0; i < arr.length; i++)
-            if (arr[i] < m) m = arr[i];
-        if (m < other)
-            return m;
-        else
-            return other;
-      }
-      function max(arr, other = -Number.MAX_VALUE) {
-        let m = -Number.MAX_VALUE;
-        for (var i = 0; i < arr.length; i++)
-            if (arr[i] > m) m = arr[i];
-        if (m > other)
-            return m;
-        else
-            return other;
-      }
+      let f = new Faerun();
     </script>
   </body>
 </html>

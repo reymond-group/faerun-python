@@ -2,8 +2,15 @@
 <html>
   <head>
     <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="shortcut icon" href="data:image/vnd.microsoft.icon;base64,AAABAAEAEBAQAAEABAAoAQAAFgAAACgAAAAQAAAAIAAAAAEABAAAAAAAgAAAAAAAAAAAAAAAEAAAAAAAAAAAAAAA25g0AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAERAAAAAAAAAREAAAAAAAABEQAAAAAAAAERAAAAAAAAARERERAAAAABEREREAAAAAEREREQAAAAAREAAAAAAAABEQAAAAAAAAEREREQAAAAARERERAAAAABEREREAAAAAAAAAAAAAAAAAAAAAAAD//wAA//8AAPH/AADx/wAA8f8AAPH/AADwDwAA8A8AAPAPAADx/wAA8f8AAPAPAADwDwAA8A8AAP//AAD//wAA" />
     <title></title>
-    <script src="https://unpkg.com/lore-engine@1.0.29/dist/lore.min.js"></script>
+    <script src="https://unpkg.com/lore-engine@1.1.9/dist/lore.min.js"></script>
+    <link 
+      rel="stylesheet" 
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.10.2/css/all.css" 
+      integrity="sha256-piqEf7Ap7CMps8krDQsSOTZgF+MU/0MPyPW2enj5I40=" 
+      crossorigin="anonymous" />
     <link
       href="https://fonts.googleapis.com/css?family=Open+Sans:400,600"
       rel="stylesheet"
@@ -79,22 +86,29 @@
         
       }
 
-      #tip-image-container {
+      #tip {
         position: absolute;
         z-index: 9999;
         padding: 5px;
         font-family: 'Open Sans';
         background-color: rgba(255, 255, 255, 1.0);
         border-radius: 2px;
+        border-left: 5px solid #000;
         pointer-events: none;
         opacity: 0.0;
         transition: opacity 0.1s ease-out;
         filter: drop-shadow(0px 0px 10px rgba(0, 0, 0, 1.0));
       }
 
-      #tip-image-container.show {
+      #tip.show {
         opacity: 1.0;
         transition: opacity 0.1s ease-out;
+      }
+
+      #tip-text {
+        position: relative;
+        max-width: 500px;
+        white-space: normal;
       }
 
       #hover-indicator {
@@ -111,6 +125,34 @@
         display: block !important
       }
 
+      .selected-indicator {
+        position: absolute;
+        z-index: 999;
+        pointer-events: none;
+      }
+
+      .selected-indicator .crosshair-x {
+        position: absolute;
+        top: 0; left: 0; bottom: 0; right: 0;
+        height: 2px;
+        width: 100%;
+        margin: auto;
+        
+          background-color: #fff;
+        
+      }
+
+      .selected-indicator .crosshair-y {
+        position: absolute;
+        top: 0; left: 0; bottom: 0; right: 0;
+        width: 2px;
+        height: 100%;
+        margin: auto;
+        
+          background-color: #fff;
+        
+      }
+
       #legend {
         position: absolute;
         
@@ -120,7 +162,7 @@
         
           padding: 10px;
         
-          border: 1px solid #111111;
+          border: 1px solid #262626;
         
           border-radius: 2px;
         
@@ -143,6 +185,10 @@
         
       }
 
+      #legend .legend-section {
+        width: 100%;
+      }
+
       #legend .legend-section:not(:first-child) {
         
       }
@@ -154,12 +200,29 @@
         margin-top: 0;
         margin-bottom: 5px;
         text-align: center;
+        max-width: 250px;
+        white-space: normal;
       }
 
       #legend h3 {
         font-size: 0.8em;
         margin-top: 10px;
-        margin-bottom: 6px;
+        margin-bottom: 0px;
+        max-width: 250px;
+        white-space: normal;
+      }
+
+      #legend select {
+        width: 100%;
+        margin-bottom: 5px;
+        background: transparent;
+        color: #fff;
+        border-radius: 2px;
+        font-size: 0.75em;
+      }
+
+      #legend select option {
+        background: #000;
       }
 
       #legend .legend-element, #legend .legend-element-range {
@@ -168,20 +231,35 @@
         flex: auto;
         align-items: flex-start;
         padding-bottom: 2px;
+        padding-top: 2px;
       }
 
-      #legend .color-box {
-        width: 15px;
-        height: 15px;
+      #legend .legend-element {
+        align-items: flex-start;
       }
 
       #legend .legend-element-range {
         flex-direction: column;
       }
 
+      #legend .color-box {
+        
+          width: 15px;
+        
+          height: 15px;
+        
+          border: solid 0px;
+        
+      }
+
       #legend .color-stripe {
-        width: 15px;
-        height: 1px;
+        
+          width: 15px;
+        
+          height: 1px;
+        
+          border: solid 0px;
+        
       }
 
       #legend .legend-label {
@@ -202,8 +280,133 @@
         margin-left: 15px;
       }
 
+      #selected {
+        position: absolute;
+        display: none;
+        z-index: 9998;
+        width: 250px;
+        
+          bottom: 10px;
+        
+          left: 10px;
+        
+          padding: 0px;
+        
+          border: 1px solid #262626;
+        
+          border-radius: 2px;
+        
+          background-color: #111111;
+        
+          filter: drop-shadow(0px 0px 10px rgba(0, 0, 0, 0.5));
+        
+          color: #eeeeee;
+        
+          font-family: 'Open Sans';
+        
+      }
+
+      #selected #selected-controls {
+        display: flex;
+        align-items: center;
+        justify-content: flex-end;
+        padding: 5px 10px;
+        border-bottom: 1px solid #262626;
+        font-size: 0.8em;
+        font-weight: bold;
+      }
+
+      #selected #selected-controls * {
+        display: inline-block;
+      }
+
+      #selected #selected-controls #selected-title {
+        flex-grow: 1;
+        white-space: nowrap; 
+        overflow: hidden;
+        text-overflow: ellipsis;
+        color: #aaa;
+      }
+
+      #selected #selected-controls a {
+        margin: 0px 2px;
+        font-size: 1.5em;
+        color: #fff;
+        opacity: 0.75;
+        transition: 0.2s;
+      }
+
+      #selected #selected-controls a:hover {
+        opacity: 1.0;
+      }
+
+      #selected #selected-container {
+        padding: 10px;
+        font-size: 0.8em;
+      }
+
+      #selected #selected-container .label {
+        font-weight: bold;
+        color: #aaa;
+        font-size: 0.7em;
+      }
+
+      #selected #selected-container .label:not(:first-child) {
+        margin-top: 2px;
+      }
+
+      #selected #selected-container .content a {
+        text-decoration: none;
+        color: #3498db;
+      }
+
+      #controls {
+        position: absolute;
+        z-index: 9998;
+        
+          top: 10px;
+        
+          right: 10px;
+        
+          padding: 2px;
+        
+          border: 1px solid #262626;
+        
+          border-radius: 2px;
+        
+          background-color: #111111;
+        
+          filter: drop-shadow(0px 0px 10px rgba(0, 0, 0, 0.5));
+        
+          color: #eeeeee;
+        
+          font-family: 'Open Sans';
+        
+      }
+
+      #controls a {
+        display: inline-block;
+        padding: 5px 10px;
+        font-size: 1.2em;
+        color: #fff;
+        opacity: 0.75;
+        transition: 0.2s;
+      }
+
+      #controls a:hover {
+        opacity: 1.0;
+      }
+
+      #controls #more-controls {
+        display: inline-block;
+      }
+
       .show {
         opacity: 1.0 !important;
+      }
+
+      .hide {
+        display: none !important;
       }
     </style>
   </head>
@@ -213,598 +416,518 @@
     
     
 
-    <div id="hover-indicator"></div>
-    <div id="tip-image-container"></div>
+    <div id="tip" data-bind="tip">
+      <div id="tip-text" data-bind="tipText"></div>
+    </div>
+    <div id="selected" data-bind="selected">
+      <div id="selected-controls" data-bind="selectedControls">
+        <a id="selected-toggle" data-bind="selectedToggle" href="#">
+          <i class="fas fa-toggle-on"></i>
+        </a>
+        <span>&nbsp;&nbsp;</span>
+        <span id="selected-title" data-bind="selectedTitle"></span>
+        <span>&nbsp;&nbsp;</span>
+        <span id="selected-current" data-bind="selectedCurrent" data-bind="selectedCurrent">0</span><span> / </span><span id="selected-total" data-bind="selectedTotal">0</span>
+        <span>&nbsp;&nbsp;</span>
+        <a id="selected-prev" data-bind="selectedPrev" href="#">
+          <i class="fas fa-angle-left"></i>
+        </a>
+        <span>&nbsp;</span>
+        <a id="selected-next" data-bind="selectedNext" href="#">
+          <i class="fas fa-angle-right"></i>
+        </a>
+      </div>
+      <div id="selected-container" data-bind="selectedContainer">
+      </div>
+    </div>
+    <div id="controls" data-bind="controls">
+      <div id="more-controls" data-bind="moreControls" class="hide">
+        <a id="search" data-bind="search" href="#">
+          <i class="fas fa-search"></i>
+        </a>
+      </div>
+      <a id="show-controls" data-bind="showControls" href="#">
+        <i class="fas fa-bars"></i>
+      </a>
+    </div>
+    <div id="hover-indicator" data-bind="hoverIndicator"></div>
     <canvas id="lore"></canvas>
 
     
-      <div id="legend">
-        
-          <h2>Legend</h2>
-        
-        <div class="container">
-           
-            
-              <div id="legend-Sine"
-                  class="legend-section"
-                  data-name="Sine">
-                <h3 onclick="toggleLegendSection('Sine')">
-                  Sine
-                </h3>
-                
-                  <div class="legend-element-range">
-                  
-                    <div class="color-stripe" 
-                        style="background-color:rgba(253.27824, 231.070035, 36.703680000000006, 1.0)">
-                    </div>
-                  
-                    <div class="color-stripe" 
-                        style="background-color:rgba(248.476335, 230.41545, 33.204825, 1.0)">
-                    </div>
-                  
-                    <div class="color-stripe" 
-                        style="background-color:rgba(241.13718, 229.45282500000002, 28.77369, 1.0)">
-                    </div>
-                  
-                    <div class="color-stripe" 
-                        style="background-color:rgba(236.15703, 228.81914999999998, 26.538104999999998, 1.0)">
-                    </div>
-                  
-                    <div class="color-stripe" 
-                        style="background-color:rgba(228.5616, 227.87207999999998, 24.565425, 1.0)">
-                    </div>
-                  
-                    <div class="color-stripe" 
-                        style="background-color:rgba(220.833315, 226.91634, 24.468014999999998, 1.0)">
-                    </div>
-                  
-                    <div class="color-stripe" 
-                        style="background-color:rgba(215.618055, 226.26711, 25.42401, 1.0)">
-                    </div>
-                  
-                    <div class="color-stripe" 
-                        style="background-color:rgba(207.71688, 225.26521499999998, 28.138485, 1.0)">
-                    </div>
-                  
-                    <div class="color-stripe" 
-                        style="background-color:rgba(202.4088, 224.57289, 30.601275, 1.0)">
-                    </div>
-                  
-                    <div class="color-stripe" 
-                        style="background-color:rgba(194.405115, 223.48812, 34.951319999999996, 1.0)">
-                    </div>
-                  
-                    <div class="color-stripe" 
-                        style="background-color:rgba(186.376695, 222.33858, 39.787395000000004, 1.0)">
-                    </div>
-                  
-                    <div class="color-stripe" 
-                        style="background-color:rgba(181.02399, 221.531505, 43.160534999999996, 1.0)">
-                    </div>
-                  
-                    <div class="color-stripe" 
-                        style="background-color:rgba(173.014695, 220.25421, 48.323265, 1.0)">
-                    </div>
-                  
-                    <div class="color-stripe" 
-                        style="background-color:rgba(167.69870999999998, 219.355845, 51.78591, 1.0)">
-                    </div>
-                  
-                    <div class="color-stripe" 
-                        style="background-color:rgba(159.777645, 217.934475, 56.955014999999996, 1.0)">
-                    </div>
-                  
-                    <div class="color-stripe" 
-                        style="background-color:rgba(151.938945, 216.42283500000002, 62.048894999999995, 1.0)">
-                    </div>
-                  
-                    <div class="color-stripe" 
-                        style="background-color:rgba(146.76856500000002, 215.36433000000002, 65.385825, 1.0)">
-                    </div>
-                  
-                    <div class="color-stripe" 
-                        style="background-color:rgba(139.10862, 213.69994499999999, 70.28462999999999, 1.0)">
-                    </div>
-                  
-                    <div class="color-stripe" 
-                        style="background-color:rgba(131.57796, 211.94529, 75.041145, 1.0)">
-                    </div>
-                  
-                    <div class="color-stripe" 
-                        style="background-color:rgba(126.63682499999999, 210.72588, 78.126135, 1.0)">
-                    </div>
-                  
-                    <div class="color-stripe" 
-                        style="background-color:rgba(119.353515, 208.824855, 82.61949, 1.0)">
-                    </div>
-                  
-                    <div class="color-stripe" 
-                        style="background-color:rgba(114.58883999999999, 207.51084, 85.52292, 1.0)">
-                    </div>
-                  
-                    <div class="color-stripe" 
-                        style="background-color:rgba(107.58654, 205.47236999999998, 89.73705, 1.0)">
-                    </div>
-                  
-                    <div class="color-stripe" 
-                        style="background-color:rgba(100.76937000000001, 203.35612500000002, 93.778035, 1.0)">
-                    </div>
-                  
-                    <div class="color-stripe" 
-                        style="background-color:rgba(96.33364499999999, 201.904155, 96.37444500000001, 1.0)">
-                    </div>
-                  
-                    <div class="color-stripe" 
-                        style="background-color:rgba(89.8518, 199.66780500000002, 100.12218, 1.0)">
-                    </div>
-                  
-                    <div class="color-stripe" 
-                        style="background-color:rgba(85.65067499999999, 198.13959, 102.52249499999999, 1.0)">
-                    </div>
-                  
-                    <div class="color-stripe" 
-                        style="background-color:rgba(79.540875, 195.79461, 105.97443, 1.0)">
-                    </div>
-                  
-                    <div class="color-stripe" 
-                        style="background-color:rgba(73.674855, 193.39047, 109.24862999999999, 1.0)">
-                    </div>
-                  
-                    <div class="color-stripe" 
-                        style="background-color:rgba(69.907995, 191.75694, 111.33325500000001, 1.0)">
-                    </div>
-                  
-                    <div class="color-stripe" 
-                        style="background-color:rgba(64.489245, 189.263805, 114.31242, 1.0)">
-                    </div>
-                  
-                    <div class="color-stripe" 
-                        style="background-color:rgba(61.04037, 187.57494, 116.20044, 1.0)">
-                    </div>
-                  
-                    <div class="color-stripe" 
-                        style="background-color:rgba(56.13162, 185.004795, 118.88762999999999, 1.0)">
-                    </div>
-                  
-                    <div class="color-stripe" 
-                        style="background-color:rgba(51.565845, 182.39436, 121.40142, 1.0)">
-                    </div>
-                  
-                    <div class="color-stripe" 
-                        style="background-color:rgba(48.72795, 180.63333, 122.98241999999999, 1.0)">
-                    </div>
-                  
-                    <div class="color-stripe" 
-                        style="background-color:rgba(44.805285, 177.9645, 125.213415, 1.0)">
-                    </div>
-                  
-                    <div class="color-stripe" 
-                        style="background-color:rgba(41.31408, 175.26558, 127.277895, 1.0)">
-                    </div>
-                  
-                    <div class="color-stripe" 
-                        style="background-color:rgba(39.24297, 173.451765, 128.56385999999998, 1.0)">
-                    </div>
-                  
-                    <div class="color-stripe" 
-                        style="background-color:rgba(36.542265, 170.71204500000002, 130.359825, 1.0)">
-                    </div>
-                  
-                    <div class="color-stripe" 
-                        style="background-color:rgba(35.021445, 168.87426, 131.470605, 1.0)">
-                    </div>
-                  
-                    <div class="color-stripe" 
-                        style="background-color:rgba(33.167085, 166.10291999999998, 133.01004, 1.0)">
-                    </div>
-                  
-                    <div class="color-stripe" 
-                        style="background-color:rgba(31.8189, 163.317555, 134.40233999999998, 1.0)">
-                    </div>
-                  
-                    <div class="color-stripe" 
-                        style="background-color:rgba(31.18956, 161.454015, 135.25149000000002, 1.0)">
-                    </div>
-                  
-                    <div class="color-stripe" 
-                        style="background-color:rgba(30.620655, 158.65105499999999, 136.41123000000002, 1.0)">
-                    </div>
-                  
-                    <div class="color-stripe" 
-                        style="background-color:rgba(30.468165000000003, 156.778335, 137.11146, 1.0)">
-                    </div>
-                  
-                    <div class="color-stripe" 
-                        style="background-color:rgba(30.533189999999998, 153.96517500000002, 138.057, 1.0)">
-                    </div>
-                  
-                    <div class="color-stripe" 
-                        style="background-color:rgba(30.89274, 151.148445, 138.883455, 1.0)">
-                    </div>
-                  
-                    <div class="color-stripe" 
-                        style="background-color:rgba(31.26453, 149.26960499999998, 139.37203499999998, 1.0)">
-                    </div>
-                  
-                    <div class="color-stripe" 
-                        style="background-color:rgba(31.97547, 146.45109, 140.01693, 1.0)">
-                    </div>
-                  
-                    <div class="color-stripe" 
-                        style="background-color:rgba(32.52984, 144.57199500000002, 140.39178, 1.0)">
-                    </div>
-                  
-                    <div class="color-stripe" 
-                        style="background-color:rgba(33.44886, 141.754245, 140.877045, 1.0)">
-                    </div>
-                  
-                    <div class="color-stripe" 
-                        style="background-color:rgba(34.441829999999996, 138.93751500000002, 141.27739499999998, 1.0)">
-                    </div>
-                  
-                    <div class="color-stripe" 
-                        style="background-color:rgba(35.13135, 137.06046, 141.50103000000001, 1.0)">
-                    </div>
-                  
-                    <div class="color-stripe" 
-                        style="background-color:rgba(36.193425000000005, 134.24551499999998, 141.777705, 1.0)">
-                    </div>
-                  
-                    <div class="color-stripe" 
-                        style="background-color:rgba(37.2759, 131.430315, 141.98986499999998, 1.0)">
-                    </div>
-                  
-                    <div class="color-stripe" 
-                        style="background-color:rgba(38.004945, 129.553005, 142.09875, 1.0)">
-                    </div>
-                  
-                    <div class="color-stripe" 
-                        style="background-color:rgba(39.10782, 126.735, 142.21962, 1.0)">
-                    </div>
-                  
-                    <div class="color-stripe" 
-                        style="background-color:rgba(39.84885, 124.85412, 142.27367999999998, 1.0)">
-                    </div>
-                  
-                    <div class="color-stripe" 
-                        style="background-color:rgba(40.969575, 122.02770000000001, 142.31932500000002, 1.0)">
-                    </div>
-                  
-                    <div class="color-stripe" 
-                        style="background-color:rgba(42.104835, 119.192865, 142.325955, 1.0)">
-                    </div>
-                  
-                    <div class="color-stripe" 
-                        style="background-color:rgba(42.87213, 117.29694, 142.31090999999998, 1.0)">
-                    </div>
-                  
-                    <div class="color-stripe" 
-                        style="background-color:rgba(44.043345, 114.441705, 142.260675, 1.0)">
-                    </div>
-                  
-                    <div class="color-stripe" 
-                        style="background-color:rgba(44.839455, 112.52895000000001, 142.209675, 1.0)">
-                    </div>
-                  
-                    <div class="color-stripe" 
-                        style="background-color:rgba(46.060395, 109.643625, 142.10691000000003, 1.0)">
-                    </div>
-                  
-                    <div class="color-stripe" 
-                        style="background-color:rgba(47.31678, 106.73535, 141.97201500000003, 1.0)">
-                    </div>
-                  
-                    <div class="color-stripe" 
-                        style="background-color:rgba(48.175365, 104.78205, 141.86312999999998, 1.0)">
-                    </div>
-                  
-                    <div class="color-stripe" 
-                        style="background-color:rgba(49.4955, 101.827365, 141.669075, 1.0)">
-                    </div>
-                  
-                    <div class="color-stripe" 
-                        style="background-color:rgba(50.85465, 98.83978499999999, 141.43371, 1.0)">
-                    </div>
-                  
-                    <div class="color-stripe" 
-                        style="background-color:rgba(51.781065, 96.82758, 141.250875, 1.0)">
-                    </div>
-                  
-                    <div class="color-stripe" 
-                        style="background-color:rgba(53.198865, 93.77676000000001, 140.932125, 1.0)">
-                    </div>
-                  
-                    <div class="color-stripe" 
-                        style="background-color:rgba(54.160725, 91.71916499999999, 140.68605, 1.0)">
-                    </div>
-                  
-                    <div class="color-stripe" 
-                        style="background-color:rgba(55.623149999999995, 88.59516, 140.25969, 1.0)">
-                    </div>
-                  
-                    <div class="color-stripe" 
-                        style="background-color:rgba(57.100875, 85.42347000000001, 139.753515, 1.0)">
-                    </div>
-                  
-                    <div class="color-stripe" 
-                        style="background-color:rgba(58.089510000000004, 83.28147, 139.36566, 1.0)">
-                    </div>
-                  
-                    <div class="color-stripe" 
-                        style="background-color:rgba(59.568765, 80.02614, 138.69807, 1.0)">
-                    </div>
-                  
-                    <div class="color-stripe" 
-                        style="background-color:rgba(60.54745500000001, 77.82651, 138.189855, 1.0)">
-                    </div>
-                  
-                    <div class="color-stripe" 
-                        style="background-color:rgba(61.993815, 74.48346000000001, 137.32158, 1.0)">
-                    </div>
-                  
-                    <div class="color-stripe" 
-                        style="background-color:rgba(63.400394999999996, 71.087625, 136.31178, 1.0)">
-                    </div>
-                  
-                    <div class="color-stripe" 
-                        style="background-color:rgba(64.30946999999999, 68.794665, 135.552645, 1.0)">
-                    </div>
-                  
-                    <div class="color-stripe" 
-                        style="background-color:rgba(65.61711, 65.31315000000001, 134.273565, 1.0)">
-                    </div>
-                  
-                    <div class="color-stripe" 
-                        style="background-color:rgba(66.445605, 62.96511, 133.32113999999999, 1.0)">
-                    </div>
-                  
-                    <div class="color-stripe" 
-                        style="background-color:rgba(67.611975, 59.40378, 131.732745, 1.0)">
-                    </div>
-                  
-                    <div class="color-stripe" 
-                        style="background-color:rgba(68.67354, 55.798590000000004, 129.94213499999998, 1.0)">
-                    </div>
-                  
-                    <div class="color-stripe" 
-                        style="background-color:rgba(69.31614, 53.372265, 128.63067, 1.0)">
-                    </div>
-                  
-                    <div class="color-stripe" 
-                        style="background-color:rgba(70.173705, 49.700775, 126.481275, 1.0)">
-                    </div>
-                  
-                    <div class="color-stripe" 
-                        style="background-color:rgba(70.89305999999999, 45.993585, 124.10773499999999, 1.0)">
-                    </div>
-                  
-                    <div class="color-stripe" 
-                        style="background-color:rgba(71.29137, 43.502745, 122.399235, 1.0)">
-                    </div>
-                  
-                    <div class="color-stripe" 
-                        style="background-color:rgba(71.76006, 39.73767, 119.646255, 1.0)">
-                    </div>
-                  
-                    <div class="color-stripe" 
-                        style="background-color:rgba(71.98395, 37.207559999999994, 117.68504999999999, 1.0)">
-                    </div>
-                  
-                    <div class="color-stripe" 
-                        style="background-color:rgba(72.18336, 33.378225, 114.556455, 1.0)">
-                    </div>
-                  
-                    <div class="color-stripe" 
-                        style="background-color:rgba(72.21523499999999, 29.4984, 111.20932499999999, 1.0)">
-                    </div>
-                  
-                    <div class="color-stripe" 
-                        style="background-color:rgba(72.14205, 26.875215, 108.86001, 1.0)">
-                    </div>
-                  
-                    <div class="color-stripe" 
-                        style="background-color:rgba(71.89062, 22.864829999999998, 105.165825, 1.0)">
-                    </div>
-                  
-                    <div class="color-stripe" 
-                        style="background-color:rgba(71.62796999999999, 20.121285, 102.593895, 1.0)">
-                    </div>
-                  
-                    <div class="color-stripe" 
-                        style="background-color:rgba(71.091705, 15.846975, 98.58096, 1.0)">
-                    </div>
-                  
-                    <div class="color-stripe" 
-                        style="background-color:rgba(70.38561, 11.262585, 94.39182, 1.0)">
-                    </div>
-                  
-                    <div class="color-stripe" 
-                        style="background-color:rgba(69.821295, 8.031735, 91.507515, 1.0)">
-                    </div>
-                  
-                    <div class="color-stripe" 
-                        style="background-color:rgba(68.83572000000001, 3.729375, 87.051645, 1.0)">
-                    </div>
-                  
-                    <div class="color-stripe" 
-                        style="background-color:rgba(68.08602, 1.24287, 84.000825, 1.0)">
-                    </div>
-                  
-                  <div class="legend-label max">
-                  1.00
-                  </div>
-                  <div class="legend-label min">
-                  -1.00
-                  </div>
-                  </div>
-                
-              </div>
-            
-          
-        </div>
-      </div>
-    
-
-    
-      <script>
-        const data = {
+    <script>
+      const data = {
 Sine: {
 x: [57.692,59.822,61.952,64.082,66.212,68.343,70.473,72.603,74.733,76.863,78.993,81.124,83.254,85.384,87.514,89.644,91.775,93.905,96.035,98.165,100.295,102.425,104.556,106.686,108.816,110.946,113.076,115.207,117.337,119.467,121.597,123.727,125.857,127.988,130.118,132.248,134.378,136.508,138.639,140.769,142.899,145.029,147.159,149.289,151.42,153.55,155.68,157.81,159.94,162.07,164.201,166.331,168.461,170.591,172.721,174.852,176.982,179.112,181.242,183.372,185.502,187.633,189.763,191.893,194.023,196.153,198.284,200.414,202.544,204.674,206.804,208.934,211.065,213.195,215.325,217.455,219.585,221.716,223.846,225.976,228.106,230.236,232.366,234.497,236.627,238.757,240.887,243.017,245.147,247.278,249.408,251.538,253.668,255.798,257.929,260.059,262.189,264.319,266.449,268.579,270.71,272.84,274.97,277.1,279.23,281.361,283.491,285.621,287.751,289.881,292.011,294.142,296.272,298.402,300.532,302.662,304.792,306.923,309.053,311.183,313.313,315.443,317.574,319.704,321.834,323.964,326.094,328.224,330.355,332.485,334.615,336.745,338.875,341.006,343.136,345.266,347.396,349.526,351.656,353.787,355.917,358.047,360.177,362.307,364.438,366.568,368.698,370.828,372.958,375.088,377.219,379.349,381.479,383.609,385.739,387.869,390.0,392.13,394.26,396.39,398.52,400.651,402.781,404.911,407.041,409.171,411.301,413.432,415.562,417.692,419.822,421.952,424.083,426.213,428.343,430.473,432.603,434.733,436.864,438.994,441.124,443.254,445.384,447.515,449.645,451.775,453.905,456.035,458.165,460.296,462.426,464.556,466.686,468.816,470.946,473.077,475.207,477.337,479.467,481.597,483.728,485.858,487.988,490.118,492.248,494.378,496.509,498.639,500.769,502.899,505.029,507.16,509.29,511.42,513.55,515.68,517.81,519.941,522.071,524.201,526.331,528.461,530.592,532.722,534.852,536.982,539.112,541.242,543.373,545.503,547.633,549.763,551.893,554.023,556.154,558.284,560.414,562.544,564.674,566.805,568.935,571.065,573.195,575.325,577.455,579.586,581.716,583.846,585.976,588.106,590.237,592.367,594.497,596.627,598.757,600.887,603.018,605.148,607.278,609.408,611.538,613.669,615.799,617.929,620.059,622.189,624.319,626.45,628.58,630.71,632.84,634.97,637.1,639.231,641.361,643.491,645.621,647.751,649.882,652.012,654.142,656.272,658.402,660.532,662.663,664.793,666.923,669.053,671.183,673.314,675.444,677.574,679.704,681.834,683.964,686.095,688.225,690.355,692.485,694.615,696.746,698.876,701.006,703.136,705.266,707.396,709.527,711.657,713.787,715.917,718.047,720.177,722.308,724.438,726.568,728.698,730.828,732.959,735.089,737.219,739.349,741.479,743.609,745.74,747.87,750.0],
 y: [57.692,64.369,70.956,77.365,83.51,89.308,94.681,99.556,103.869,107.562,110.584,112.895,114.464,115.27,115.303,114.561,113.054,110.804,107.84,104.201,99.938,95.107,89.773,84.008,77.889,71.498,64.922,58.249,51.569,44.97,38.543,32.373,26.544,21.132,16.213,11.851,8.105,5.025,2.653,1.021,0.151,0.054,0.732,2.175,4.364,7.27,10.854,15.068,19.854,25.149,30.881,36.973,43.344,49.908,56.576,63.26,69.868,76.313,82.508,88.369,93.818,98.781,103.192,106.991,110.128,112.56,114.255,115.189,115.351,114.738,113.358,111.229,108.382,104.853,100.69,95.949,90.694,84.995,78.93,72.579,66.028,59.364,52.679,46.061,39.599,33.38,27.488,22.002,16.996,12.536,8.684,5.49,2.998,1.241,0.242,0.016,0.565,1.882,3.949,6.738,10.212,14.324,19.019,24.234,29.898,35.936,42.267,48.804,55.462,62.149,68.776,75.254,81.496,87.419,92.941,97.99,102.498,106.403,109.653,112.205,114.025,115.087,115.378,114.894,113.64,111.635,108.905,105.486,101.425,96.776,91.602,85.973,79.963,73.653,67.13,60.479,53.791,47.155,40.661,34.396,28.444,22.885,17.794,13.239,9.282,5.975,3.363,1.481,0.355,0.0,0.42,1.61,3.553,6.224,9.587,13.597,18.199,23.331,28.926,34.907,41.195,47.704,54.347,61.036,67.679,74.189,80.476,86.457,92.052,97.185,101.787,105.796,109.159,111.83,113.774,114.963,115.383,115.028,113.902,112.02,109.409,106.102,102.144,97.59,92.498,86.939,80.987,74.722,68.228,61.592,54.904,48.254,41.73,35.421,29.411,23.781,18.607,13.958,9.897,6.479,3.748,1.743,0.49,0.005,0.296,1.358,3.178,5.73,8.98,12.886,17.393,22.442,27.965,33.887,40.129,46.607,53.235,59.922,66.579,73.117,79.447,85.485,91.15,96.364,101.059,105.172,108.646,111.435,113.502,114.818,115.367,115.141,114.143,112.385,109.893,106.699,102.847,98.388,93.381,87.895,82.003,75.785,69.323,62.704,56.019,49.356,42.805,36.454,30.388,24.69,19.435,14.694,10.531,7.002,4.154,2.026,0.646,0.032,0.194,1.128,2.823,5.255,8.392,12.191,16.602,21.566,27.014,32.875,39.07,45.515,52.124,58.807,65.475,72.039,78.41,84.503,90.235,95.53,100.316,104.529,108.113,111.019,113.209,114.652,115.329,115.232,114.362,112.73,110.358,107.279,103.533,99.171,94.251,88.84,83.01,76.84,70.413,63.815,57.134,50.461,43.885,37.495,31.376,25.611,20.277,15.445,11.182,7.544,4.58,2.329,0.823,0.081,0.113,0.919,2.489,4.8,7.822,11.514,15.827,20.703,26.076,31.873,38.018,44.427,51.015,57.692],
 z: [57.692,57.692,57.692,57.692,57.692,57.692,57.692,57.692,57.692,57.692,57.692,57.692,57.692,57.692,57.692,57.692,57.692,57.692,57.692,57.692,57.692,57.692,57.692,57.692,57.692,57.692,57.692,57.692,57.692,57.692,57.692,57.692,57.692,57.692,57.692,57.692,57.692,57.692,57.692,57.692,57.692,57.692,57.692,57.692,57.692,57.692,57.692,57.692,57.692,57.692,57.692,57.692,57.692,57.692,57.692,57.692,57.692,57.692,57.692,57.692,57.692,57.692,57.692,57.692,57.692,57.692,57.692,57.692,57.692,57.692,57.692,57.692,57.692,57.692,57.692,57.692,57.692,57.692,57.692,57.692,57.692,57.692,57.692,57.692,57.692,57.692,57.692,57.692,57.692,57.692,57.692,57.692,57.692,57.692,57.692,57.692,57.692,57.692,57.692,57.692,57.692,57.692,57.692,57.692,57.692,57.692,57.692,57.692,57.692,57.692,57.692,57.692,57.692,57.692,57.692,57.692,57.692,57.692,57.692,57.692,57.692,57.692,57.692,57.692,57.692,57.692,57.692,57.692,57.692,57.692,57.692,57.692,57.692,57.692,57.692,57.692,57.692,57.692,57.692,57.692,57.692,57.692,57.692,57.692,57.692,57.692,57.692,57.692,57.692,57.692,57.692,57.692,57.692,57.692,57.692,57.692,57.692,57.692,57.692,57.692,57.692,57.692,57.692,57.692,57.692,57.692,57.692,57.692,57.692,57.692,57.692,57.692,57.692,57.692,57.692,57.692,57.692,57.692,57.692,57.692,57.692,57.692,57.692,57.692,57.692,57.692,57.692,57.692,57.692,57.692,57.692,57.692,57.692,57.692,57.692,57.692,57.692,57.692,57.692,57.692,57.692,57.692,57.692,57.692,57.692,57.692,57.692,57.692,57.692,57.692,57.692,57.692,57.692,57.692,57.692,57.692,57.692,57.692,57.692,57.692,57.692,57.692,57.692,57.692,57.692,57.692,57.692,57.692,57.692,57.692,57.692,57.692,57.692,57.692,57.692,57.692,57.692,57.692,57.692,57.692,57.692,57.692,57.692,57.692,57.692,57.692,57.692,57.692,57.692,57.692,57.692,57.692,57.692,57.692,57.692,57.692,57.692,57.692,57.692,57.692,57.692,57.692,57.692,57.692,57.692,57.692,57.692,57.692,57.692,57.692,57.692,57.692,57.692,57.692,57.692,57.692,57.692,57.692,57.692,57.692,57.692,57.692,57.692,57.692,57.692,57.692,57.692,57.692,57.692,57.692,57.692,57.692,57.692,57.692,57.692,57.692,57.692,57.692,57.692,57.692,57.692,57.692,57.692,57.692,57.692,57.692,57.692,57.692,57.692,57.692,57.692,57.692,57.692,57.692,57.692,57.692,57.692,57.692,57.692,57.692,57.692,57.692,57.692,57.692,57.692,57.692],
 labels: ['0.0','0.11573731121371679','0.2299190799187405','0.3410106705418423','0.4475189803855396','0.54801250735467','0.6411405897532803','0.7256515595634686','0.80040956522093','0.8644098377842934','0.9167921953165824','0.9568526039760521','0.9840526404320414','0.9980267284282716','0.9985870522321115','0.9857260809316509','0.9596166696533059','0.9206097363395667','0.8692295453116528','0.8061666610073465','0.7322686665977733','0.6485287722275778','0.5560724659869899','0.4561423870305378','0.35008162415200533','0.23931566428755768','0.1253332335643041','0.009666288396082754','-0.10613057444815559','-0.22050101206880143','-0.3319078531285284','-0.43885375787397535','-0.5399013428095539','-0.6336924995420452','-0.7189666481451754','-0.7945776797137541','-0.8595093603946052','-0.9128889898597115','-0.9539991306478042','-0.9822872507286887','-0.9973731496914912','-0.9990540687467392','-0.9873074158623847','-0.9622910694071652','-0.9243412562202493','-0.8739680326265178','-0.8118484291339214','-0.738817350950147','-0.6558563566182355','-0.5640804655895079','-0.4647231720437684','-0.359119866375335','-0.2486898871648545','-0.1349174448635149','-0.019331673580808055','0.09651392091451602','0.21106234075553915','0.3227740224730798','0.4301475291682925','0.5317397302532928','0.6261851975383136','0.7122145569764312','0.7886715494132013','0.8545285710398338','0.9089004846817945','0.9510565162951538','0.9804300767783959','0.9966263770917192','0.9994277343344518','0.9887964974653917','0.9648755533435516','0.9279864062879727','0.8786248569678842','0.8174543387001401','0.745297000716016','0.6631226582407943','0.5720357579002353','0.47326053364256454','0.368124552684678','0.2580408726296745','0.14448904956922032','0.028995252427213895','-0.08688824918630501','-0.20160394792192887','-0.3136100320343685','-0.42140110777252987','-0.5235284323013679','-0.6186193852192357','-0.7053959169680041','-0.7826917261840343','-0.8494679351215214','-0.9048270524660197','-0.9480250358739669','-0.9784812921142227','-0.9957864804068751','-0.9997080140801929','-0.9901931866019084','-0.9673698799700582','-0.9315448459424145','-0.8831995832052795','-0.8229838658936561','-0.7517070104413498','-0.6703269981370146','-0.5799375995821122','-0.48175367410171477','-0.37709484168832025','-0.26736774693235155','-0.15404715331724156','-0.03865612197712128','0.0772544586796891','0.19212671735371017','0.30441673808937364','0.4126153109463017','0.5152682162118252','0.6109957695291246','0.6985113652489369','0.7766387687768345','0.8443279255020155','0.9006690738310982','0.9449049726436947','0.976441078829272','0.9948535381163293','0.9998948817948157','0.9914973527662598','0.9697738162185158','0.9350162426854144','0.8876917838794228','0.8284364940392411','0.7580467811792369','0.6774687031383191','0.5877852522924721','0.49020179982800016','0.3860298952086111','0.27666963857614746','0.16359086300492043','0.048313379525507814','-0.0676134495694443','-0.1826315345968015','-0.29519499965317814','-0.40379095962844036','-0.5069598538135897','-0.6033150628134027','-0.6915615451070245','-0.7705132427757901','-0.8391090224602901','-0.8964269372957041','-0.9416966181409047','-0.9743096275596742','-0.9938276373935686','-0.9999883200175287','-0.9927088740980538','-0.972087137466771','-0.9384002721520428','-0.8921010392421622','-0.8338117136470642','-0.7643157205458481','-0.6845471059286886','-0.5955779827520329','-0.498604121434346','-0.3949288783602767','-0.28594567839868734','-0.17311928687456996','-0.05796612270484692','0.057966122704849','0.173119286874572','0.28594567839868934','0.39492887836027857','0.4986041214343509','0.5955779827520346','0.6845471059286876','0.7643157205458494','0.8338117136470653','0.8921010392421631','0.9384002721520422','0.9720871374667716','0.9927088740980544','0.9999883200175287','0.9938276373935688','0.9743096275596729','0.941696618140904','0.8964269372957031','0.8391090224602888','0.7705132427757888','0.6915615451070231','0.6033150628133982','0.5069598538135909','0.4037909596284417','0.29519499965317275','0.18263153459679946','0.06761344956944222','-0.04831337952550812','-0.16359086300492248','-0.2766696385761529','-0.38602989520861136','-0.4902017998280004','-0.5877852522924752','-0.6774687031383206','-0.7580467811792383','-0.8284364940392434','-0.887691783879423','-0.935016242685415','-0.9697738162185171','-0.9914973527662598','-0.9998948817948157','-0.9948535381163287','-0.9764410788292716','-0.9449049726436946','-0.9006690738310981','-0.8443279255020144','-0.7766387687768331','-0.6985113652489366','-0.6109957695291243','-0.515268216211822','-0.41261531094629983','-0.30441673808937','-0.19212671735370637','-0.07725445867968701','0.038656121977126916','0.1540471533172436','0.2673677469323536','0.3770948416883238','0.48175367410171505','0.579937599582114','0.6703269981370175','0.7517070104413489','0.8229838658936574','0.8831995832052805','0.9315448459424153','0.9673698799700582','0.9901931866019091','0.9997080140801929','0.995786480406875','0.9784812921142223','0.9480250358739668','0.9048270524660188','0.8494679351215203','0.7826917261840352','0.7053959169680026','0.6186193852192325','0.5235284323013646','0.4214011077725296','0.3136100320343648','0.20160394792192335','0.08688824918630295','-0.028995252427215977','-0.1444890495692259','-0.2580408726296765','-0.36812455268467825','-0.4732605336425679','-0.5720357579002341','-0.6631226582407972','-0.7452970007160175','-0.8174543387001392','-0.8786248569678852','-0.9279864062879748','-0.9648755533435517','-0.988796497465392','-0.9994277343344519','-0.9966263770917191','-0.9804300767783953','-0.9510565162951529','-0.9089004846817952','-0.8545285710398333','-0.7886715494131978','-0.7122145569764303','-0.6261851975383134','-0.5317397302532902','-0.43014752916829224','-0.32277402247307696','-0.21106234075553712','-0.0965139209145166','0.019331673580810137','0.13491744486351698','0.2486898871648522','0.3591198663753361','0.4647231720437718','0.564080465589514','0.6558563566182384','0.7388173509501466','0.8118484291339232','0.8739680326265171','0.9243412562202501','0.9622910694071666','0.9873074158623849','0.9990540687467394','0.9973731496914906','0.9822872507286882','0.9539991306478046','0.9128889898597106','0.859509360394606','0.7945776797137534','0.7189666481451721','0.6336924995420447','0.5399013428095506','0.4388537578739687','0.33190785312852555','0.220501012068802','0.10613057444815352','-0.009666288396081284','-0.12533323356430573','-0.2393156642875623','-0.35008162415200644','-0.4561423870305416','-0.5560724659869901','-0.648528772227575','-0.7322686665977729','-0.8061666610073477','-0.869229545311652','-0.9206097363395672','-0.9596166696533073','-0.985726080931651','-0.9985870522321117','-0.9980267284282716','-0.9840526404320408','-0.9568526039760522','-0.9167921953165814','-0.8644098377842906','-0.800409565220929','-0.7256515595634654','-0.6411405897532795','-0.5480125073546667','-0.44751898038553956','-0.3410106705418392','-0.22991907991874116','-0.11573731121371435','-1.4695761589768238e-15'],
+colors: [
+{
 r: [33.0,31.0,37.0,55.0,80.0,108.0,137.0,162.0,189.0,210.0,229.0,241.0,248.0,253.0,253.0,251.0,241.0,229.0,213.0,192.0,165.0,139.0,110.0,82.0,56.0,38.0,31.0,32.0,37.0,43.0,49.0,55.0,62.0,67.0,70.0,72.0,72.0,71.0,70.0,69.0,68.0,68.0,68.0,70.0,71.0,72.0,72.0,71.0,68.0,63.0,57.0,50.0,44.0,39.0,33.0,30.0,36.0,52.0,76.0,103.0,132.0,160.0,184.0,208.0,226.0,239.0,248.0,253.0,253.0,251.0,244.0,231.0,216.0,194.0,170.0,142.0,115.0,86.0,61.0,41.0,31.0,32.0,37.0,42.0,48.0,54.0,61.0,66.0,70.0,72.0,72.0,71.0,70.0,69.0,68.0,68.0,68.0,70.0,71.0,72.0,72.0,71.0,68.0,64.0,58.0,51.0,45.0,39.0,34.0,31.0,34.0,47.0,70.0,96.0,127.0,155.0,181.0,205.0,223.0,236.0,246.0,253.0,253.0,251.0,246.0,234.0,218.0,200.0,176.0,147.0,119.0,90.0,64.0,44.0,32.0,31.0,35.0,41.0,46.0,53.0,59.0,65.0,69.0,72.0,72.0,72.0,70.0,69.0,68.0,68.0,68.0,69.0,70.0,72.0,72.0,71.0,69.0,65.0,59.0,52.0,46.0,41.0,35.0,31.0,33.0,45.0,66.0,92.0,122.0,149.0,176.0,200.0,221.0,236.0,246.0,253.0,253.0,253.0,246.0,236.0,221.0,202.0,178.0,152.0,124.0,94.0,68.0,46.0,33.0,31.0,35.0,40.0,46.0,52.0,58.0,64.0,69.0,71.0,72.0,72.0,71.0,69.0,68.0,68.0,68.0,69.0,70.0,71.0,72.0,72.0,70.0,66.0,60.0,53.0,47.0,41.0,36.0,31.0,31.0,42.0,63.0,88.0,117.0,144.0,173.0,197.0,218.0,234.0,244.0,251.0,253.0,253.0,248.0,239.0,223.0,205.0,184.0,157.0,129.0,101.0,72.0,50.0,34.0,30.0,34.0,39.0,45.0,51.0,57.0,63.0,68.0,71.0,72.0,72.0,71.0,70.0,68.0,68.0,68.0,69.0,70.0,71.0,72.0,72.0,70.0,66.0,61.0,55.0,48.0,42.0,37.0,32.0,31.0,39.0,58.0,84.0,112.0,139.0,168.0,192.0,213.0,231.0,244.0,251.0,253.0,253.0,248.0,241.0,226.0,210.0,186.0,162.0,134.0,105.0,78.0,53.0,37.0,30.0,33.0,38.0,44.0,49.0,56.0,62.0,68.0,71.0,72.0,72.0,71.0,70.0,68.0,68.0,68.0,69.0,70.0,71.0,72.0,72.0,70.0,67.0,62.0,56.0,49.0,43.0,38.0,33.0],
 g: [145.0,158.0,172.0,184.0,196.0,205.0,213.0,218.0,223.0,226.0,228.0,229.0,230.0,231.0,231.0,231.0,229.0,228.0,226.0,223.0,219.0,214.0,206.0,197.0,185.0,173.0,160.0,146.0,131.0,117.0,104.0,90.0,76.0,62.0,48.0,37.0,26.0,17.0,8.0,4.0,1.0,1.0,2.0,7.0,14.0,24.0,35.0,46.0,59.0,72.0,86.0,101.0,114.0,128.0,142.0,156.0,170.0,182.0,194.0,204.0,212.0,218.0,222.0,225.0,228.0,229.0,230.0,231.0,231.0,231.0,230.0,228.0,226.0,223.0,220.0,214.0,208.0,198.0,188.0,175.0,161.0,147.0,133.0,120.0,106.0,93.0,78.0,64.0,51.0,38.0,28.0,19.0,10.0,4.0,1.0,1.0,2.0,7.0,13.0,22.0,32.0,44.0,57.0,70.0,84.0,98.0,112.0,126.0,140.0,153.0,167.0,180.0,192.0,202.0,211.0,217.0,222.0,225.0,227.0,229.0,230.0,231.0,231.0,231.0,230.0,229.0,227.0,224.0,221.0,215.0,209.0,200.0,189.0,177.0,163.0,150.0,136.0,122.0,109.0,95.0,81.0,66.0,53.0,41.0,29.0,20.0,11.0,5.0,1.0,1.0,1.0,5.0,11.0,20.0,31.0,42.0,55.0,68.0,82.0,96.0,110.0,123.0,137.0,151.0,165.0,178.0,190.0,200.0,209.0,216.0,221.0,224.0,227.0,229.0,230.0,231.0,231.0,231.0,230.0,229.0,227.0,225.0,221.0,216.0,210.0,201.0,191.0,179.0,166.0,152.0,138.0,125.0,111.0,97.0,83.0,69.0,56.0,42.0,31.0,22.0,13.0,5.0,2.0,1.0,1.0,5.0,11.0,19.0,28.0,40.0,52.0,65.0,80.0,94.0,108.0,121.0,135.0,148.0,162.0,176.0,188.0,199.0,208.0,215.0,220.0,224.0,227.0,229.0,230.0,231.0,231.0,231.0,230.0,229.0,227.0,225.0,222.0,217.0,211.0,203.0,193.0,182.0,168.0,155.0,141.0,127.0,113.0,99.0,85.0,71.0,58.0,45.0,33.0,23.0,14.0,7.0,2.0,1.0,1.0,4.0,10.0,17.0,27.0,38.0,50.0,63.0,77.0,91.0,105.0,118.0,132.0,146.0,161.0,173.0,186.0,197.0,207.0,214.0,219.0,223.0,226.0,228.0,230.0,231.0,231.0,231.0,230.0,229.0,228.0,226.0,222.0,218.0,213.0,205.0,195.0,183.0,171.0,157.0,143.0,129.0,115.0,102.0,88.0,73.0,59.0,47.0,35.0,24.0,16.0,8.0,2.0,1.0,1.0,4.0,8.0,16.0,26.0,36.0,48.0,61.0,74.0,89.0,103.0,116.0,130.0,144.0],
 b: [140.0,137.0,130.0,120.0,106.0,90.0,72.0,55.0,38.0,27.0,25.0,29.0,33.0,37.0,37.0,35.0,29.0,25.0,26.0,37.0,54.0,70.0,88.0,105.0,119.0,129.0,136.0,140.0,142.0,142.0,142.0,140.0,138.0,133.0,126.0,118.0,108.0,100.0,92.0,87.0,84.0,84.0,86.0,90.0,97.0,106.0,116.0,124.0,132.0,137.0,140.0,142.0,142.0,142.0,141.0,137.0,131.0,121.0,108.0,92.0,75.0,57.0,41.0,28.0,24.0,28.0,33.0,37.0,37.0,35.0,30.0,25.0,25.0,35.0,50.0,69.0,86.0,103.0,116.0,127.0,135.0,140.0,142.0,142.0,142.0,141.0,138.0,134.0,127.0,119.0,110.0,101.0,93.0,87.0,84.0,84.0,86.0,90.0,96.0,104.0,113.0,122.0,131.0,136.0,140.0,141.0,142.0,142.0,141.0,138.0,133.0,124.0,111.0,96.0,78.0,60.0,43.0,29.0,24.0,27.0,32.0,37.0,37.0,35.0,32.0,26.0,25.0,32.0,47.0,65.0,83.0,100.0,114.0,126.0,134.0,139.0,142.0,142.0,142.0,141.0,139.0,135.0,129.0,121.0,111.0,103.0,94.0,89.0,84.0,84.0,84.0,89.0,94.0,103.0,112.0,122.0,129.0,135.0,139.0,141.0,142.0,142.0,142.0,139.0,133.0,125.0,113.0,99.0,81.0,64.0,47.0,32.0,24.0,27.0,32.0,37.0,37.0,37.0,32.0,27.0,24.0,31.0,45.0,62.0,80.0,98.0,112.0,124.0,133.0,139.0,141.0,142.0,142.0,141.0,139.0,136.0,130.0,122.0,112.0,104.0,96.0,89.0,86.0,84.0,84.0,89.0,94.0,101.0,110.0,120.0,128.0,134.0,139.0,141.0,142.0,142.0,142.0,140.0,135.0,127.0,115.0,101.0,84.0,67.0,48.0,33.0,25.0,26.0,30.0,35.0,37.0,37.0,33.0,28.0,24.0,29.0,41.0,59.0,77.0,94.0,110.0,122.0,132.0,138.0,141.0,142.0,142.0,141.0,140.0,136.0,131.0,123.0,115.0,105.0,97.0,90.0,86.0,84.0,84.0,87.0,93.0,100.0,109.0,119.0,126.0,133.0,138.0,141.0,142.0,142.0,142.0,140.0,136.0,129.0,118.0,104.0,87.0,70.0,52.0,37.0,26.0,25.0,30.0,35.0,37.0,37.0,33.0,29.0,24.0,27.0,40.0,55.0,73.0,91.0,107.0,121.0,130.0,137.0,141.0,142.0,142.0,142.0,140.0,137.0,132.0,125.0,116.0,106.0,99.0,92.0,86.0,84.0,84.0,87.0,92.0,99.0,108.0,117.0,126.0,132.0,137.0,140.0,142.0,142.0,142.0,141.0],
 },
+]},
 };
 
-      </script>
+    </script>
     
     <script>
-        let clearColor = '#fff';
-        let cc = Lore.Core.Color.fromHex(clearColor);
-        let currentPoint = null;
-        let view = 'front';
-        let alphaBlending = view === 'free' ? false : true
+      class Faerun {
+        constructor() {
+          this.body = document.getElementsByTagName('body')[0];
 
-        let lore = Lore.init('lore', {
-          antialiasing: true,
-          clearColor: clearColor,
-          alphaBlending: alphaBlending || false,
-        });
+          this.selectedItems = [];
+          this.selectedIndicators = [];
+          this.selectedCurrent = [];
+          this.scatterMeta = [{"categorical": [false], "fog_intensity": 0.0, "has_legend": true, "interactive": true, "is_range": [true], "label_index": [0], "legend": [[[[0.993248, 0.906157, 0.143936, 1.0], "0.0"], [[0.974417, 0.90359, 0.130215, 1.0], "0.3410106705418423"], [[0.945636, 0.899815, 0.112838, 1.0], "0.6411405897532803"], [[0.926106, 0.89733, 0.104071, 1.0], "0.8644098377842934"], [[0.89632, 0.893616, 0.096335, 1.0], "0.9980267284282716"], [[0.866013, 0.889868, 0.095953, 1.0], "0.9596166696533059"], [[0.845561, 0.887322, 0.099702, 1.0], "0.8061666610073465"], [[0.814576, 0.883393, 0.110347, 1.0], "0.5560724659869899"], [[0.79376, 0.880678, 0.120005, 1.0], "0.1253332335643041"], [[0.762373, 0.876424, 0.137064, 1.0], "-0.22050101206880143"], [[0.730889, 0.871916, 0.156029, 1.0], "-0.5399013428095539"], [[0.709898, 0.868751, 0.169257, 1.0], "-0.7945776797137541"], [[0.678489, 0.863742, 0.189503, 1.0], "-0.9822872507286887"], [[0.657642, 0.860219, 0.203082, 1.0], "-0.9873074158623847"], [[0.626579, 0.854645, 0.223353, 1.0], "-0.8739680326265178"], [[0.595839, 0.848717, 0.243329, 1.0], "-0.6558563566182355"], [[0.575563, 0.844566, 0.256415, 1.0], "-0.2486898871648545"], [[0.545524, 0.838039, 0.275626, 1.0], "0.09651392091451602"], [[0.515992, 0.831158, 0.294279, 1.0], "0.4301475291682925"], [[0.496615, 0.826376, 0.306377, 1.0], "0.7122145569764312"], [[0.468053, 0.818921, 0.323998, 1.0], "0.9510565162951538"], [[0.449368, 0.813768, 0.335384, 1.0], "0.9994277343344518"], [[0.421908, 0.805774, 0.35191, 1.0], "0.9279864062879727"], [[0.395174, 0.797475, 0.367757, 1.0], "0.745297000716016"], [[0.377779, 0.791781, 0.377939, 1.0], "0.368124552684678"], [[0.35236, 0.783011, 0.392636, 1.0], "0.028995252427213895"], [[0.335885, 0.777018, 0.402049, 1.0], "-0.3136100320343685"], [[0.311925, 0.767822, 0.415586, 1.0], "-0.7053959169680041"], [[0.288921, 0.758394, 0.428426, 1.0], "-0.9048270524660197"], [[0.274149, 0.751988, 0.436601, 1.0], "-0.9957864804068751"], [[0.252899, 0.742211, 0.448284, 1.0], "-0.9673698799700582"], [[0.239374, 0.735588, 0.455688, 1.0], "-0.7517070104413498"], [[0.220124, 0.725509, 0.466226, 1.0], "-0.48175367410171477"], [[0.202219, 0.715272, 0.476084, 1.0], "-0.15404715331724156"], [[0.19109, 0.708366, 0.482284, 1.0], "0.19212671735371017"], [[0.175707, 0.6979, 0.491033, 1.0], "0.6109957695291246"], [[0.162016, 0.687316, 0.499129, 1.0], "0.8443279255020155"], [[0.153894, 0.680203, 0.504172, 1.0], "0.976441078829272"], [[0.143303, 0.669459, 0.511215, 1.0], "0.9914973527662598"], [[0.137339, 0.662252, 0.515571, 1.0], "0.8284364940392411"], [[0.130067, 0.651384, 0.521608, 1.0], "0.5877852522924721"], [[0.12478, 0.640461, 0.527068, 1.0], "0.27666963857614746"], [[0.122312, 0.633153, 0.530398, 1.0], "-0.0676134495694443"], [[0.120081, 0.622161, 0.534946, 1.0], "-0.5069598538135897"], [[0.119483, 0.614817, 0.537692, 1.0], "-0.7705132427757901"], [[0.119738, 0.603785, 0.5414, 1.0], "-0.9416966181409047"], [[0.121148, 0.592739, 0.544641, 1.0], "-0.9999883200175287"], [[0.122606, 0.585371, 0.546557, 1.0], "-0.8921010392421622"], [[0.125394, 0.574318, 0.549086, 1.0], "-0.6845471059286886"], [[0.127568, 0.566949, 0.550556, 1.0], "-0.3949288783602767"], [[0.131172, 0.555899, 0.552459, 1.0], "0.057966122704849"], [[0.135066, 0.544853, 0.554029, 1.0], "0.39492887836027857"], [[0.13777, 0.537492, 0.554906, 1.0], "0.6845471059286876"], [[0.141935, 0.526453, 0.555991, 1.0], "0.8921010392421631"], [[0.14618, 0.515413, 0.556823, 1.0], "0.9999883200175287"], [[0.149039, 0.508051, 0.55725, 1.0], "0.941696618140904"], [[0.153364, 0.497, 0.557724, 1.0], "0.7705132427757888"], [[0.15627, 0.489624, 0.557936, 1.0], "0.5069598538135909"], [[0.160665, 0.47854, 0.558115, 1.0], "0.06761344956944222"], [[0.165117, 0.467423, 0.558141, 1.0], "-0.2766696385761529"], [[0.168126, 0.459988, 0.558082, 1.0], "-0.5877852522924752"], [[0.172719, 0.448791, 0.557885, 1.0], "-0.8284364940392434"], [[0.175841, 0.44129, 0.557685, 1.0], "-0.9914973527662598"], [[0.180629, 0.429975, 0.557282, 1.0], "-0.9764410788292716"], [[0.185556, 0.41857, 0.556753, 1.0], "-0.8443279255020144"], [[0.188923, 0.41091, 0.556326, 1.0], "-0.6109957695291243"], [[0.1941, 0.399323, 0.555565, 1.0], "-0.19212671735370637"], [[0.19943, 0.387607, 0.554642, 1.0], "0.1540471533172436"], [[0.203063, 0.379716, 0.553925, 1.0], "0.48175367410171505"], [[0.208623, 0.367752, 0.552675, 1.0], "0.7517070104413489"], [[0.212395, 0.359683, 0.55171, 1.0], "0.9673698799700582"], [[0.21813, 0.347432, 0.550038, 1.0], "0.995786480406875"], [[0.223925, 0.334994, 0.548053, 1.0], "0.9048270524660188"], [[0.227802, 0.326594, 0.546532, 1.0], "0.7053959169680026"], [[0.233603, 0.313828, 0.543914, 1.0], "0.3136100320343648"], [[0.237441, 0.305202, 0.541921, 1.0], "-0.028995252427215977"], [[0.243113, 0.292092, 0.538516, 1.0], "-0.36812455268467825"], [[0.248629, 0.278775, 0.534556, 1.0], "-0.7452970007160175"], [[0.252194, 0.269783, 0.531579, 1.0], "-0.9279864062879748"], [[0.257322, 0.25613, 0.526563, 1.0], "-0.9994277343344519"], [[0.260571, 0.246922, 0.522828, 1.0], "-0.9510565162951529"], [[0.265145, 0.232956, 0.516599, 1.0], "-0.7122145569764303"], [[0.269308, 0.218818, 0.509577, 1.0], "-0.43014752916829224"], [[0.271828, 0.209303, 0.504434, 1.0], "-0.0965139209145166"], [[0.275191, 0.194905, 0.496005, 1.0], "0.2486898871648522"], [[0.278012, 0.180367, 0.486697, 1.0], "0.6558563566182384"], [[0.279574, 0.170599, 0.479997, 1.0], "0.8739680326265171"], [[0.281412, 0.155834, 0.469201, 1.0], "0.9873074158623849"], [[0.28229, 0.145912, 0.46151, 1.0], "0.9822872507286882"], [[0.283072, 0.130895, 0.449241, 1.0], "0.7945776797137534"], [[0.283197, 0.11568, 0.436115, 1.0], "0.5399013428095506"], [[0.28291, 0.105393, 0.426902, 1.0], "0.220501012068802"], [[0.281924, 0.089666, 0.412415, 1.0], "-0.12533323356430573"], [[0.280894, 0.078907, 0.402329, 1.0], "-0.5560724659869901"], [[0.278791, 0.062145, 0.386592, 1.0], "-0.8061666610073477"], [[0.276022, 0.044167, 0.370164, 1.0], "-0.9596166696533073"], [[0.273809, 0.031497, 0.358853, 1.0], "-0.9980267284282716"], [[0.269944, 0.014625, 0.341379, 1.0], "-0.8644098377842906"], [[0.267004, 0.004874, 0.329415, 1.0], "-0.6411405897532795"]]], "legend_title": ["Sine"], "mapping": {"c": "c", "cs": "cs", "labels": "labels", "s": "s", "x": "x", "y": "y", "z": "z"}, "max_c": [0.9999883200175287], "max_legend_label": ["1.00"], "max_point_size": 100.0, "min_c": [-0.9999883200175287], "min_legend_label": ["-1.00"], "name": "Sine", "ondblclick": [null], "point_scale": 2.5, "selected_labels": [null], "series_title": [null], "shader": "smoothCircle", "title_index": [0]}];
+          this.treeMeta = [];
+          this.seriesState = {};
+          this.el = {};
 
-        // Tree plots
-        let treeHelpers = [];
-        let th = null;
-        let thNames = [];
-        let thName = null;
-        
+          this.currentPoint = null;
 
-        // Scatter plots
-        let pointHelpers = [];
-        let octreeHelpers = [];
-        let ph = null;
-        let phNames = [];
-        let ohIndexToPhName = [];
-        let phNameToPhIndex = {};
-        let phName = null;
-        let minX = Number.MAX_VALUE;
-        let minY = Number.MAX_VALUE;
-        let minZ = Number.MAX_VALUE;
-        let maxX = -Number.MAX_VALUE;
-        let maxY = -Number.MAX_VALUE;
-        let maxZ = -Number.MAX_VALUE;
-        let maxRadius = -Number.MAX_VALUE;
+          this.lore = null;
+          this.clearColorHex = '#fff';
+          this.clearColor = null;
+          this.view = 'front';
+          this.antiAliasing = true;
+          this.alphaBlending = false;
 
-        
-          phNames.push('Sine')
-          phName = phNames[phNames.length - 1];
+          this.treeHelpers = [];
+          this.pointHelpers = [];
+          this.octreeHelpers = [];
+          this.coordinatesHelper = null;
 
-          pointHelpers.push(new Lore.Helpers.PointHelper(lore, phName, 'smoothCircle', 
-                                                         { maxPointSize: parseFloat('100.0') }));
-          
-          phNameToPhIndex[phName] = pointHelpers.length - 1;
-          ph = pointHelpers[pointHelpers.length - 1];
+          this.min = [Number.MAX_VALUE, Number.MAX_VALUE, Number.MAX_VALUE];
+          this.max = [-Number.MAX_VALUE, -Number.MAX_VALUE, -Number.MAX_VALUE];
+          this.maxRadius = -Number.MAX_VALUE;
 
-          ph.setXYZRGBS(data[phName].x, data[phName].y, data[phName].z, 
-                        data[phName].r, data[phName].g, data[phName].b, data[phName].s);
+          this.octreeHelpers = [];
+          this.ohIndexToPhName = [];
+          this.ohIndexToPhIndex = [];
+          this.phIndexMap = {};
+          this.ohIndexMap = {};
 
-          ph.setPointScale(parseFloat('2.5'));
-          ph.setFog([cc.components[0], cc.components[1], cc.components[2], cc.components[3]], 
-                    parseFloat('0.0'))
+          this.coords = {
+            show: true,
+            grid: false,
+            ticks: true,
+            tickCount: 10,
+            tickLength: 2.0,
+            color: '#888888',
+            box: false,
+            offset: 5.0
+          };
 
-          minX = min(data[phName].x, minX);
-          minY = min(data[phName].y, minY);
-          minZ = min(data[phName].z, minZ);
-          maxX = max(data[phName].x, maxX);
-          maxY = max(data[phName].y, maxY);
-          maxZ = max(data[phName].z, maxZ);
-          maxRadius = ph.getMaxRadius();
+          this.legend = {
+            show: true,
+            title: 'Legend'
+          };
 
-          
-            octreeHelpers.push(new Lore.Helpers.OctreeHelper(lore, 'Octree_' + phName, 'tree', ph));
-            ohIndexToPhName.push(phName);
-          
-        
+          this.el = Faerun.bindElements();
 
-        // Coordinates
-        
-          init_coords(minX, minY, minZ, maxX, maxY, maxZ, false, true, 10, 2.0, '#888888', false, 5.0)
-        
+          this.scatterMeta.forEach(s => {
+            this.seriesState[s.name] = 0;
+          });
 
-        let center = new Lore.Math.Vector3f((maxX + minX) / 2.0, (maxY + minY) / 2.0, (maxZ + minZ) / 2.0);
-        lore.controls.setLookAt(center);
-        lore.controls.setRadius(maxRadius + 100);
-        lore.controls.setView(0.9, -0.5)
+          this.clearColor = Lore.Core.Color.fromHex(this.clearColorHex);
+          this.alphaBlending = (this.view === 'free' ? false : true) || this.alphaBlending;
 
-        let tip = document.getElementById('tip-image-container');
-        let hoverIndicator = document.getElementById('hover-indicator');
+          this.initLore();
+          this.initTreeHelpers();
+          this.initPointHelpers();
+          this.initCoords();
+          this.initAxes();
+          this.initView();
+          this.initEvents();
+          this.renderLegend();
+        }
 
-        Lore.Helpers.OctreeHelper.joinHoveredChanged(octreeHelpers, function (e) {
-          if (e.e && data[ohIndexToPhName[e.source]].labels) {
-            currentPoint = {
-              index: e.e.index,
-              label: data[ohIndexToPhName[e.source]].labels[e.e.index]
+        initLore() {
+          this.lore = Lore.init('lore', {
+            antialiasing: this.antiAliasing,
+            clearColor: this.clearColorHex,
+            alphaBlending: this.alphaBlending
+          });
+        }
+
+        initTreeHelpers() {
+          this.treeMeta.forEach(t => {
+            let th = new Lore.Helpers.TreeHelper(this.lore, t.name, 'tree');
+            th.setXYZHexS(data[t.name].x, data[t.name].y, data[t.name].z, t.color);
+            th.setFog([this.clearColor.components[0], this.clearColor.components[1], 
+                       this.clearColor.components[2], this.clearColor.components[3]],
+                      t.fog_intensity);
+            this.treeHelpers.push(th);
+          });
+        }
+
+        initPointHelpers() {
+          this.scatterMeta.forEach(s => {           
+            let ph = new Lore.Helpers.PointHelper(
+              this.lore, s.name, s.shader, { maxPointSize: s.max_point_size }
+            );
+
+            ph.setXYZRGBS(data[s.name].x, data[s.name].y, data[s.name].z, 
+                          data[s.name]['colors'][0].r, data[s.name]['colors'][0].g, 
+                          data[s.name]['colors'][0].b, data[s.name].s);
+
+            ph.setPointScale(s.point_scale);
+            ph.setFog([this.clearColor.components[0], this.clearColor.components[1],
+                       this.clearColor.components[2], this.clearColor.components[3]],
+                      s.fog_intensity)
+
+            this.phIndexMap[s.name] = this.pointHelpers.length;
+            this.pointHelpers.push(ph);
+
+            this.min[0] = Faerun.getMin(data[s.name].x, this.min[0]);
+            this.min[1] = Faerun.getMin(data[s.name].y, this.min[1]);
+            this.min[2] = Faerun.getMin(data[s.name].z, this.min[2]);
+            this.max[0] = Faerun.getMax(data[s.name].x, this.max[0]);
+            this.max[1] = Faerun.getMax(data[s.name].y, this.max[1]);
+            this.max[2] = Faerun.getMax(data[s.name].z, this.max[2]);
+            this.maxRadius = ph.getMaxRadius();
+    
+            if (s.interactive && data[s.name].labels) {
+              this.octreeHelpers.push(
+                new Lore.Helpers.OctreeHelper(this.lore, 'Octree_' + s.name, 'tree', ph)
+              );
+
+              this.ohIndexMap[s.name] = this.octreeHelpers.length - 1;
+              this.ohIndexToPhName.push(s.name);
+              this.ohIndexToPhIndex.push(this.phIndexMap[s.name]);
+            }
+          });
+        }
+
+        initCoords() {
+          if (!this.coords.show) return;
+
+          let min = [0, 0, 0];
+          let max = [0, 0, 0];
+
+          for (var i = 0; i < 3; i++) {
+            min[i] = this.min[i] - this.coords.offset;
+            max[i] = this.max[i] + this.coords.offset;
+          }
+
+          this.coordinatesHelper = new Lore.Helpers.CoordinatesHelper(this.lore, 'Coordinates', 'coordinates', {
+            position: new Lore.Math.Vector3f(min[0], min[1], min[2]),
+            axis: {
+              x: {
+                length: max[0] - min[0],
+                color: Lore.Core.Color.fromHex(this.coords.color)
+              },
+              y: {
+                length: max[1] - min[1],
+                color: Lore.Core.Color.fromHex(this.coords.color)
+              },
+              z: {
+                length: max[2] - min[2],
+                color: Lore.Core.Color.fromHex(this.coords.color)
+              }
+            },
+            ticks: {
+              enabled: this.coords.ticks,
+              x: {
+                length: this.coords.tickLength,
+                color: Lore.Core.Color.fromHex(this.coords.color),
+                count: this.coords.tickCount
+              },
+              y: {
+                length: this.coords.tickLength,
+                color: Lore.Core.Color.fromHex(this.coords.color),
+                count: this.coords.tickCount
+              },
+              z: {
+                length: this.coords.tickLength,
+                color: Lore.Core.Color.fromHex(this.coords.color),
+                count: this.coords.tickCount
+              }
+            },
+            box: {
+              enabled: this.coords.box,
+              x: {
+                color: Lore.Core.Color.fromHex(this.coords.color)
+              },
+              y: {
+                color: Lore.Core.Color.fromHex(this.coords.color)
+              },
+              z: {
+                color: Lore.Core.Color.fromHex(this.coords.color)
+              }
+            }
+          });
+        }
+
+        initAxes() {
+          // Wait for DOM to get ready
+          setTimeout(() => {
+            this.updateTitle(true);
+            this.updateXAxis(true);
+            this.updateYAxis(true);
+          }, 500);
+        }
+
+        initView() {
+          let center = new Lore.Math.Vector3f(
+              (this.max[0] + this.min[0]) / 2.0, 
+              (this.max[1] + this.min[1]) / 2.0, 
+              (this.max[2] + this.min[2]) / 2.0
+            );
+          this.lore.controls.setLookAt(center);
+          this.lore.controls.setRadius(this.maxRadius + 100);
+          this.lore.controls.setView(0.9, -0.5)
+          this.lore.controls.setViewByName(this.view);
+        }
+
+        initEvents() {
+          this.lore.controls.addEventListener('updated', () => {
+            // Update the position / content of the annotations every time
+            // the view changes
+            this.updateTitle();
+            this.updateYAxis();
+            this.updateXAxis();
+            this.updateSelectedIndicators();
+          });
+
+          Lore.Helpers.OctreeHelper.joinHoveredChanged(this.octreeHelpers, e => {
+            let phName = this.ohIndexToPhName[e.source];
+            if (e.e && data[phName].labels) {
+              let fullLabel = data[phName].labels[e.e.index];
+              let labelIndex = this.scatterMeta[this.ohIndexToPhIndex[e.source]]
+                                  .label_index[this.seriesState[phName]];
+
+              let rgbColor = this.pointHelpers[e.source].getColor(e.e.index);
+              let hexColor = Lore.Core.Color.rgbToHex(rgbColor[0], rgbColor[1], rgbColor[2]);
+
+              this.currentPoint = {
+                index: e.e.index,
+                fullLabel: fullLabel,
+                source: phName,
+                label: fullLabel.split('__')[labelIndex],
+                color: hexColor
+              }
+              
+              this.setTipContent();
+              this.el.tip.classList.add('show');
+
+              let pointSize = this.pointHelpers[e.source].getPointSize() / window.devicePixelRatio;
+              let x = e.e.screenPosition[0];
+              let y = e.e.screenPosition[1];
+
+              this.el.hoverIndicator.style.width = pointSize + 'px';
+              this.el.hoverIndicator.style.height = pointSize + 'px';
+              this.el.hoverIndicator.style.left = (x - pointSize / 2.0 - 1) + 'px';
+              this.el.hoverIndicator.style.top = (y - pointSize / 2.0 - 1) + 'px';
+
+              this.el.hoverIndicator.classList.add('show');
+            } else {
+              this.currentPoint = null;
+              this.el.tip.classList.remove('show');
+              this.el.hoverIndicator.classList.remove('show');
+            }
+          });
+
+          Lore.Helpers.OctreeHelper.joinSelectedChanged(this.octreeHelpers, items => {
+            this.selectedItems = items;
+            this.updateSelected();
+          });
+
+          Lore.Helpers.OctreeHelper.joinReselected(this.octreeHelpers, item => {
+            this.updateSelected(
+              this.getSelectedIndex(item[0].source, item[0].item.e.index)
+            );
+          });
+
+          // Event listeners
+          this.el.selectedPrev.addEventListener('click', e => {
+            e.preventDefault();
+            this.updateSelected(this.selectedCurrent - 1);
+            return false;
+          });
+
+          this.el.selectedNext.addEventListener('click', e => {
+            e.preventDefault();
+            this.updateSelected(this.selectedCurrent + 1);
+            return false;
+          });
+
+          document.addEventListener('dblclick', e => {
+            if (this.currentPoint) {
+              var index = this.currentPoint.index;
+              var labels = this.currentPoint.label.split('__');
+              var source = this.currentPoint.source;
+              eval(this.scatterMeta[this.phIndexMap[source]].ondblclick[this.seriesState[source]]);
+            }
+          });
+
+          document.addEventListener('mousemove', e => {
+            let x = e.clientX;
+            let y = e.clientY;
+
+            if (x > window.innerWidth - this.el.tip.offsetWidth - 20) {
+              x -= this.el.tip.offsetWidth;
+            } else {
+              x += 10;
             }
 
-            tip.innerHTML = currentPoint.label;
-            tip.classList.add('show');
+            if (y > window.innerHeight - this.el.tip.offsetHeight - 20) {
+              y -= this.el.tip.offsetHeight;
+            } else {
+              y += 10;
+            }
 
-            let pointSize = pointHelpers[e.source].getPointSize();
-            let x = e.e.screenPosition[0];
-            let y = e.e.screenPosition[1];
+            if (this.el.tip) {
+              this.el.tip.style.top = y + 'px';
+              this.el.tip.style.left = x + 'px';
+            }
+          });
 
-            hoverIndicator.style.width = pointSize + 'px';
-            hoverIndicator.style.height = pointSize + 'px';
-            hoverIndicator.style.left = (x - pointSize / 2.0 - 1) + 'px';
-            hoverIndicator.style.top = (y - pointSize / 2.0 - 1) + 'px';
+          this.el.selectedToggle.addEventListener('click', e => {
+            this.el.selectedContainer.classList.toggle('hide');
+            if (this.el.selectedContainer.classList.contains('hide'))
+              this.el.selectedToggle.innerHTML = '<i class="fas fa-toggle-off"></i>';
+            else
+              this.el.selectedToggle.innerHTML = '<i class="fas fa-toggle-on"></i>';
+          });
+          
+          this.el.showControls.addEventListener('click', e => {
+            this.el.moreControls.classList.toggle('hide');
+            e.preventDefault();
+            return false;
+          });
 
-            hoverIndicator.classList.add('show');
-          } else {
-            currentPoint = null;
-            tip.classList.remove('show');
-            hoverIndicator.classList.remove('show');
-          }
-        });
+          this.el.search.addEventListener('click', e => {
+            this.search();
+            e.preventDefault();
+            return false;
+          });
 
-        
-          lore.controls.setFrontView();
-        
-        
-        
-        
-        
-        
+          window.addEventListener('keydown', e => {
+            if ((e.keyCode == 114) || (e.ctrlKey && e.keyCode == 70)) {
+              this.search();
+              e.preventDefault();
+              return false;
+            }
+          })
+        }
 
-        document.addEventListener('mousemove', function (event) {
-          let tip = document.getElementById('tip-image-container');
+        setTipContent() {
+          this.el.tipText.innerHTML = this.currentPoint.label;
+          this.el.tip.style.borderColor = this.currentPoint.color;
+        }
 
-          let x = event.clientX;
-          let y = event.clientY;
+        setSelectedContent(fullLabel, labelIndex, selectedLabels) {
+          this.el.selectedContainer.innerHTML = '';
+          fullLabel.forEach((l, i) => {
+            if (i === labelIndex) return;
+            if (selectedLabels && selectedLabels[i]) {
+              this.el.selectedContainer.appendChild(
+                Faerun.createElement('div', { classes: 'label', content: selectedLabels[i] })
+              );
+            }
+            this.el.selectedContainer.appendChild(
+              Faerun.createElement('div', { classes: 'content', content: l })
+            );
+          });
 
-          if (x > window.innerWidth - tip.offsetWidth - 20) {
-            x -= tip.offsetWidth;
-          } else {
-            x += 10;
-          }
+          // Update the indicator
+          this.updateSelectedIndicators();
+        }
 
-          if (y > window.innerHeight - tip.offsetHeight - 20) {
-            y -= tip.offsetHeight;
-          } else {
-            y += 10;
-          }
+        renderLegend() {
+          if (!this.legend.show) return;
 
-          if (tip) {
-            tip.style.top = y + 'px';
-            tip.style.left = x + 'px';
-          }
-        });
+          let legend = document.getElementById('legend');
+          
+          if (legend) this.body.removeChild(legend);
 
-        // Legend
-        function toggleLegendSection(name) {
+          legend = Faerun.createElement('div', { id: 'legend' });
+          this.body.appendChild(legend)
+          
+          if (this.legend.title && this.legend.title !== '')
+            legend.appendChild(Faerun.createElement('h2', { content: 'Legend' }));
+          
+          let container = Faerun.createElement('div', { classes: 'container' });
+          legend.appendChild(container);
+
+          this.scatterMeta.forEach(s => {
+            let index = this.seriesState[s.name];
+            if (s.has_legend) {
+              let legendSection = []
+              if (!s.is_range[index]) {
+                s.legend[index].forEach(v => {
+                  legendSection.push(Faerun.createElement('div', { classes: 'legend-element' }, [
+                    Faerun.createColorBox(v[0]),
+                    Faerun.createElement('div', { classes: 'legend-label', content: v[1] }),
+                  ]))
+                })
+              } else {
+                legendSection.push(Faerun.createElement('div', { classes: 'legend-element-range' }, [
+                  ...Faerun.createColorScale(s.legend[index]),
+                  Faerun.createElement('div', { 
+                    classes: 'legend-label max', 
+                    content: s.max_legend_label[index] 
+                  }),
+                  Faerun.createElement('div', {
+                    classes: 'legend-label min',
+                    content: s.min_legend_label[index] 
+                  })
+                ]))
+              }
+
+              let series = [];
+              for (var i = 0; i < s.series_title.length; i++) {
+                series.push(
+                  Faerun.createElement('option', { 
+                    value: i, 
+                    content: s.series_title[i], 
+                    selected: i === index
+                  })
+                );
+              }
+
+
+              let sectionHeader = Faerun.createElement(
+                'h3', { content: s.legend_title[index] }
+              );
+              sectionHeader.addEventListener('click', e => {
+                this.toggleLegendSection(s.name);
+              });
+
+              let seriesSelector = Faerun.createElement(
+                'select', 
+                { 
+                  id: `select-${s.name}`, 
+                  classes: 'series-selector',
+                  'data-name': s.name,
+                  hidden: s.series_title.length < 2,
+                }, 
+                [ ...series ]
+              );
+              seriesSelector.addEventListener('change', e => {
+                let value = document.getElementById(`select-${s.name}`).value;
+                this.changeSeries(value, s.name);
+              });
+
+
+              container.appendChild(
+                Faerun.createElement(
+                  'div', { id: `legend-${s.name}`, 
+                  classes: 'legend-section', 
+                  'data-name': `${s.name}` },
+                  [ sectionHeader, seriesSelector, ...legendSection ]
+                )
+              );
+            }
+          });
+        }
+
+        toggleLegendSection(name) {
           let section = document.getElementById('legend-' + name);
-          let geometry = pointHelpers[phNameToPhIndex[name]].geometry;
+          let geometry = this.pointHelpers[this.phIndexMap[name]].geometry;
           let isVisible = geometry.isVisible;
 
           if (isVisible) {
@@ -816,145 +939,270 @@ b: [140.0,137.0,130.0,120.0,106.0,90.0,72.0,55.0,38.0,27.0,25.0,29.0,33.0,37.0,3
           }
         }
 
-        // Coordinates
-        function init_coords(minX, minY, minZ, maxX, maxY, maxZ, grid=true, ticks=true, tickCount=100, tickLength=2.0, color='#eeeeee', box=true, offset=5.0) {
-          minX -= offset;
-          minY -= offset;
-          minZ -= offset;
-          maxX += offset;
-          maxY += offset;
-          maxZ += offset;
-          var coordinatesHelper = new Lore.Helpers.CoordinatesHelper(lore, 'Coordinates', 'coordinates', {
-              position: new Lore.Math.Vector3f(minX, minY, minZ),
-              axis: {
-                  x: {
-                      length: maxX - minX,
-                      color: Lore.Core.Color.fromHex(color)
-                  },
-                  y: {
-                      length: maxY - minY,
-                      color: Lore.Core.Color.fromHex(color)
-                  },
-                  z: {
-                      length: maxZ - minZ,
-                      color: Lore.Core.Color.fromHex(color)
-                  }
-              },
-              ticks: {
-                  enabled: ticks,
-                  x: {
-                      length: tickLength,
-                      color: Lore.Core.Color.fromHex(color),
-                      count: tickCount
-                  },
-                  y: {
-                      length: tickLength,
-                      color: Lore.Core.Color.fromHex(color),
-                      count: tickCount
-                  },
-                  z: {
-                      length: tickLength,
-                      color: Lore.Core.Color.fromHex(color),
-                      count: tickCount
-                  }
-              },
-              box: {
-                  enabled: box,
-                  x: {
-                      color: Lore.Core.Color.fromHex(color)
-                  },
-                  y: {
-                      color: Lore.Core.Color.fromHex(color)
-                  },
-                  z: {
-                      color: Lore.Core.Color.fromHex(color)
-                  }
-              }
+        getSelectedIndex(source, index) {
+          let selectedIndex = null;
+          this.selectedItems.forEach((item, i) => {
+            if (item.source == source && item.item.index == index) {
+              selectedIndex = i;
+              return;
+            }
           });
-      }
+          return selectedIndex;
+        }
 
-      let titleElement = document.getElementById('title');
-      let xAxis = document.getElementById('x-axis');
-      let yAxis = document.getElementById('y-axis');
+        updateSelected(current = -1) {
+          let n = this.selectedItems.length
+          // Hide the container if no items are selected
+          if (n === 0) {
+            this.el.selected.style.display = 'none';
+            return;
+          } else {
+            this.el.selected.style.display = 'block';
+          }
 
-      // Update annotations
-      lore.controls.addEventListener('updated', () => {
-        updateTitle();
-        updateYAxis();
-        updateXAxis();
-      });
+          if (current < 0) current = n - 1;
+          if (current >= n) current = 0;
+          this.selectedCurrent = current;
 
-      // Wait for DOM to get ready
-      setTimeout(() => {
-        updateTitle(true);
-        updateXAxis(true);
-        updateYAxis(true);
-      }, 500)
+          let item = this.selectedItems[current];
 
-      function updateTitle(first = false) {
-        if ('' === '')
-          return;
+          let phIndex = this.ohIndexToPhIndex[item.source];
+          let meta = this.scatterMeta[phIndex];
+          let phName = this.ohIndexToPhName[item.source];
+          let seriesState = this.seriesState[phName];
 
-        let bb = titleElement.getBoundingClientRect();
-        let scenePosition = new Lore.Math.Vector3f((maxX + minX) / 2.0, maxY, (maxZ + minZ) / 2.0);
-        let screenPosition = lore.controls.camera.sceneToScreen(scenePosition, lore);
-        
-        titleElement.style.left = (screenPosition[0] - (bb.width / 2.0)) + 'px';
-        titleElement.style.top = (screenPosition[1] - bb.height) + 'px';
+          let fullLabel = data[phName].labels[item.item.index].split('__');
 
-        if (first)
-          titleElement.classList.add('show');
-      }
+          let labelIndex = meta.label_index[seriesState];
+          let titleIndex = meta.title_index[seriesState];
+          let selectedLabels = meta.selected_labels[seriesState];
 
-      function updateXAxis(first = false) {
-        if ('' === '')
-          return;
-        
-        let bb = xAxis.getBoundingClientRect();
-        let scenePosition = new Lore.Math.Vector3f((maxX + minX) / 2.0, minY, (maxZ + minZ) / 2.0);
-        let screenPosition = lore.controls.camera.sceneToScreen(scenePosition, lore);
-        
-        xAxis.style.left = (screenPosition[0] - (bb.width / 2.0)) + 'px';
-        xAxis.style.top = (screenPosition[1]) + 'px';
+          this.el.selectedCurrent.innerHTML = current + 1;
+          this.el.selectedTotal.innerHTML = n;
+          this.el.selectedTitle.innerHTML = fullLabel[titleIndex];
 
-        if (first)
-          xAxis.classList.add('show');
-      }
+          this.setSelectedContent(fullLabel, labelIndex, selectedLabels);
 
-      function updateYAxis(first = false) {
-        if ('' === '')
-          return;
+          // Remove all indicators
+          this.selectedIndicators.forEach(indicator => {
+            indicator.element.parentElement.removeChild(indicator.element);
+          });
+          this.selectedIndicators.length = 0;
+
+          // Add the indicator for this object
+          let indicatorElement = Faerun.createElement(
+            'div', 
+            { classes: 'selected-indicator' },
+            [
+              Faerun.createElement('div', { classes: 'crosshair-x' }),
+              Faerun.createElement('div', { classes: 'crosshair-y' })
+            ]
+          );
+
+          this.body.appendChild(indicatorElement);
+          this.selectedIndicators.push({
+            element: indicatorElement,
+            index: item.item.index,
+            ohIndex: item.source,
+            phIndex: phIndex
+          });
+          this.updateSelectedIndicators();
+        }
+
+        updateSelectedIndicators() {
+          this.selectedIndicators.forEach(indicator => {
+            let pointSize = this.pointHelpers[indicator.phIndex].getPointSize();
+            let screenPosition = this.octreeHelpers[indicator.ohIndex]
+                                     .getScreenPosition(indicator.index);
+            
+            // Make the crosshairs larger than the point
+            pointSize *= 1.5;
+            let halfPointSize = pointSize / 2.0;
+            indicator.element.style.left = (screenPosition[0] - halfPointSize) + 'px';
+            indicator.element.style.top = (screenPosition[1] - halfPointSize) + 'px';
+            indicator.element.style.width = pointSize + 'px';
+            indicator.element.style.height = pointSize + 'px';
+          });
+        }
+
+        updateTitle(first = false) {
+          if (this.el.title === undefined) return;
+
+          let bb = this.el.title.getBoundingClientRect();
+          let scenePosition = new Lore.Math.Vector3f(
+            (this.min[0] + this.min[0]) / 2.0, this.min[1], 
+            (this.min[2] + this.min[2]) / 2.0
+          );
+
+          let screenPosition = this.lore.controls.camera.sceneToScreen(scenePosition, this.lore);
           
-        let bb = yAxis.getBoundingClientRect();
-        let scenePosition = new Lore.Math.Vector3f(minX, (maxY + minY) / 2.0, (maxZ + minZ) / 2.0);
-        let screenPosition = lore.controls.camera.sceneToScreen(scenePosition, lore);
+          this.el.title.style.left = (screenPosition[0] - (bb.width / 2.0)) + 'px';
+          this.el.title.style.top = (screenPosition[1] - bb.height) + 'px';
+
+          if (first) this.el.title.classList.add('show');
+        }
+
+        updateXAxis(first = false) {
+          if (this.el.xAxis === undefined) return;
+          
+          let bb = this.el.xAxis.getBoundingClientRect();
+          let scenePosition = new Lore.Math.Vector3f(
+            (this.min[0] + this.min[0]) / 2.0, this.min[1], 
+            (this.min[2] + this.min[2]) / 2.0
+          );
+
+          let screenPosition = this.lore.controls.camera.sceneToScreen(scenePosition, this.lore);
+          
+          this.el.xAxis.style.left = (screenPosition[0] - (bb.width / 2.0)) + 'px';
+          this.el.xAxis.style.top = (screenPosition[1]) + 'px';
+
+          if (first) this.el.xAxis.classList.add('show');
+        }
+
+        updateYAxis(first = false) {
+          if (this.el.yAxis === undefined) return;
+            
+          let bb = this.el.yAxis.getBoundingClientRect();
+          let scenePosition = new Lore.Math.Vector3f(
+            this.min[0], (this.min[1] + this.min[1]) / 2.0, 
+            (this.min[2] + this.min[2]) / 2.0
+          );
+          
+          let screenPosition = this.lore.controls.camera.sceneToScreen(scenePosition, this.lore);
+          
+          this.el.yAxis.style.left = (screenPosition[0] - bb.height) + 'px';
+          this.el.yAxis.style.top = (screenPosition[1] - bb.width / 2.0) + 'px';
+
+          if (first) this.el.yAxis.classList.add('show');
+        }
+
+        changeSeries(value, name) {
+          value = parseInt(value);
+          this.seriesState[name] = value;
+          this.renderLegend();
+
+          this.pointHelpers[this.phIndexMap[name]].setRGBFromArrays(
+            data[name]['colors'][value].r, 
+            data[name]['colors'][value].g, 
+            data[name]['colors'][value].b
+          );
+        }
+
+        search() {
+          let searchTerm = prompt('Please enter a serch term:', '');
+          if (!searchTerm) return;
+
+          let results = {}
+          let re = new RegExp(searchTerm, 'i');
+          Object.keys(data).forEach(name => {
+            if (!('labels' in data[name])) return;
+            results[name] = []
+            data[name]['labels'].forEach((label, i) => {
+              if (re.test(label))
+                results[name].push(i);
+            });
+          });
+
+          for (const [name, indices] of Object.entries(results)) {
+            if (!name in this.ohIndexMap) return;
+            indices.forEach(index => {
+              this.octreeHelpers[this.ohIndexMap[name]].addSelected(index);
+            });
+          }
+        }
+
+        static createColorBox(value) {
+          return Faerun.createElement(
+            'div', 
+            { 
+              classes: 'color-box', 
+              style: `background-color: rgba(${value[0] * 255}, ${value[1] * 255 }, ${value[2] * 255 }, ${value[3] });
+                      border-color: rgba(${value[0] * 255 }, ${value[1] * 255 }, ${value[2] * 255 }, ${value[3] })`
+            }
+          );
+        }
+
+        static createColorScale(values) {
+          let scale = [];
+
+          values.forEach(value => {
+            scale.push(
+              Faerun.createElement(
+                'div', 
+                { 
+                  classes: 'color-stripe', 
+                  style: `background-color: rgba(${value[0][0] * 255}, ${value[0][1] * 255}, ${value[0][2] * 255}, ${value[0][3]});
+                          border-color: rgba(${value[0][0] * 255}, ${value[0][1] * 255}, ${value[0][2] * 255}, ${value[0][3]})`,
+                  alt: value[1]
+                }
+              ),
+            )
+          });
+
+          return scale;
+        }
         
-        yAxis.style.left = (screenPosition[0] - bb.height) + 'px';
-        yAxis.style.top = (screenPosition[1] - bb.width / 2.0) + 'px';
+        static createElement(tag, values, children) {
+          let element = document.createElement(tag);
 
-        if (first)
-          yAxis.classList.add('show');
-      }
+          for (const key of Object.keys(values)) {
+            if (key === 'classes')
+              element.classList.add(...values[key].split(' '));
+            else if (key === 'content')
+              element.innerHTML = values[key];
+            else if (key === 'hidden') {
+              if (values[key])
+                element.setAttribute('hidden', true);
+            }
+            else if (key === 'selected') {
+              if (values[key])
+                element.setAttribute('selected', true);
+            }
+            else
+              element.setAttribute(key, values[key]);
+          }
 
-      // DLHs
-      function min(arr, other = Number.MAX_VALUE) {
+          if (children) {
+            if (Array.isArray(children)) {
+              children.forEach(child => {
+                element.appendChild(child);
+              })
+            } else {
+              element.appendChild(children);
+            }
+          }
+
+          return element;
+        }
+
+        static bindElements() {
+          let result = {};
+          document.querySelectorAll('[data-bind]').forEach(e => {
+            result[e.getAttribute('data-bind')] = e;
+          });
+          return result;
+        }
+
+        static getMin(arr, other = Number.MAX_VALUE) {
           let m = Number.MAX_VALUE;
           for (var i = 0; i < arr.length; i++)
               if (arr[i] < m) m = arr[i];
-          if (m < other)
-              return m;
-          else
-              return other;
-      }
-      function max(arr, other = -Number.MAX_VALUE) {
+          
+          if (m < other) return m;
+          return other;
+        }
+
+        static getMax(arr, other = -Number.MAX_VALUE) {
           let m = -Number.MAX_VALUE;
           for (var i = 0; i < arr.length; i++)
               if (arr[i] > m) m = arr[i];
-          if (m > other)
-              return m;
-          else
-              return other;
+          
+          if (m > other) return m;
+          return other;
+        }
       }
+
+      let f = new Faerun();
     </script>
   </body>
 </html>
