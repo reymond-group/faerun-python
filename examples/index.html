@@ -361,6 +361,47 @@
         color: #3498db;
       }
 
+      #controls {
+        position: absolute;
+        z-index: 9998;
+        
+          top: 10px;
+        
+          right: 10px;
+        
+          padding: 2px;
+        
+          border: 1px solid #262626;
+        
+          border-radius: 2px;
+        
+          background-color: #111111;
+        
+          filter: drop-shadow(0px 0px 10px rgba(0, 0, 0, 0.5));
+        
+          color: #eeeeee;
+        
+          font-family: 'Open Sans';
+        
+      }
+
+      #controls a {
+        display: inline-block;
+        padding: 5px 10px;
+        font-size: 1.2em;
+        color: #fff;
+        opacity: 0.75;
+        transition: 0.2s;
+      }
+
+      #controls a:hover {
+        opacity: 1.0;
+      }
+
+      #controls #more-controls {
+        display: inline-block;
+      }
+
       #smiles-canvas {
         position: absolute;
         z-index: 9999;
@@ -410,6 +451,16 @@
       <div id="selected-container" data-bind="selectedContainer">
       </div>
     </div>
+    <div id="controls" data-bind="controls">
+      <div id="more-controls" data-bind="moreControls" class="hide">
+        <a id="search" data-bind="search" href="#">
+          <i class="fas fa-search"></i>
+        </a>
+      </div>
+      <a id="show-controls" data-bind="showControls" href="#">
+        <i class="fas fa-bars"></i>
+      </a>
+    </div>
     <div id="hover-indicator" data-bind="hoverIndicator"></div>
     <canvas id="lore"></canvas>
 
@@ -451,6 +502,7 @@
           this.ohIndexToPhName = [];
           this.ohIndexToPhIndex = [];
           this.phIndexMap = {};
+          this.ohIndexMap = {};
 
           this.min = [Number.MAX_VALUE, Number.MAX_VALUE, Number.MAX_VALUE];
           this.max = [-Number.MAX_VALUE, -Number.MAX_VALUE, -Number.MAX_VALUE];
@@ -541,6 +593,7 @@
                 new Lore.Helpers.OctreeHelper(this.lore, 'Octree_' + s.name, 'tree', ph)
               );
 
+              this.ohIndexMap[s.name] = this.octreeHelpers.length - 1;
               this.ohIndexToPhName.push(s.name);
               this.ohIndexToPhIndex.push(this.phIndexMap[s.name]);
             }
@@ -737,6 +790,30 @@
               this.el.selectedToggle.innerHTML = '<i class="fas fa-toggle-off"></i>';
             else
               this.el.selectedToggle.innerHTML = '<i class="fas fa-toggle-on"></i>';
+            
+            e.preventDefault();
+            return false;
+          });
+
+          this.el.showControls.addEventListener('click', e => {
+            this.el.moreControls.classList.toggle('hide');
+            e.preventDefault();
+            return false;
+          });
+
+          this.el.search.addEventListener('click', e => {
+            let searchTerm = prompt('Please enter a serch term:', '');
+            const results = this.search(searchTerm);
+
+            for (const [name, indices] of Object.entries(results)) {
+              if (!name in this.ohIndexMap) return;
+              indices.forEach(index => {
+                this.octreeHelpers[this.ohIndexMap[name]].addSelected(index);
+              });
+            }
+            
+            e.preventDefault();
+            return false;
           });
         }
 
@@ -1027,6 +1104,23 @@
             data[name]['colors'][value].g, 
             data[name]['colors'][value].b
           );
+        }
+
+        search(term) {
+          let results = {}
+          let re = new RegExp(term, 'i');
+          console.log(re);
+
+          Object.keys(data).forEach(name => {
+            if (!('labels') in data[name]) return;
+            results[name] = []
+            data[name]['labels'].forEach((label, i) => {
+              if (re.test(label))
+                results[name].push(i)
+            });
+          });
+
+          return results;
         }
 
         static createColorBox(value) {

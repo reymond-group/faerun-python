@@ -137,7 +137,9 @@
         height: 2px;
         width: 100%;
         margin: auto;
-        background-color: #fff;
+        
+          background-color: #fff;
+        
       }
 
       .selected-indicator .crosshair-y {
@@ -146,7 +148,9 @@
         width: 2px;
         height: 100%;
         margin: auto;
-        background-color: #fff;
+        
+          background-color: #fff;
+        
       }
 
       #legend {
@@ -356,6 +360,47 @@
         color: #3498db;
       }
 
+      #controls {
+        position: absolute;
+        z-index: 9998;
+        
+          top: 10px;
+        
+          right: 10px;
+        
+          padding: 2px;
+        
+          border: 1px solid #262626;
+        
+          border-radius: 2px;
+        
+          background-color: #111111;
+        
+          filter: drop-shadow(0px 0px 10px rgba(0, 0, 0, 0.5));
+        
+          color: #eeeeee;
+        
+          font-family: 'Open Sans';
+        
+      }
+
+      #controls a {
+        display: inline-block;
+        padding: 5px 10px;
+        font-size: 1.2em;
+        color: #fff;
+        opacity: 0.75;
+        transition: 0.2s;
+      }
+
+      #controls a:hover {
+        opacity: 1.0;
+      }
+
+      #controls #more-controls {
+        display: inline-block;
+      }
+
       .show {
         opacity: 1.0 !important;
       }
@@ -395,6 +440,16 @@
       <div id="selected-container" data-bind="selectedContainer">
       </div>
     </div>
+    <div id="controls" data-bind="controls">
+      <div id="more-controls" data-bind="moreControls" class="hide">
+        <a id="search" data-bind="search" href="#">
+          <i class="fas fa-search"></i>
+        </a>
+      </div>
+      <a id="show-controls" data-bind="showControls" href="#">
+        <i class="fas fa-bars"></i>
+      </a>
+    </div>
     <div id="hover-indicator" data-bind="hoverIndicator"></div>
     <canvas id="lore"></canvas>
 
@@ -409,8 +464,8 @@
           this.selectedItems = [];
           this.selectedIndicators = [];
           this.selectedCurrent = [];
-          this.scatterMeta = [{"categorical": [true], "colormap": ["Dark2"], "fog_intensity": 0.0, "has_legend": true, "interactive": true, "is_range": [false], "label_index": [0], "legend": [[[[0.10588235294117647, 0.6196078431372549, 0.4666666666666667, 1.0], "Zero"], [[0.8509803921568627, 0.37254901960784315, 0.00784313725490196, 1.0], "One"]]], "legend_title": ["helix"], "mapping": {"c": "c", "cs": "cs", "labels": "labels", "s": "s", "x": "x", "y": "y", "z": "z"}, "max_c": [1.0], "max_legend_label": ["1.00"], "max_point_size": 100.0, "min_c": [0.0], "min_legend_label": ["0.00"], "name": "helix", "ondblclick": [null], "point_scale": 5.0, "selected_labels": [["None", "Just a Small Test"]], "series_title": [null], "shader": "smoothCircle"}];
-          this.treeMeta = [{"color": "#666666", "colormap": "plasma", "fog_intensity": 0.0, "mapping": {"c": "c", "from": "from", "to": "to", "x": "x", "y": "y", "z": "z"}, "name": "helixtree", "point_helper": "helix"}];
+          this.scatterMeta = [{"categorical": [true], "fog_intensity": 0.0, "has_legend": true, "interactive": true, "is_range": [false], "label_index": [0], "legend": [[[[0.10588235294117647, 0.6196078431372549, 0.4666666666666667, 1.0], "Zero"], [[0.8509803921568627, 0.37254901960784315, 0.00784313725490196, 1.0], "One"]]], "legend_title": ["helix"], "mapping": {"c": "c", "cs": "cs", "labels": "labels", "s": "s", "x": "x", "y": "y", "z": "z"}, "max_c": [1.0], "max_legend_label": ["1.00"], "max_point_size": 100.0, "min_c": [0.0], "min_legend_label": ["0.00"], "name": "helix", "ondblclick": [null], "point_scale": 5.0, "selected_labels": [["None", "Just a Small Test"]], "series_title": [null], "shader": "smoothCircle", "title_index": [0]}];
+          this.treeMeta = [{"color": "#666666", "fog_intensity": 0.0, "mapping": {"c": "c", "from": "from", "to": "to", "x": "x", "y": "y", "z": "z"}, "name": "helixtree", "point_helper": "helix"}];
           this.seriesState = {};
           this.el = {};
 
@@ -436,6 +491,7 @@
           this.ohIndexToPhName = [];
           this.ohIndexToPhIndex = [];
           this.phIndexMap = {};
+          this.ohIndexMap = {};
 
           this.coords = {
             show: true,
@@ -522,6 +578,7 @@
                 new Lore.Helpers.OctreeHelper(this.lore, 'Octree_' + s.name, 'tree', ph)
               );
 
+              this.ohIndexMap[s.name] = this.octreeHelpers.length - 1;
               this.ohIndexToPhName.push(s.name);
               this.ohIndexToPhIndex.push(this.phIndexMap[s.name]);
             }
@@ -719,6 +776,26 @@
             else
               this.el.selectedToggle.innerHTML = '<i class="fas fa-toggle-on"></i>';
           });
+          
+          this.el.showControls.addEventListener('click', e => {
+            this.el.moreControls.classList.toggle('hide');
+            e.preventDefault();
+            return false;
+          });
+
+          this.el.search.addEventListener('click', e => {
+            this.search();
+            e.preventDefault();
+            return false;
+          });
+
+          window.addEventListener('keydown', e => {
+            if ((e.keyCode == 114) || (e.ctrlKey && e.keyCode == 70)) {
+              this.search();
+              e.preventDefault();
+              return false;
+            }
+          })
         }
 
         setTipContent() {
@@ -881,11 +958,12 @@
           let fullLabel = data[phName].labels[item.item.index].split('__');
 
           let labelIndex = meta.label_index[seriesState];
+          let titleIndex = meta.title_index[seriesState];
           let selectedLabels = meta.selected_labels[seriesState];
 
           this.el.selectedCurrent.innerHTML = current + 1;
           this.el.selectedTotal.innerHTML = n;
-          this.el.selectedTitle.innerHTML = fullLabel[labelIndex];
+          this.el.selectedTitle.innerHTML = fullLabel[titleIndex];
 
           this.setSelectedContent(fullLabel, labelIndex, selectedLabels);
 
@@ -992,6 +1070,29 @@
             data[name]['colors'][value].g, 
             data[name]['colors'][value].b
           );
+        }
+
+        search() {
+          let searchTerm = prompt('Please enter a serch term:', '');
+          if (!searchTerm) return;
+
+          let results = {}
+          let re = new RegExp(searchTerm, 'i');
+          Object.keys(data).forEach(name => {
+            if (!('labels' in data[name])) return;
+            results[name] = []
+            data[name]['labels'].forEach((label, i) => {
+              if (re.test(label))
+                results[name].push(i);
+            });
+          });
+
+          for (const [name, indices] of Object.entries(results)) {
+            if (!name in this.ohIndexMap) return;
+            indices.forEach(index => {
+              this.octreeHelpers[this.ohIndexMap[name]].addSelected(index);
+            });
+          }
         }
 
         static createColorBox(value) {
