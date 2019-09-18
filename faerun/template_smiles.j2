@@ -88,8 +88,11 @@
 
       #tip-text {
         position: relative;
-        max-width: 500px;
+        max-width: 250px;
+        font-size: 0.8em;
+        font-weight: bold;
         white-space: normal;
+        line-break: normal;
       }
 
       #hover-indicator {
@@ -110,6 +113,8 @@
         position: absolute;
         z-index: 999;
         pointer-events: none;
+        min-width: 10px;
+        min-height: 10px;
       }
 
       .selected-indicator .crosshair-x {
@@ -304,6 +309,11 @@
         margin-top: 2px;
       }
 
+      #selected #selected-container .content {
+        line-break: normal;
+        white-space: normal;
+      }
+
       #selected #selected-container .content a {
         text-decoration: none;
         color: #3498db;
@@ -412,7 +422,8 @@
     <script>
       let smilesDrawer = new SmilesDrawer.Drawer({
         width: 250 / window.devicePixelRatio,
-        height: 250 / window.devicePixelRatio
+        height: 250 / window.devicePixelRatio,
+        experimental: true
       });
 
       class Faerun {
@@ -639,16 +650,20 @@
               let fullLabel = data[phName].labels[e.e.index];
               let labelIndex = this.scatterMeta[this.ohIndexToPhIndex[e.source]]
                                   .label_index[this.seriesState[phName]];
+              let titleIndex = this.scatterMeta[this.ohIndexToPhIndex[e.source]]
+                                  .title_index[this.seriesState[phName]];
 
               let rgbColor = this.pointHelpers[e.source].getColor(e.e.index);
               let hexColor = Lore.Core.Color.rgbToHex(rgbColor[0], rgbColor[1], rgbColor[2]);
 
               this.currentPoint = {
                 index: e.e.index,
-                fullLabel: fullLabel,
+                fullLabel: fullLabel.split('__'),
                 source: phName,
                 label: fullLabel.split('__')[labelIndex],
-                color: hexColor
+                color: hexColor,
+                labelIndex: labelIndex,
+                titleIndex: titleIndex
               }
               
               this.setTipContent();
@@ -765,6 +780,8 @@
             let tipImage = Faerun.createElement('img');
             tipImage.src = this.el.smilesCanvas.toDataURL();
             this.el.tipText.innerHTML = '';
+            if (this.currentPoint.titleIndex !== this.currentPoint.labelIndex)
+              this.el.tipText.innerHTML = `${this.currentPoint.fullLabel[this.currentPoint.titleIndex]}<br />`;
             this.el.tipText.appendChild(tipImage);
             this.el.tip.style.borderColor = this.currentPoint.color;
           }, err => { console.log(err); });
@@ -977,7 +994,8 @@
                                      .getScreenPosition(indicator.index);
             
             // Make the crosshairs larger than the point
-            pointSize *= 1.5;
+            pointSize = Faerun.getMax([pointSize, 10]);
+            pointSize *= 1.25;
             let halfPointSize = pointSize / 2.0;
             indicator.element.style.left = (screenPosition[0] - halfPointSize) + 'px';
             indicator.element.style.top = (screenPosition[1] - halfPointSize) + 'px';

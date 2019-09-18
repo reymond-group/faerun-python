@@ -323,9 +323,9 @@ class Faerun(object):
         )
         series_title = Faerun.expand_list(series_title, n_series, with_value="Series")
         ondblclick = Faerun.expand_list(ondblclick, n_series, with_none=True)
-        selected_labels = Faerun.expand_list(selected_labels, n_series, with_none=True)
-        label_index = Faerun.expand_list(label_index, n_series, with_value=0)
-        title_index = Faerun.expand_list(title_index, n_series, with_value=0)
+        selected_labels = Faerun.expand_list(selected_labels, n_series)
+        label_index = Faerun.expand_list(label_index, n_series)
+        title_index = Faerun.expand_list(title_index, n_series)
 
         # # The c and cs values in the data are a special case, as they should
         # # never be expanded
@@ -954,8 +954,17 @@ class Faerun(object):
 
     @staticmethod
     def create_categories(values: List[str]) -> Tuple[List[Tuple[int, str]], List[int]]:
+        """ Creates a object which can be used as legend_labels and a list of
+        the values as integers (after mapping strings to integers).
+
+            Arguments:
+                values (:obj:`List[str]`): A list of strings
+            
+            Returns:
+                :obj:`Tuple[List[Tuple[int, str]], List[int]]`: A legend_labels object and a list of integers.
+        """
         string_map = {}
-        for i, value in enumerate(set(values)):
+        for i, value in enumerate(sorted(set(values))):
             string_map[value] = i
 
         legend_labels = []

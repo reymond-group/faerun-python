@@ -93,8 +93,11 @@
 
       #tip-text {
         position: relative;
-        max-width: 500px;
+        max-width: 250;
+        font-size: 0.8em;
+        font-weight: bold;
         white-space: normal;
+        line-break: normal;
       }
 
       #hover-indicator {
@@ -115,6 +118,8 @@
         position: absolute;
         z-index: 999;
         pointer-events: none;
+        min-width: 10px;
+        min-height: 10px;
       }
 
       .selected-indicator .crosshair-x {
@@ -307,6 +312,11 @@
 
       #selected #selected-container .label:not(:first-child) {
         margin-top: 2px;
+      }
+
+      #selected #selected-container .content {
+        line-break: normal;
+        white-space: normal;
       }
 
       #selected #selected-container .content a {
@@ -961,7 +971,8 @@
                                      .getScreenPosition(indicator.index);
             
             // Make the crosshairs larger than the point
-            pointSize *= 1.5;
+            pointSize = Faerun.getMax([pointSize, 10]);
+            pointSize *= 1.25;
             let halfPointSize = pointSize / 2.0;
             indicator.element.style.left = (screenPosition[0] - halfPointSize) + 'px';
             indicator.element.style.top = (screenPosition[1] - halfPointSize) + 'px';
