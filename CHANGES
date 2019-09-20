@@ -1,0 +1,4 @@
+# Changelog
+## [0.3.2] - 2019-09-20
+### Added
+- Possibility to load custom jinja2 templates by supplying their path to the template argument (if the value for template is "default", "smiles", or "url_image", the internal templates will be loaded).

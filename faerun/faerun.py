@@ -50,6 +50,7 @@ class Faerun(object):
         alpha_blending=False,
         anti_aliasing=True,
         style: Dict[str, Dict[str, Any]] = {},
+        impress: str = None
     ):
         """Constructor for Faerun.
 
@@ -75,6 +76,7 @@ class Faerun(object):
             alpha_blending (:obj:`bool`, optional): Whether to activate alpha blending (required for smoothCircle shader)
             anti_aliasing (:obj:`bool`, optional): Whether to activate anti-aliasing. Might improve quality at the cost of (substantial) rendering performance
             style (:obj:`Dict[str, Dict[str, Any]]`, optional): The css styles to apply to the HTML elements
+            impress (:obj:`str`, optional): A short message that is shown on the HTML page
         """
         self.title = title
         self.clear_color = clear_color
@@ -97,6 +99,7 @@ class Faerun(object):
         self.alpha_blending = alpha_blending
         self.anti_aliasing = anti_aliasing
         self.style = style
+        self.impress = impress
 
         self.trees = {}
         self.trees_data = {}
@@ -457,12 +460,17 @@ class Faerun(object):
         Keyword Arguments:
             file_name (:obj:`str`, optional): The name of the HTML / JS file
             path (:obj:`str`, optional): The path to which to write the HTML / JS file
-            template (:obj:`str`, optional): The name of the template to use
+            template (:obj:`str`, optional): The name or path of the template to use
             notebook_height: (:obj`int`, optional): The height of the plot when displayed in a jupyter notebook
         """
         self.notebook_height = notebook_height
 
         script_path = os.path.dirname(os.path.abspath(__file__))
+        if template in ["default", "smiles", "url_image"]:
+            template = "template_" + template + ".j2"
+        else:
+            script_path = os.path.dirname(template)
+ 
         html_path = os.path.join(path, file_name + ".html")
         js_path = os.path.join(path, file_name + ".js")
         jenv = jinja2.Environment(loader=jinja2.FileSystemLoader(script_path))
@@ -511,6 +519,7 @@ class Faerun(object):
             "alpha_blending": str(self.alpha_blending).lower(),
             "anti_aliasing": str(self.anti_aliasing).lower(),
             "style": self.style,
+            "impress": self.impress,
             "in_notebook": Faerun.in_notebook(),
         }
 
@@ -520,7 +529,7 @@ class Faerun(object):
             with open(js_path, "w") as f:
                 f.write(self.create_data())
 
-        output_text = jenv.get_template("template_" + template + ".j2").render(model)
+        output_text = jenv.get_template(template).render(model)
 
         with open(html_path, "w") as result_file:
             result_file.write(output_text)
@@ -789,17 +798,17 @@ class Faerun(object):
 
                     colors = np.round(colors * 255.0)
 
-                    output += "r: [" + ",".join(map(str, colors[:, 0])) + "],\n"
-                    output += "g: [" + ",".join(map(str, colors[:, 1])) + "],\n"
-                    output += "b: [" + ",".join(map(str, colors[:, 2])) + "],\n"
+                    output += "r: [" + ",".join(map(str, map(int, colors[:, 0]))) + "],\n"
+                    output += "g: [" + ",".join(map(str, map(int, colors[:, 1]))) + "],\n"
+                    output += "b: [" + ",".join(map(str, map(int, colors[:, 2]))) + "],\n"
                 elif mapping["c"] in data:
                     colors = np.array(
                         [cmaps[series](x) for x in data[mapping["c"]][series]]
                     )
                     colors = np.round(colors * 255.0)
-                    output += "r: [" + ",".join(map(str, colors[:, 0])) + "],\n"
-                    output += "g: [" + ",".join(map(str, colors[:, 1])) + "],\n"
-                    output += "b: [" + ",".join(map(str, colors[:, 2])) + "],\n"
+                    output += "r: [" + ",".join(map(str, map(int, colors[:, 0]))) + "],\n"
+                    output += "g: [" + ",".join(map(str, map(int, colors[:, 1]))) + "],\n"
+                    output += "b: [" + ",".join(map(str, map(int, colors[:, 2]))) + "],\n"
                 output += "},\n"
 
             output += "]"

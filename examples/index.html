@@ -133,8 +133,6 @@
         position: absolute;
         z-index: 999;
         pointer-events: none;
-        min-width: 20px;
-        min-height: 20px;
       }
 
       .selected-indicator .crosshair-x {
@@ -161,6 +159,7 @@
 
       #legend {
         position: absolute;
+        z-index: 9998;
         
           bottom: 10px;
         
@@ -366,8 +365,9 @@
       }
 
       #selected #selected-container .content {
-        line-break: normal;
-        white-space: normal;
+        white-space: nowrap; 
+        overflow: hidden;
+        text-overflow: ellipsis;
       }
 
       #selected #selected-container .content a {
@@ -416,6 +416,20 @@
         display: inline-block;
       }
 
+      #impress {
+        position: absolute;
+        z-index: 9999;
+        top: 10px;
+        left: 10px;
+        font-size: 0.7em;
+        color: #eee;
+      }
+
+      #impress a {
+        color: #3498db;
+        text-decoration: none;
+      }
+
       #smiles-canvas {
         position: absolute;
         z-index: 9999;
@@ -432,6 +446,25 @@
       .hide {
         display: none !important;
       }
+
+      @media only screen and (max-width: 600px) {
+        #selected {
+          position: absolute;
+          display: none;
+          z-index: 9998;
+          width: 125px;
+          opacity: 0.8;
+          background-filter: blur(10px);
+        }
+
+        #selected img {
+          width: 125px;
+        }
+
+        #tip {
+          display: none;
+        }
+      }
     </style>
   </head>
 
@@ -439,6 +472,9 @@
     <canvas id="smiles-canvas" data-bind="smilesCanvas"></canvas>
     
     
+    
+    
+      <div id="impress">made with <a href="#">faerun</a></div>
     
 
     <div id="tip" data-bind="tip">
@@ -1056,7 +1092,8 @@
                                      .getScreenPosition(indicator.index);
             
             // Make the crosshairs larger than the point
-            pointSize *= 1.5;
+            pointSize = Faerun.getMax([pointSize / window.devicePixelRatio, 10 / window.devicePixelRatio]);
+            pointSize *= 1.25;
             let halfPointSize = pointSize / 2.0;
             indicator.element.style.left = (screenPosition[0] - halfPointSize) + 'px';
             indicator.element.style.top = (screenPosition[1] - halfPointSize) + 'px';
