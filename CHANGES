@@ -2,3 +2,8 @@
 ## [0.3.2] - 2019-09-20
 ### Added
 - Possibility to load custom jinja2 templates by supplying their path to the template argument (if the value for template is "default", "smiles", or "url_image", the internal templates will be loaded).
+## [0.3.3] - 2019-10-09
+### Added
+- The possibility to export screenshots at 2x the on-screen resolution
+### Changed
+- The preserveDrawingBuffer option of Lore is set to true now in order to allow for screenshots

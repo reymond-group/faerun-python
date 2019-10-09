@@ -440,6 +440,9 @@
         <a id="search" data-bind="search" href="#">
           <i class="fas fa-search"></i>
         </a>
+        <a id="export" data-bind="export" href="#">
+          <i class="fas fa-camera"></i>
+        </a>
       </div>
       <a id="show-controls" data-bind="showControls" href="#">
         <i class="fas fa-bars"></i>
@@ -536,7 +539,8 @@
           this.lore = Lore.init('lore', {
             antialiasing: this.antiAliasing,
             clearColor: this.clearColorHex,
-            alphaBlending: this.alphaBlending
+            alphaBlending: this.alphaBlending,
+            preserveDrawingBuffer: true
           });
         }
 
@@ -807,6 +811,40 @@
             
             e.preventDefault();
             return false;
+          });
+
+          window.addEventListener('keydown', e => {
+            if ((e.keyCode == 114) || (e.ctrlKey && e.keyCode == 70)) {
+              this.search();
+              e.preventDefault();
+              return false;
+            }
+          });
+
+          this.el.export.addEventListener('click', e => {
+            e.preventDefault();
+
+            let canvas = document.getElementById('lore');
+            let zoom = this.lore.controls.getZoom();
+
+            canvas.style.width = (canvas.width * 2) + 'px';
+            canvas.style.height = (canvas.height * 2) + 'px';
+            this.lore.controls.setZoom(zoom * 2);
+
+            setTimeout(() => {
+              let blob = this.lore.canvas.toBlob(blob => {
+                let a = document.createElement('a');
+                a.href = URL.createObjectURL(blob);
+                a.setAttribute('download', 'export.png');
+                a.click();
+                
+                setTimeout(() => {
+                  canvas.style.width = '100%';
+                  canvas.style.height = '100%';
+                  lore.controls.setZoom(zoom);
+                }, 2000);
+              });
+            }, 2000);
           });
         }
 
