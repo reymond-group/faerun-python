@@ -890,7 +890,16 @@ class Faerun(object):
             :obj:`List`: The object wrapped in a list (or the original list)
         """
 
-        if make_list_list and type(obj) is list and type(obj[0]) is not list:
+        # Check whether any object is a list, this is important for eg:
+        # [None, []]
+        any_list = False
+        if type(obj) is list:
+            for o in obj:
+                if type(o) is list:
+                    any_list = True
+                    break
+
+        if make_list_list and type(obj) is list and not any_list:
             return [obj]
         elif type(obj) is list:
             return obj

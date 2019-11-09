@@ -7,3 +7,6 @@
 - The possibility to export screenshots at 2x the on-screen resolution
 ### Changed
 - The preserveDrawingBuffer option of Lore is set to true now in order to allow for screenshots
+## [0.3.4] - 2019-11-09
+### Bugfix
+- Fixed bug where a list of legend_labels was not recognized as such
