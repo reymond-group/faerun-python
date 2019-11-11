@@ -10,3 +10,6 @@
 ## [0.3.4] - 2019-11-09
 ### Bugfix
 - Fixed bug where a list of legend_labels was not recognized as such
+## [0.3.5] - 2019-11-11
+### Bugfix
+- Fixed bug where a list of legend_labels was not recognized as such, again

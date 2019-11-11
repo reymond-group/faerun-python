@@ -893,13 +893,15 @@ class Faerun(object):
         # Check whether any object is a list, this is important for eg:
         # [None, []]
         any_list = False
+        only_none = True
         if type(obj) is list:
             for o in obj:
+                if o:
+                    only_none = False
                 if type(o) is list:
                     any_list = True
-                    break
 
-        if make_list_list and type(obj) is list and not any_list:
+        if make_list_list and type(obj) is list and not any_list and not only_none:
             return [obj]
         elif type(obj) is list:
             return obj
