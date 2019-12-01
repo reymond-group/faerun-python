@@ -2,7 +2,8 @@
 <html>
 
 <head>
-    <link rel="shortcut icon" href="data:image/vnd.microsoft.icon;base64,AAABAAEAEBAQAAEABAAoAQAAFgAAACgAAAAQAAAAIAAAAAEABAAAAAAAgAAAAAAAAAAAAAAAEAAAAAAAAAAAAAAA25g0AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAERAAAAAAAAAREAAAAAAAABEQAAAAAAAAERAAAAAAAAARERERAAAAABEREREAAAAAEREREQAAAAAREAAAAAAAABEQAAAAAAAAEREREQAAAAARERERAAAAABEREREAAAAAAAAAAAAAAAAAAAAAAAD//wAA//8AAPH/AADx/wAA8f8AAPH/AADwDwAA8A8AAPAPAADx/wAA8f8AAPAPAADwDwAA8A8AAP//AAD//wAA" />
+    <link rel="shortcut icon"
+        href="data:image/vnd.microsoft.icon;base64,AAABAAEAEBAQAAEABAAoAQAAFgAAACgAAAAQAAAAIAAAAAEABAAAAAAAgAAAAAAAAAAAAAAAEAAAAAAAAAAAAAAA25g0AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAERAAAAAAAAAREAAAAAAAABEQAAAAAAAAERAAAAAAAAARERERAAAAABEREREAAAAAEREREQAAAAAREAAAAAAAABEQAAAAAAAAEREREQAAAAARERERAAAAABEREREAAAAAAAAAAAAAAAAAAAAAAAD//wAA//8AAPH/AADx/wAA8f8AAPH/AADwDwAA8A8AAPAPAADx/wAA8f8AAPAPAADwDwAA8A8AAP//AAD//wAA" />
     <title id="title">Faerun-Python</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <!-- <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css"> -->
@@ -11,94 +12,358 @@
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
 
     <style>
-        html, body { height: 100%; }
-        body { margin: 0px; padding: 0px; user-select: none; overflow: hidden; font-family: 'Source Sans Pro'; 
-               background-color: #111111; color: #eee; }
-        #loader { position: absolute; z-index:9999; width: 100%; height: 100%; background-color: #1f1f1f; 
-                  color: #eee; font-weight: bold; display: flex; align-items: center; justify-content: center; }
-        #info { position: absolute; z-index:9999; width: 100%; height: 100%; background-color: rgba(255, 255, 255, 0.95); 
-                color: #222; display: none; }
-        #info #info-content { margin: 50px; }
-        #hide-info-container { position: absolute; z-index:99999; top: 10px; right: 10px; display: none }
-        #hide-info-container a { color: #ff0000 }
+        html,
+        body {
+            height: 100%;
+        }
 
-        #lore { position: absolute; z-index:95; width: 100%; height: 100%; }
+        body {
+            margin: 0px;
+            padding: 0px;
+            user-select: none;
+            overflow: hidden;
+            font-family: 'Source Sans Pro';
+            background-color: #111111;
+            color: #eee;
+        }
+
+        #loader {
+            position: absolute;
+            z-index: 9999;
+            width: 100%;
+            height: 100%;
+            background-color: #1f1f1f;
+            color: #eee;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        #info {
+            position: absolute;
+            z-index: 9999;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(255, 255, 255, 0.95);
+            color: #222;
+            display: none;
+        }
+
+        #info #info-content {
+            margin: 50px;
+        }
+
+        #hide-info-container {
+            position: absolute;
+            z-index: 99999;
+            top: 10px;
+            right: 10px;
+            display: none
+        }
+
+        #hide-info-container a {
+            color: #ff0000
+        }
+
+        #lore {
+            position: absolute;
+            z-index: 95;
+            width: 100%;
+            height: 100%;
+        }
 
         /* Indicator and Label elements */
-        #smiles-canvas { position: absolute; z-index: 97; left: -999px; top: -999px; width: 250px; height: 250px; }
-        #tip-image-container { position: absolute; z-index: 97; width: 250px; height: 250px;
-                               background-color: rgba(255, 255, 255, 1.0); filter: drop-shadow(0px 0px 10px rgba(0, 0, 0, 1.0));
-                               pointer-events: none; opacity: 0.0; transition: opacity 1.0s ease-out; }
-        #tip-image-container.smiles { border-radius: 500px; border: 5px solid #fff; }
-        #tip-image-container.urlimage { border: 5px solid #fff; }
-        #tip-image-container.default { padding: 5px; background-color: rgba(255, 255, 255, 1.0); border-radius: 2px;
-                                       border: 2px solid #eee; width: auto; height: auto; max-width: 500px; max-height: 500px;
-                                       color: #222222; font-family: 'Open Sans'; font-size: 0.75em;
-                                       text-overflow: ellipsis; white-space: nowrap; overflow: hidden; }
-        #tip-image-container.show { opacity: 1.0; transition: opacity 0.1s ease-out; }
-        #tip-image { width: 250px; height: 250px; pointer-events: none; filter: drop-shadow(0px 0px 5px rgba(255, 255, 255, 1.0)); }
-        #hover-indicator { display: none; position: absolute; z-index: 97; border: 1px solid #fff; 
-                           background-color: rgba(255, 255, 255, 0.25); border-radius: 50%; pointer-events: none; }
-        #hover-indicator.show { display: block !important }
-        
+        #smiles-canvas {
+            position: absolute;
+            z-index: 97;
+            left: -999px;
+            top: -999px;
+            width: 250px;
+            height: 250px;
+        }
+
+        #tip-image-container {
+            position: absolute;
+            z-index: 97;
+            width: 250px;
+            height: 250px;
+            background-color: rgba(255, 255, 255, 1.0);
+            filter: drop-shadow(0px 0px 10px rgba(0, 0, 0, 1.0));
+            pointer-events: none;
+            opacity: 0.0;
+            transition: opacity 1.0s ease-out;
+        }
+
+        #tip-image-container.smiles {
+            border-radius: 500px;
+            border: 5px solid #fff;
+        }
+
+        #tip-image-container.urlimage {
+            border: 5px solid #fff;
+        }
+
+        #tip-image-container.default {
+            padding: 5px;
+            background-color: rgba(255, 255, 255, 1.0);
+            border-radius: 2px;
+            border: 2px solid #eee;
+            width: auto;
+            height: auto;
+            max-width: 500px;
+            max-height: 500px;
+            color: #222222;
+            font-family: 'Open Sans';
+            font-size: 0.75em;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            overflow: hidden;
+        }
+
+        #tip-image-container.show {
+            opacity: 1.0;
+            transition: opacity 0.1s ease-out;
+        }
+
+        #tip-image {
+            width: 250px;
+            height: 250px;
+            pointer-events: none;
+            filter: drop-shadow(0px 0px 5px rgba(255, 255, 255, 1.0));
+        }
+
+        #hover-indicator {
+            display: none;
+            position: absolute;
+            z-index: 97;
+            border: 1px solid #fff;
+            background-color: rgba(255, 255, 255, 0.25);
+            border-radius: 50%;
+            pointer-events: none;
+        }
+
+        #hover-indicator.show {
+            display: block !important
+        }
+
         /* Search */
-        #search-container { position: absolute; z-index:98; top: 20px; left: 0px; opacity: 0.75; transition: opacity 0.1s ease-out; }
-        #search-container:hover { opacity: 1.0; transition: opacity 0.1s ease-out; }
-        #search-text { display: block; width: 250px; padding: 10px 20px; font-size: 1.0em; border: 0px;
-                       border-top-right-radius: 500px; border-bottom-right-radius: 500px; outline: none;
-                       background-color: #fff; font-family: 'Source Sans Pro'; }
-        #search-text:focus { filter: drop-shadow(0px 0px 3px #3498db) }
-        #search-button { position: absolute; display: block; top: 4px; right: 5px; width: 32px; height: 32px;
-                         line-height: 32px; background-color: #fff; border-radius: 50%; font-size: 1.25em; }
-        #search-button i { margin-top: 5px; margin-left: 5px; color: #222; }
-        #search-button:hover i { color: #3498db; }
+        #search-container {
+            position: absolute;
+            z-index: 98;
+            top: 20px;
+            left: 0px;
+            opacity: 0.75;
+            transition: opacity 0.1s ease-out;
+        }
+
+        #search-container:hover {
+            opacity: 1.0;
+            transition: opacity 0.1s ease-out;
+        }
+
+        #search-text {
+            display: block;
+            width: 250px;
+            padding: 10px 20px;
+            font-size: 1.0em;
+            border: 0px;
+            border-top-right-radius: 500px;
+            border-bottom-right-radius: 500px;
+            outline: none;
+            background-color: #fff;
+            font-family: 'Source Sans Pro';
+        }
+
+        #search-text:focus {
+            filter: drop-shadow(0px 0px 3px #3498db)
+        }
+
+        #search-button {
+            position: absolute;
+            display: block;
+            top: 4px;
+            right: 5px;
+            width: 32px;
+            height: 32px;
+            line-height: 32px;
+            background-color: #fff;
+            border-radius: 50%;
+            font-size: 1.25em;
+        }
+
+        #search-button i {
+            margin-top: 5px;
+            margin-left: 5px;
+            color: #222;
+        }
+
+        #search-button:hover i {
+            color: #3498db;
+        }
 
         /* Controls */
-        #controls-container { position: absolute; z-index:98; top: 65px; left: 0px;
-                              color: #fff; padding: 5px; font-size: 1.0em; border: 0px; }
+        #controls-container {
+            position: absolute;
+            z-index: 98;
+            top: 65px;
+            left: 0px;
+            color: #fff;
+            padding: 5px;
+            font-size: 1.0em;
+            border: 0px;
+        }
 
-        #controls-container a { opacity: 0.75; transition: opacity 0.1s ease-out; padding: 5px; }
-        #controls-container a:hover { opacity: 1.0; transition: opacity 0.1s ease-out; }
-        
+        #controls-container a {
+            opacity: 0.75;
+            transition: opacity 0.1s ease-out;
+            padding: 5px;
+        }
+
+        #controls-container a:hover {
+            opacity: 1.0;
+            transition: opacity 0.1s ease-out;
+        }
+
         /* Annotations */
-        .annotation { position: absolute; z-index: 96; background: #fff; border-radius: 2px; padding: 5px;
-                      filter: drop-shadow(0px 0px 5px rgba(0, 0, 0, 1.0));
-                      font-size: 0.75em; color: #222222; top: 200px; left: 200px;
-                      color: #222222; font-family: 'Open Sans'; text-align: center;
-                      user-select: none; pointer-events: none; min-width: 50px; }
+        .annotation {
+            position: absolute;
+            z-index: 96;
+            background: #fff;
+            border-radius: 2px;
+            padding: 5px;
+            filter: drop-shadow(0px 0px 5px rgba(0, 0, 0, 1.0));
+            font-size: 0.75em;
+            color: #222222;
+            top: 200px;
+            left: 200px;
+            color: #222222;
+            font-family: 'Open Sans';
+            text-align: center;
+            user-select: none;
+            pointer-events: none;
+            min-width: 50px;
+        }
 
-        .annotation:after { content: ''; position: absolute; bottom: 0; left: 50%; width: 0; height: 0;
-                            border: 12px solid transparent; border-top-color: #fff; border-bottom: 0;
-                            margin-left: -12px; margin-bottom: -12px; }
+        .annotation:after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            width: 0;
+            height: 0;
+            border: 12px solid transparent;
+            border-top-color: #fff;
+            border-bottom: 0;
+            margin-left: -12px;
+            margin-bottom: -12px;
+        }
 
-        
-        #legend { position: absolute; z-index: 96; bottom: 10px; right: 10px; padding: 10px; border: 1px solid #111;
-                  border-radius: 2px; background-color: rgba(0, 0, 0, 0.75); filter: drop-shadow(0px 0px 10px rgba(0, 0, 0, 0.5));
-                  color: #eee; font-family: 'Open Sans'; }
 
-        #legend .container { display: flex; flex: auto; align-items: flex-start; flex-direction: column;
-                            /* flex-direction: row; */ }
+        #legend {
+            position: absolute;
+            z-index: 96;
+            bottom: 10px;
+            right: 10px;
+            padding: 10px;
+            border: 1px solid #111;
+            border-radius: 2px;
+            background-color: rgba(0, 0, 0, 0.75);
+            filter: drop-shadow(0px 0px 10px rgba(0, 0, 0, 0.5));
+            color: #eee;
+            font-family: 'Open Sans';
+        }
 
-        #legend .legend-section:not(:first-child) { /* margin-left: 20px; */ }
-        
-        #legend h2 { font-size: 1em; font-weight: 600; padding-top: 0; margin-top: 0;
-                     margin-bottom: 5px; text-align: center; }
+        #legend .container {
+            display: flex;
+            flex: auto;
+            align-items: flex-start;
+            flex-direction: column;
+            /* flex-direction: row; */
+        }
 
-        #legend h3 { font-size: 0.8em; margin-top: 10px; margin-bottom: 6px; }
-        #legend .legend-element, #legend .legend-element-range { position: relative; display: flex; flex: auto; align-items: flex-start; padding-bottom: 2px; }
-        #legend .color-box { width: 15px; height: 15px; }
-        #legend .legend-element-range { flex-direction: column; }
-        #legend .color-stripe { width: 15px; height: 1px; }
-        #legend .legend-label { height: 15px; font-size: 0.7em; padding-left: 5px; }
-        #legend .legend-label.max { position: absolute; top: 0px; margin-left: 15px; }
-        #legend .legend-label.min { position: absolute; bottom: 2px; margin-left: 15px; }
+        #legend .legend-section:not(:first-child) {
+            /* margin-left: 20px; */
+        }
+
+        #legend h2 {
+            font-size: 1em;
+            font-weight: 600;
+            padding-top: 0;
+            margin-top: 0;
+            margin-bottom: 5px;
+            text-align: center;
+        }
+
+        #legend h3 {
+            font-size: 0.8em;
+            margin-top: 10px;
+            margin-bottom: 6px;
+        }
+
+        #legend .legend-element,
+        #legend .legend-element-range {
+            position: relative;
+            display: flex;
+            flex: auto;
+            align-items: flex-start;
+            padding-bottom: 2px;
+        }
+
+        #legend .color-box {
+            width: 15px;
+            height: 15px;
+        }
+
+        #legend .legend-element-range {
+            flex-direction: column;
+        }
+
+        #legend .color-stripe {
+            width: 15px;
+            height: 1px;
+        }
+
+        #legend .legend-label {
+            height: 15px;
+            font-size: 0.7em;
+            padding-left: 5px;
+        }
+
+        #legend .legend-label.max {
+            position: absolute;
+            top: 0px;
+            margin-left: 15px;
+        }
+
+        #legend .legend-label.min {
+            position: absolute;
+            bottom: 2px;
+            margin-left: 15px;
+        }
 
         /* light theme */
-        #search-text { background-color: #000; color: #fff; }
-        #search-button { background-color: #000; }
-        #search-button i { color: #ddd; }
-        #controls-container { color: #000; }
-        #hover-indicator { border: 1px solid #000; background-color: rgba(0, 0, 0, 0.25); }
+        #search-text {
+            background-color: #000;
+            color: #fff;
+        }
+
+        #search-button {
+            background-color: #000;
+        }
+
+        #search-button i {
+            color: #ddd;
+        }
+
+        #controls-container {
+            color: #000;
+        }
+
+        #hover-indicator {
+            border: 1px solid #000;
+            background-color: rgba(0, 0, 0, 0.25);
+        }
     </style>
 </head>
 
@@ -134,7 +399,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/showdown/1.9.0/showdown.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/0.18.0/axios.min.js"></script>
-    <script src="https://unpkg.com/lore-engine@1.1.9/dist/lore.js"></script>
+    <script src="https://unpkg.com/lore-engine@1.1.10/dist/lore.js"></script>
     <script src="https://unpkg.com/smiles-drawer@1.0.2/dist/smiles-drawer.min.js"></script>
 
     <!-- Let's keep everything in one file, shouldn't be too much ... -->
@@ -156,10 +421,14 @@
 
         /* Set up themes */
         let themes = {
-            dark: { background: '#1f1f1f', grid: '#333333', controls: '#ffffff', hoverIndicator: '#ffffff',
-                    smilesDrawerTheme: 'dark', smilesDrawerBackground: '#000000', text: '#eeeeee' },
-            light: { background: '#ffffff', grid: '#eeeeee', controls: '#000000', hoverIndicator: '#000000',
-                    smilesDrawerTheme: 'light', smilesDrawerBackground: '#ffffff', text: '#222222' }
+            dark: {
+                background: '#1f1f1f', grid: '#333333', controls: '#ffffff', hoverIndicator: '#ffffff',
+                smilesDrawerTheme: 'dark', smilesDrawerBackground: '#000000', text: '#eeeeee'
+            },
+            light: {
+                background: '#ffffff', grid: '#eeeeee', controls: '#000000', hoverIndicator: '#000000',
+                smilesDrawerTheme: 'light', smilesDrawerBackground: '#ffffff', text: '#222222'
+            }
         }
 
         // This is set to a theme once meta is loaded.
@@ -199,7 +468,7 @@
         }
 
 
-        async function get_values(name, coord, dtype='float32', series=null) {
+        async function get_values(name, coord, dtype = 'float32', series = null) {
             let body = JSON.stringify({ name: name, coord: coord, dtype: dtype });
             if (series !== null)
                 body = JSON.stringify({ name: name, coord: coord, dtype: dtype, series: series });
@@ -219,7 +488,8 @@
             }
         }
 
-        async function get_label(id, name) {8
+        async function get_label(id, name) {
+            8
             let response = await fetch('/get_label', {
                 responseType: 'json',
                 method: 'post',
@@ -240,7 +510,7 @@
 
             return await response.json();
         }
-        
+
         // Initialize / Load the data
         async function init_data() {
             let trees = [];
@@ -252,7 +522,7 @@
             let pointScales = [];
             let shaders = [];
             let treeColors = [];
-            
+
             let minX = Number.MAX_VALUE;
             let minY = Number.MAX_VALUE;
             let minZ = Number.MAX_VALUE;
@@ -276,8 +546,8 @@
                 maxY = max(y, maxY);
                 maxZ = max(z, maxZ);
             }
-            
-            
+
+
             for (let name in meta.scatter) {
                 updateText('loader', 'Loading Coordinates for "' + name + '" ...');
                 let x = await get_values(name, 'x');
@@ -295,7 +565,7 @@
                 let r = await get_values(name, 'r', 'uint8', 0);
                 let g = await get_values(name, 'g', 'uint8', 0);
                 let b = await get_values(name, 'b', 'uint8', 0);
-                
+
                 updateText('loader', 'Loading Point Sizes for "' + name + '" ...');
                 let s = await get_values(name, 's');
 
@@ -327,9 +597,9 @@
         function init_lore() {
             let clearColor = theme.background;
             cc = Lore.Core.Color.fromHex(clearColor);
-            lore = Lore.init('lore', { 
-                antialiasing: true, 
-                alphaBlending: meta.view === 'free' ? false : true, 
+            lore = Lore.init('lore', {
+                antialiasing: true,
+                alphaBlending: meta.view === 'free' ? false : true,
                 clearColor: clearColor,
                 preserveDrawingBuffer: true
             });
@@ -357,13 +627,13 @@
         }
 
         // Scatter plots
-        function init_scatters(names, coords, colors, sizes, pointScales, shaders, labelType='smiles') {
+        function init_scatters(names, coords, colors, sizes, pointScales, shaders, labelType = 'smiles') {
             let ph = null;
             let phNames = [];
             let ohIndexToPhName = [];
             let phName = null;
 
-            for (let i = 0; i < coords.length; i++) {                
+            for (let i = 0; i < coords.length; i++) {
                 let phName = names[i];
                 phNames.push(phName);
                 pointHelpers.push(new Lore.Helpers.PointHelper(lore, phName, shaders[i], { maxPointSize: 20 }));
@@ -382,7 +652,7 @@
             lore.controls.setLookAt(center);
             lore.controls.setRadius(pointHelpers[0].getMaxRadius() + 100);
 
-            switch(meta.view) {
+            switch (meta.view) {
                 case 'front':
                     lore.controls.setFrontView(); break;
                 case 'back':
@@ -398,7 +668,7 @@
                 default:
                     lore.controls.setFreeView();
             }
-            
+
 
             Lore.Helpers.OctreeHelper.joinHoveredChanged(octreeHelpers, function (e) {
                 if (e.e) {
@@ -416,7 +686,7 @@
                         tip.classList.remove('smiles');
                         tip.classList.remove('urlimage');
                         tip.classList.remove('default');
-                        
+
                         if (labelType === 'smiles') {
                             SmilesDrawer.parse(currentPoint.label, tree => {
                                 smilesDrawer.draw(tree, 'smiles-canvas', theme.smilesDrawerTheme, false);
@@ -460,7 +730,7 @@
                 search(urlParams.get('search'));
         }
 
-        function init_coords(minX, minY, minZ, maxX, maxY, maxZ, grid=true, ticks=true, tickCount=100, tickLength=2.0, color='#eeeeee', box=true) {
+        function init_coords(minX, minY, minZ, maxX, maxY, maxZ, grid = true, ticks = true, tickCount = 100, tickLength = 2.0, color = '#eeeeee', box = true) {
             var coordinatesHelper = new Lore.Helpers.CoordinatesHelper(lore, 'Coordinates', 'coordinates', {
                 position: new Lore.Math.Vector3f(minX, minY, minZ),
                 axis: {
@@ -522,16 +792,16 @@
 
             legendContainer.classList.add('container');
             legend.appendChild(legendContainer);
-            
+
             Object.entries(meta.scatter).forEach(([key, value]) => {
                 let legendItem = document.createElement('div');
-                
+
                 legendItem.id = 'legend-' + value.name;
                 legendItem.classList.add('legend-section');
                 legendItem.setAttribute('data-name', value.name);
                 legendItem.innerHTML = '<h3>' + value.legend_title[0] + '</h3>';
                 legendContainer.appendChild(legendItem);
-                
+
                 if (!value.is_range[0]) {
                     for (let v of value.legend[0]) {
                         let legendElement = document.createElement('div');
@@ -651,7 +921,7 @@
                     a.href = URL.createObjectURL(blob);
                     a.setAttribute('download', 'export.png');
                     a.click();
-                    
+
                     setTimeout(() => {
                         canvas.style.width = '100%';
                         canvas.style.height = '100%';
@@ -669,7 +939,7 @@
             }
 
             let converter = new showdown.Converter(),
-            html = converter.makeHtml(meta.info);
+                html = converter.makeHtml(meta.info);
             updateText('info-content', html);
         }
 
@@ -700,7 +970,7 @@
         function setTheme() {
             for (var i = 0; i < controlsContainer.children.length; i++)
                 controlsContainer.children[i].style.color = theme.controls;
-            
+
             hoverIndicator.style.borderColor = theme.hoverIndicator;
             tip.style.backgroundColor = theme.smilesDrawerBackground;
             tip.style.color = theme.text;
@@ -710,7 +980,7 @@
         function hide(elementId) { document.getElementById(elementId).style.display = 'none'; }
         function show(elementId) { document.getElementById(elementId).style.display = 'flex'; }
         function updateText(elementId, text) { document.getElementById(elementId).innerHTML = text; }
-        function min(arr, other = Number.MAX_VALUE) { 
+        function min(arr, other = Number.MAX_VALUE) {
             let m = Number.MAX_VALUE;
             for (var i = 0; i < arr.length; i++)
                 if (arr[i] < m) m = arr[i];
@@ -731,7 +1001,7 @@
 
         // Execute this self-executing function when the html is ready
         // Keep this at the very bottom!
-        (function() {
+        (function () {
             updateText('loader', 'Loading Meta ...');
             get_meta().then((result) => {
                 meta = result;
@@ -743,7 +1013,7 @@
                 init_legend();
                 init_lore();
                 init_data().then(() => {
-                    
+
                 });
             })
         })();

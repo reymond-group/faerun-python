@@ -50,7 +50,7 @@ class Faerun(object):
         alpha_blending=False,
         anti_aliasing=True,
         style: Dict[str, Dict[str, Any]] = {},
-        impress: str = None
+        impress: str = None,
     ):
         """Constructor for Faerun.
 
@@ -163,7 +163,7 @@ class Faerun(object):
             "color-box": {"width": "15px", "height": "15px", "border": "solid 0px"},
             "color-stripe": {"width": "15px", "height": "1px", "border": "solid 0px"},
             "color-stripe": {"width": "15px", "height": "1px", "border": "solid 0px"},
-            "crosshair": {"background-color": "#fff"}
+            "crosshair": {"background-color": "#fff"},
         }
 
         for key, _ in default_style.items():
@@ -470,7 +470,7 @@ class Faerun(object):
             template = "template_" + template + ".j2"
         else:
             script_path = os.path.dirname(template)
- 
+
         html_path = os.path.join(path, file_name + ".html")
         js_path = os.path.join(path, file_name + ".js")
         jenv = jinja2.Environment(loader=jinja2.FileSystemLoader(script_path))
@@ -798,17 +798,29 @@ class Faerun(object):
 
                     colors = np.round(colors * 255.0)
 
-                    output += "r: [" + ",".join(map(str, map(int, colors[:, 0]))) + "],\n"
-                    output += "g: [" + ",".join(map(str, map(int, colors[:, 1]))) + "],\n"
-                    output += "b: [" + ",".join(map(str, map(int, colors[:, 2]))) + "],\n"
+                    output += (
+                        "r: [" + ",".join(map(str, map(int, colors[:, 0]))) + "],\n"
+                    )
+                    output += (
+                        "g: [" + ",".join(map(str, map(int, colors[:, 1]))) + "],\n"
+                    )
+                    output += (
+                        "b: [" + ",".join(map(str, map(int, colors[:, 2]))) + "],\n"
+                    )
                 elif mapping["c"] in data:
                     colors = np.array(
                         [cmaps[series](x) for x in data[mapping["c"]][series]]
                     )
                     colors = np.round(colors * 255.0)
-                    output += "r: [" + ",".join(map(str, map(int, colors[:, 0]))) + "],\n"
-                    output += "g: [" + ",".join(map(str, map(int, colors[:, 1]))) + "],\n"
-                    output += "b: [" + ",".join(map(str, map(int, colors[:, 2]))) + "],\n"
+                    output += (
+                        "r: [" + ",".join(map(str, map(int, colors[:, 0]))) + "],\n"
+                    )
+                    output += (
+                        "g: [" + ",".join(map(str, map(int, colors[:, 1]))) + "],\n"
+                    )
+                    output += (
+                        "b: [" + ",".join(map(str, map(int, colors[:, 2]))) + "],\n"
+                    )
                 output += "},\n"
 
             output += "]"
@@ -873,6 +885,108 @@ class Faerun(object):
         output += "};\n"
 
         return output
+
+    @staticmethod
+    def quickplot(
+        title: str = "",
+        clear_color: str = "#111111",
+        coords: bool = False,
+        coords_color: str = "#888888",
+        coords_box: bool = False,
+        coords_ticks: bool = False,
+        coords_grid: bool = False,
+        coords_tick_count: int = 10,
+        coords_tick_length: float = 2.0,
+        coords_offset: float = 5.0,
+        x_title: str = "",
+        y_title: str = "",
+        show_legend: bool = True,
+        legend_title: str = "Legend",
+        legend_orientation: str = "vertical",
+        legend_number_format: str = "{:.2f}",
+        view: str = "front",
+        scale: float = 750.0,
+        alpha_blending=False,
+        anti_aliasing=True,
+        style: Dict[str, Dict[str, Any]] = {},
+        impress: str = None,
+        x: List = [],
+        y: List = [],
+        z: List = None,
+        labels: List = None,
+        c: List = [],
+        scatter_name: str = "Data",
+        shader: str = "smoothCircle",
+        has_legend: bool = True,
+        point_scale: float = 1.0,
+        max_point_size: float = 50.0,
+        colormap: Union[str, Colormap, List[str], List[Colormap]] = "rainbow",
+        series_title: Union[str, List[str]] = None,
+        f: List = None,
+        t: List = None,
+        file_name: str = "index",
+        path: str = "./",
+        template: str = "default",
+        notebook_height: int = 500,
+    ) -> None:
+        
+        faerun = Faerun(
+            title,
+            clear_color,
+            coords,
+            coords_color,
+            coords_box,
+            coords_ticks,
+            coords_grid,
+            coords_tick_count,
+            coords_tick_length,
+            coords_offset,
+            x_title,
+            y_title,
+            show_legend,
+            legend_title,
+            legend_orientation,
+            legend_number_format,
+            view,
+            scale,
+            alpha_blending,
+            anti_aliasing,
+            style,
+            impress,
+        )
+
+        data = {
+            "x": x,
+            "y": y,
+        }
+
+        if z:
+            data["z"] = z
+
+        if labels:
+            data["labels"] = labels
+
+        if isinstance(c, Iterable) and not isinstance(c[0], str) and not series_title:
+            series_title = [f"Series {str(i)}" for i in range(len(c))]
+
+        if c:
+            data["c"] = c
+
+        faerun.add_scatter(
+            scatter_name,
+            data,
+            shader=shader,
+            has_legend=has_legend,
+            point_scale=point_scale,
+            max_point_size=max_point_size,
+            colormap=colormap,
+            series_title=series_title,
+        )
+
+        if f and t and len(f) == len(t):
+            faerun.add_tree(scatter_name + "_tree", {"from": f, "to": t}, point_helper=scatter_name)
+
+        faerun.plot(file_name, path, template, notebook_height)
 
     @staticmethod
     def make_list(obj: Any, make_list_list: bool = False) -> List:
