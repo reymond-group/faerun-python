@@ -923,10 +923,10 @@
           let isVisible = geometry.isVisible;
 
           if (isVisible) {
-            geometry.isVisible = false;
+            geometry.hide();
             section.style.opacity = 0.5;
           } else {
-            geometry.isVisible = true;
+            geometry.show();
             section.style.opacity = 1.0;
           }
         }
