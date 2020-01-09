@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <link rel="shortcut icon" href="data:image/vnd.microsoft.icon;base64,AAABAAEAEBAQAAEABAAoAQAAFgAAACgAAAAQAAAAIAAAAAEABAAAAAAAgAAAAAAAAAAAAAAAEAAAAAAAAAAAAAAA25g0AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAERAAAAAAAAAREAAAAAAAABEQAAAAAAAAERAAAAAAAAARERERAAAAABEREREAAAAAEREREQAAAAAREAAAAAAAABEQAAAAAAAAEREREQAAAAARERERAAAAABEREREAAAAAAAAAAAAAAAAAAAAAAAD//wAA//8AAPH/AADx/wAA8f8AAPH/AADwDwAA8A8AAPAPAADx/wAA8f8AAPAPAADwDwAA8A8AAP//AAD//wAA" />
     <title></title>
-    <script src="https://unpkg.com/lore-engine@1.1.9/dist/lore.min.js"></script>
+    <script src="https://unpkg.com/lore-engine@1.1.10/dist/lore.min.js"></script>
     <link 
       rel="stylesheet" 
       href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.10.2/css/all.css" 
@@ -342,6 +342,13 @@
         opacity: 1.0;
       }
 
+      #selected #selected-controls a#selected-remove {
+        position: absolute;
+        right: 10px;
+        top: 42px;
+        color: #e74c3c;
+      }
+
       #selected #selected-container {
         padding: 10px;
         font-size: 0.8em;
@@ -474,6 +481,9 @@
         <a id="selected-next" data-bind="selectedNext" href="#">
           <i class="fas fa-angle-right"></i>
         </a>
+        <a id="selected-remove" data-bind="selectedRemove" href="#">
+          <i class="fas fa-times"></i>
+        </a>
       </div>
       <div id="selected-container" data-bind="selectedContainer">
       </div>
@@ -505,7 +515,7 @@
           this.selectedItems = [];
           this.selectedIndicators = [];
           this.selectedCurrent = [];
-          this.scatterMeta = [{"categorical": [true], "fog_intensity": 0.0, "has_legend": true, "interactive": true, "is_range": [false], "label_index": [0], "legend": [[[[0.10588235294117647, 0.6196078431372549, 0.4666666666666667, 1.0], "Zero"], [[0.8509803921568627, 0.37254901960784315, 0.00784313725490196, 1.0], "One"]]], "legend_title": ["helix"], "mapping": {"c": "c", "cs": "cs", "labels": "labels", "s": "s", "x": "x", "y": "y", "z": "z"}, "max_c": [1.0], "max_legend_label": ["1.00"], "max_point_size": 100.0, "min_c": [0.0], "min_legend_label": ["0.00"], "name": "helix", "ondblclick": [null], "point_scale": 5.0, "selected_labels": [["None", "Just a Small Test"]], "series_title": [null], "shader": "smoothCircle", "title_index": [0]}];
+          this.scatterMeta = [{"categorical": [true], "fog_intensity": 0.0, "has_legend": true, "interactive": true, "is_range": [false], "label_index": [0], "legend": [[[[0.10588235294117647, 0.6196078431372549, 0.4666666666666667, 1.0], "Zero"], [[0.8509803921568627, 0.37254901960784315, 0.00784313725490196, 1.0], "One"]]], "legend_title": ["helix"], "mapping": {"c": "c", "cs": "cs", "knn": "knn", "labels": "labels", "s": "s", "x": "x", "y": "y", "z": "z"}, "max_c": [1.0], "max_legend_label": ["1.00"], "max_point_size": 100.0, "min_c": [0.0], "min_legend_label": ["0.00"], "name": "helix", "ondblclick": [null], "point_scale": 5.0, "selected_labels": [["None", "Just a Small Test"]], "series_title": [null], "shader": "smoothCircle", "title_index": [0]}];
           this.treeMeta = [{"color": "#666666", "fog_intensity": 0.0, "mapping": {"c": "c", "from": "from", "to": "to", "x": "x", "y": "y", "z": "z"}, "name": "helixtree", "point_helper": "helix"}];
           this.seriesState = {};
           this.el = {};
@@ -780,6 +790,13 @@
             return false;
           });
 
+          this.el.selectedRemove.addEventListener('click', e => {
+            e.preventDefault();
+            let item = this.selectedItems[this.selectedCurrent]
+            this.octreeHelpers[item.source].removeSelected(item.index);
+            return false;
+          });
+
           document.addEventListener('dblclick', e => {
             if (this.currentPoint) {
               var index = this.currentPoint.index;
@@ -983,10 +1000,10 @@
           let isVisible = geometry.isVisible;
 
           if (isVisible) {
-            geometry.isVisible = false;
+            geometry.hide();
             section.style.opacity = 0.5;
           } else {
-            geometry.isVisible = true;
+            geometry.show();
             section.style.opacity = 1.0;
           }
         }
@@ -1142,7 +1159,7 @@
         }
 
         search() {
-          let searchTerm = prompt('Please enter a serch term:', '');
+          let searchTerm = prompt('Please enter a search term:', '');
           if (!searchTerm) return;
 
           let results = {}

@@ -296,6 +296,13 @@
         opacity: 1.0;
       }
 
+      #selected #selected-controls a#selected-remove {
+        position: absolute;
+        right: 10px;
+        top: 42px;
+        color: #e74c3c;
+      }
+
       #selected #selected-container {
         padding: 10px;
         font-size: 0.8em;
@@ -427,6 +434,9 @@
         <span>&nbsp;</span>
         <a id="selected-next" data-bind="selectedNext" href="#">
           <i class="fas fa-angle-right"></i>
+        </a>
+        <a id="selected-remove" data-bind="selectedRemove" href="#">
+          <i class="fas fa-times"></i>
         </a>
       </div>
       <div id="selected-container" data-bind="selectedContainer">
@@ -737,6 +747,13 @@
             return false;
           });
 
+          this.el.selectedRemove.addEventListener('click', e => {
+            e.preventDefault();
+            let item = this.selectedItems[this.selectedCurrent]
+            this.octreeHelpers[item.source].removeSelected(item.index);
+            return false;
+          });
+
           document.addEventListener('dblclick', e => {
             if (this.currentPoint) {
               var index = this.currentPoint.index;
@@ -786,7 +803,7 @@
           });
 
           this.el.search.addEventListener('click', e => {
-            let searchTerm = prompt('Please enter a serch term:', '');
+            let searchTerm = prompt('Please enter a search term:', '');
             const results = this.search(searchTerm);
 
             for (const [name, indices] of Object.entries(results)) {

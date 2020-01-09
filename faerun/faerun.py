@@ -227,6 +227,7 @@ class Faerun(object):
             "cs": "cs",
             "s": "s",
             "labels": "labels",
+            "knn": "knn"
         },
         colormap: Union[str, Colormap, List[str], List[Colormap]] = "plasma",
         shader: str = "sphere",
@@ -246,6 +247,7 @@ class Faerun(object):
         selected_labels: Union[List, List[List]] = None,
         label_index: Union[int, List[int]] = 0,
         title_index: Union[int, List[int]] = 0,
+        knn: List[List[int]] = [],
     ):
         """Add a scatter layer to the plot.
 
@@ -466,7 +468,7 @@ class Faerun(object):
         self.notebook_height = notebook_height
 
         script_path = os.path.dirname(os.path.abspath(__file__))
-        if template in ["default", "smiles", "url_image"]:
+        if template in ["default", "reaction_smiles", "smiles", "url_image"]:
             template = "template_" + template + ".j2"
         else:
             script_path = os.path.dirname(template)
