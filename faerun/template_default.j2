@@ -547,7 +547,7 @@
 
             ph.setXYZRGBS(data[s.name].x, data[s.name].y, data[s.name].z, 
                           data[s.name]['colors'][0].r, data[s.name]['colors'][0].g, 
-                          data[s.name]['colors'][0].b, data[s.name].s);
+                          data[s.name]['colors'][0].b, data[s.name]['s'] ? data[s.name]['s'][0] : 1.0);
 
             ph.setPointScale(s.point_scale);
             ph.setFog([this.clearColor.components[0], this.clearColor.components[1],
@@ -1096,6 +1096,16 @@
             data[name]['colors'][value].g, 
             data[name]['colors'][value].b
           );
+
+          if (data[name]['s']) {
+            if (data[name]['s'][value]) {
+              this.pointHelpers[this.phIndexMap[name]].setSize(
+                data[name]['s'][value]
+              );
+            } else {
+              this.pointHelpers[this.phIndexMap[name]].setSize(1.0);
+            }
+          }
         }
 
         search() {

@@ -227,7 +227,7 @@ class Faerun(object):
             "cs": "cs",
             "s": "s",
             "labels": "labels",
-            "knn": "knn"
+            "knn": "knn",
         },
         colormap: Union[str, Colormap, List[str], List[Colormap]] = "plasma",
         shader: str = "sphere",
@@ -284,6 +284,7 @@ class Faerun(object):
 
         data_c = data[mapping["c"]]
         data_cs = data[mapping["c"]] if mapping["cs"] in data else None
+        data_s = data[mapping["s"]] if mapping["s"] in data else None
 
         # Check whether the color ("c") are strings
         if type(data_c[0]) is str:
@@ -298,6 +299,9 @@ class Faerun(object):
 
         if data_cs is not None and not isinstance(data_cs[0], Iterable):
             data_cs = [data_cs]
+
+        if data_s is not None and not isinstance(data_s[0], Iterable):
+            data_s = [data_s]
 
         # Make everything a list that isn't one (or a tuple)
         colormap = Faerun.make_list(colormap)
@@ -422,6 +426,9 @@ class Faerun(object):
         data[mapping["c"]] = data_c
         if data_cs:
             data[mapping["cs"]] = data_cs
+
+        if data_s:
+            data[mapping["s"]] = data_s
 
         self.scatters[name] = {
             "name": name,
@@ -783,7 +790,16 @@ class Faerun(object):
                 output += "labels: [" + ",".join(fmt_labels) + "],\n"
 
             if mapping["s"] in data:
-                output += "s: [" + ",".join(map(str, data[mapping["s"]])) + "],\n"
+                output += "s: ["
+
+                for series in range(len(data[mapping["s"]])):
+                    output += (
+                        "["
+                        + ",".join(map(str, np.round(data[mapping["s"]][series], 3)))
+                        + "],\n"
+                    )
+
+                output += "],\n"
 
             output += "colors: [\n"
             for series in range(len(data[mapping["c"]])):
@@ -931,7 +947,7 @@ class Faerun(object):
         template: str = "default",
         notebook_height: int = 500,
     ) -> None:
-        
+
         faerun = Faerun(
             title,
             clear_color,
@@ -986,7 +1002,9 @@ class Faerun(object):
         )
 
         if f and t and len(f) == len(t):
-            faerun.add_tree(scatter_name + "_tree", {"from": f, "to": t}, point_helper=scatter_name)
+            faerun.add_tree(
+                scatter_name + "_tree", {"from": f, "to": t}, point_helper=scatter_name
+            )
 
         faerun.plot(file_name, path, template, notebook_height)
 

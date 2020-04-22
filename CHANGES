@@ -19,3 +19,9 @@
 ## [0.3.7] - 2019-12-01
 ### Changed
 - Fixed bug where hidden geometires (scatters) were not moved
+## [0.3.8] - 2020-04-22
+### Bugfix
+- Defining sizes for series is now possible just as it is with colours
+## [0.3.9] - 2020-04-22
+### Changes
+- Rounding sizes to reduce file size

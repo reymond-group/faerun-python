@@ -23,6 +23,7 @@ data3 = {
     "z": np.random.rand(len(x)) - 0.5,
     "c": [c, x],
     "cs": np.random.rand(len(x)),
+    "s": [np.random.rand(len(x)), np.random.rand(len(x))],
     "labels": c,
 }
 
