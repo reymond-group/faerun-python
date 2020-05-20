@@ -374,6 +374,31 @@
         height: 250px;
       }
 
+
+
+      #overlay-structure-container {
+        position: absolute;
+        z-index: 9999;
+        top: 50px;
+        left: 275px;
+        right: 100px;
+        bottom: 10px;
+        opacity: .5;
+        pointer-events: none;
+      }
+
+      #overlay-structure {
+        display: block;
+        margin-left: auto;
+        margin-right: auto;
+        margin-top: auto;
+        margin-bottom: auto;
+      }
+
+
+
+
+
       .show {
         opacity: 1.0 !important;
       }
@@ -418,6 +443,12 @@
       <div id="impress">{{impress}}</div>
     {% endif %}
 
+    <div id="overlay-structure-container" data-binding-id="overlayStructureContainer" class="">
+      <canvas id="overlay-structure" data-binding-id="overlayStructure" width="450" height="687">
+
+      </canvas></div>
+    </div>
+
     <div id="tip" data-bind="tip">
       <div id="tip-text" data-bind="tipText"></div>
     </div>
@@ -456,6 +487,9 @@
         <a id="export" data-bind="export" href="#">
           <i class="fas fa-camera"></i>
         </a>
+        <a id="largepreview" data-bind="largepreview" href="#">
+          <i class="fas fa-expand"></i>
+        </a>
       </div>
       <a id="show-controls" data-bind="showControls" href="#">
         <i class="fas fa-bars"></i>
@@ -472,6 +506,10 @@
     <script src="{{file_name}}"></script>
     {% endif %}
     <script>
+
+      //status on whether to show or not the background canvas
+      let FullMolinBkg = false;
+
       let smilesDrawer = new SmilesDrawer.Drawer({
         width: 250 / window.devicePixelRatio,
         height: 250 / window.devicePixelRatio,
@@ -719,19 +757,50 @@
                 titleIndex: titleIndex
               }
               
-              this.setTipContent();
-              this.el.tip.classList.add('show');
+              if (FullMolinBkg == true) {
 
-              let pointSize = this.pointHelpers[e.source].getPointSize() / window.devicePixelRatio;
-              let x = e.e.screenPosition[0];
-              let y = e.e.screenPosition[1];
+                document.getElementById("overlay-structure-container").style.visibility = "visible";
 
-              this.el.hoverIndicator.style.width = pointSize + 'px';
-              this.el.hoverIndicator.style.height = pointSize + 'px';
-              this.el.hoverIndicator.style.left = (x - pointSize / 2.0 - 1) + 'px';
-              this.el.hoverIndicator.style.top = (y - pointSize / 2.0 - 1) + 'px';
+                var overlayStruc_Width = document.getElementById("overlay-structure-container").offsetWidth
+                var overlayStruc_Height = document.getElementById("overlay-structure-container").offsetHeight
 
-              this.el.hoverIndicator.classList.add('show');
+                if (overlayStruc_Width > overlayStruc_Height) {overlayStruc_Width = overlayStruc_Height}
+
+                smilesDrawer = new SmilesDrawer.Drawer({
+                  width: overlayStruc_Width / window.devicePixelRatio,
+                  height: overlayStruc_Width / window.devicePixelRatio,
+                  bondThickness: 1.4,
+                  experimental: true
+                });
+
+                this.setTipContent();
+
+
+                smilesDrawer = new SmilesDrawer.Drawer({
+                  width: 250 / window.devicePixelRatio,
+                  height: 250 / window.devicePixelRatio,
+                  bondThickness: 1.4,
+                  experimental: true
+                });
+              } else {
+
+                document.getElementById("overlay-structure-container").style.visibility = "hidden";
+                this.setTipContent__();
+
+                this.el.tip.classList.add('show');
+
+                let pointSize = this.pointHelpers[e.source].getPointSize() / window.devicePixelRatio;
+                let x = e.e.screenPosition[0];
+                let y = e.e.screenPosition[1];
+
+                this.el.hoverIndicator.style.width = pointSize + 'px';
+                this.el.hoverIndicator.style.height = pointSize + 'px';
+                this.el.hoverIndicator.style.left = (x - pointSize / 2.0 - 1) + 'px';
+                this.el.hoverIndicator.style.top = (y - pointSize / 2.0 - 1) + 'px';
+
+                this.el.hoverIndicator.classList.add('show');
+                }
+
             } else {
               this.currentPoint = null;
               this.el.tip.classList.remove('show');
@@ -780,24 +849,33 @@
           });
 
           document.addEventListener('mousemove', e => {
-            let x = e.clientX;
-            let y = e.clientY;
+            if (FullMolinBkg == false) {
 
-            if (x > window.innerWidth - this.el.tip.offsetWidth - 20) {
-              x -= this.el.tip.offsetWidth;
+              document.getElementById("tip").style.visibility = "visible";
+
+              let x = e.clientX;
+              let y = e.clientY;
+
+              if (x > window.innerWidth - this.el.tip.offsetWidth - 20) {
+                x -= this.el.tip.offsetWidth;
+              } else {
+                x += 10;
+              }
+
+              if (y > window.innerHeight - this.el.tip.offsetHeight - 20) {
+                y -= this.el.tip.offsetHeight;
+              } else {
+                y += 10;
+              }
+
+              if (this.el.tip) {
+                this.el.tip.style.top = y + 'px';
+                this.el.tip.style.left = x + 'px';
+              }
             } else {
-              x += 10;
-            }
+              
+              document.getElementById("tip").style.visibility = "hidden";
 
-            if (y > window.innerHeight - this.el.tip.offsetHeight - 20) {
-              y -= this.el.tip.offsetHeight;
-            } else {
-              y += 10;
-            }
-
-            if (this.el.tip) {
-              this.el.tip.style.top = y + 'px';
-              this.el.tip.style.left = x + 'px';
             }
           });
 
@@ -903,9 +981,21 @@
 
             return false;
           });
+
+          this.el.largepreview.addEventListener('click', e => {
+            
+            //Switch display mode:
+            if (FullMolinBkg == false) {
+              FullMolinBkg = true;
+            } else {
+              FullMolinBkg = false;
+              //HIDE BIG CANVAS IN BACKGROUND:
+              document.getElementById("overlay-structure-container").style.visibility = "hidden";
+            }
+          });
         }
 
-        setTipContent() {
+        setTipContent__() {
           SmilesDrawer.parse(this.currentPoint.label, tree => {
             smilesDrawer.draw(tree, 'smiles-canvas', 'light', false);
             let tipImage = Faerun.createElement('img');
@@ -915,6 +1005,20 @@
               this.el.tipText.innerHTML = `${this.currentPoint.fullLabel[this.currentPoint.titleIndex]}<br />`;
             this.el.tipText.appendChild(tipImage);
             this.el.tip.style.borderColor = this.currentPoint.color;
+          }, err => { console.log(err); });
+        }
+
+        setTipContent() {
+          SmilesDrawer.parse(this.currentPoint.label, tree => {
+            smilesDrawer.draw(tree, 'overlay-structure', 'dark', false);
+            document.getElementById("tip").style.visibility = "hidden";
+            //let tipImage = Faerun.createElement('img');
+            //tipImage.src = this.el.smilesCanvas.toDataURL();
+            //this.el.tipText.innerHTML = '';
+            //if (this.currentPoint.titleIndex !== this.currentPoint.labelIndex)
+            //  this.el.tipText.innerHTML = `${this.currentPoint.fullLabel[this.currentPoint.titleIndex]}<br />`;
+           // this.el.tipText.appendChild(tipImage);
+            //this.el.tip.style.borderColor = this.currentPoint.color;
           }, err => { console.log(err); });
         }
 
