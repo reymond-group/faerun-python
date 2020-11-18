@@ -1426,6 +1426,8 @@
           for (i=1; i<= Reactant_Left__Count; i++) {
             document.getElementById("output-canvas-reactant-left-" + i).width = 0;
             document.getElementById("output-canvas-reactant-left-" + i).height = 0;
+            document.getElementById("Reactant_plus-" + i).width = 0;
+            document.getElementById("Reactant_plus-" + i).height = 0;
           }
         }
         if (Reactant_Arrow__Count > 0) {
@@ -1514,6 +1516,7 @@
             {
               if (Reactant_Left__Count < i+1)
               {
+                //If total count of reactant left is not sufficent, then create a new canvas for the new reactant
                 var canvas_test = document.createElement('canvas');
 
                 canvas_test.id = "output-canvas-reactant-left-" + (i+1);
@@ -1530,9 +1533,29 @@
                 body.appendChild(canvas_test);
                 
                 Reactant_Left__Count = Reactant_Left__Count + 1;
+
+                
+                if(i < Split_Reactant.length)
+                {
+                  //DRAW the plus "+" sign after the product (if not the last one):
+                  var plus_lenght = 20;
+                  var plus_height = 60;
+                  var plus_top = plus_height/2;
+                  
+                  var plus_element = document.createElement('canvas');
+
+                  plus_element.id = "Reactant_plus-" + (i+1);
+                  plus_element.style="vertical-align: middle";
+                  plus_element.width = plus_lenght;
+                  plus_element.height = plus_height;
+                  plus_element.style.border = "px solid";
+
+                  var body = document.getElementsByClassName("canvas-container_Reactant_Left")[0];
+                  body.appendChild(plus_element);
+                }
               }
 
-              //DRAW:
+              //DRAW the molecule in the target canvas:
               SmilesDrawer.parse(Split_Reactant[i], function (tree) {
                 smilesDrawer.draw(tree, "output-canvas-reactant-left-" + (i+1), 'dark', false);
                 //let td = performance.now() - t;
@@ -1544,6 +1567,32 @@
                   log.style.visibility = 'visible';
                   console.log(err);
               });  
+
+
+              if(i < Split_Reactant.length-1)
+              {
+                //DRAW the plus "+" sign after the product (if not the last one):
+                var plus_lenght = 20;
+                var plus_height = 60;
+                var plus_top = plus_height/2;
+
+                var plus_element = document.getElementById("Reactant_plus-" + (i+1));
+                plus_element.width = plus_lenght;
+                plus_element.height = plus_height;
+                plus_element.style="vertical-align: middle";
+                var ctx = plus_element.getContext("2d");
+
+                ctx.lineWidth = 2;
+                ctx.moveTo(2, plus_top);
+                ctx.lineTo(plus_lenght-4, plus_top);
+                ctx.strokeStyle = "white";
+
+                ctx.moveTo(plus_lenght/2-1, plus_top-(plus_lenght/2)+3);
+                ctx.lineTo(plus_lenght/2-1, plus_top+(plus_lenght/2)-3);
+                ctx.strokeStyle = "white";
+
+                ctx.stroke();
+              }
             }
           }
         }
@@ -1792,7 +1841,6 @@
           });  
         }
       }
-
 
       function created_arrow_WhenNoReactantOnArrow()
       {
