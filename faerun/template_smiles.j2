@@ -88,7 +88,7 @@
 
       #tip-text {
         position: relative;
-        max-width: 250px;
+        max-width: {{thumbnail_width}}px;
         font-size: 0.8em;
         font-weight: bold;
         white-space: normal;
@@ -173,7 +173,7 @@
         margin-top: 0;
         margin-bottom: 5px;
         text-align: center;
-        max-width: 250px;
+        max-width: {{thumbnail_width}}px;
         white-space: normal;
       }
 
@@ -181,7 +181,7 @@
         font-size: 0.8em;
         margin-top: 10px;
         margin-bottom: 0px;
-        max-width: 250px;
+        max-width: {{thumbnail_width}}px;
         white-space: normal;
       }
 
@@ -249,7 +249,7 @@
         position: absolute;
         display: none;
         z-index: 9998;
-        width: 250px;
+        width: {{thumbnail_width}}px;
         {% for key, value in style["selected"].items() %}
           {{key}}: {{value}};
         {% endfor %}
@@ -370,8 +370,8 @@
         z-index: 9999;
         left: -999px;
         top: -999px;
-        width: 250px;
-        height: 250px;
+        width: {{thumbnail_width}}px;
+        height: {{thumbnail_width}}px;
       }
 
 
@@ -511,8 +511,8 @@
       let FullMolinBkg = false;
 
       let smilesDrawer = new SmilesDrawer.Drawer({
-        width: 250 / window.devicePixelRatio,
-        height: 250 / window.devicePixelRatio,
+        width: {{thumbnail_width}} / window.devicePixelRatio,
+        height: {{thumbnail_width}} / window.devicePixelRatio,
         experimental: true
       });
 
@@ -536,6 +536,7 @@
           this.view = '{{view}}';
           this.antiAliasing = {{anti_aliasing}};
           this.alphaBlending = {{alpha_blending}};
+          this.thumbnailWidth = {{thumbnail_width}};
 
           this.treeHelpers = [];
           this.pointHelpers = [];
@@ -777,8 +778,8 @@
 
 
                 smilesDrawer = new SmilesDrawer.Drawer({
-                  width: 250 / window.devicePixelRatio,
-                  height: 250 / window.devicePixelRatio,
+                  width: {{thumbnail_width}} / window.devicePixelRatio,
+                  height: {{thumbnail_width}} / window.devicePixelRatio,
                   bondThickness: 1.4,
                   experimental: true
                 });

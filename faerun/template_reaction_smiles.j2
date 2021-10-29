@@ -88,7 +88,7 @@
 
       #tip-text {
         position: relative;
-        max-width: 250px;
+        max-width: {{thumbnail_width}}px;
         font-size: 0.8em;
         font-weight: bold;
         white-space: normal;
@@ -217,7 +217,7 @@
         margin-top: 0;
         margin-bottom: 5px;
         text-align: center;
-        max-width: 250px;
+        max-width: {{thumbnail_width}}px;
         white-space: normal;
       }
 
@@ -225,7 +225,7 @@
         font-size: 0.8em;
         margin-top: 10px;
         margin-bottom: 0px;
-        max-width: 250px;
+        max-width: {{thumbnail_width}}px;
         white-space: normal;
       }
 
@@ -576,6 +576,7 @@
           this.view = '{{view}}';
           this.antiAliasing = {{anti_aliasing}};
           this.alphaBlending = {{alpha_blending}};
+          this.thumbnailWidth = {{thumbnail_width}};
 
           this.treeHelpers = [];
           this.pointHelpers = [];

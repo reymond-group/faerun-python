@@ -51,6 +51,7 @@ class Faerun(object):
         anti_aliasing=True,
         style: Dict[str, Dict[str, Any]] = {},
         impress: str = None,
+        thumbnail_width: int = 250,
     ):
         """Constructor for Faerun.
 
@@ -77,6 +78,7 @@ class Faerun(object):
             anti_aliasing (:obj:`bool`, optional): Whether to activate anti-aliasing. Might improve quality at the cost of (substantial) rendering performance
             style (:obj:`Dict[str, Dict[str, Any]]`, optional): The css styles to apply to the HTML elements
             impress (:obj:`str`, optional): A short message that is shown on the HTML page
+            thumbnail_width (:obj: `int`, optional): The width of the thumbnail images. Defaults to 250.
         """
         self.title = title
         self.clear_color = clear_color
@@ -100,6 +102,7 @@ class Faerun(object):
         self.anti_aliasing = anti_aliasing
         self.style = style
         self.impress = impress
+        self.thumbnail_width = thumbnail_width
 
         self.trees = {}
         self.trees_data = {}
@@ -530,6 +533,7 @@ class Faerun(object):
             "style": self.style,
             "impress": self.impress,
             "in_notebook": Faerun.in_notebook(),
+            "thumbnail_width": self.thumbnail_width,
         }
 
         if Faerun.in_notebook():
