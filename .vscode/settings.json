@@ -1,5 +1,0 @@
-{
-    "python.pythonPath": "/home/daenu/miniconda3/bin/python",
-    "restructuredtext.confPath": "${workspaceFolder}/doc",
-    "python.formatting.provider": "black"
-}

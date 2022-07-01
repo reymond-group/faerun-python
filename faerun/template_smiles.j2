@@ -6,7 +6,7 @@
     <link rel="shortcut icon" href="data:image/vnd.microsoft.icon;base64,AAABAAEAEBAQAAEABAAoAQAAFgAAACgAAAAQAAAAIAAAAAEABAAAAAAAgAAAAAAAAAAAAAAAEAAAAAAAAAAAAAAA25g0AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAERAAAAAAAAAREAAAAAAAABEQAAAAAAAAERAAAAAAAAARERERAAAAABEREREAAAAAEREREQAAAAAREAAAAAAAABEQAAAAAAAAEREREQAAAAARERERAAAAABEREREAAAAAAAAAAAAAAAAAAAAAAAD//wAA//8AAPH/AADx/wAA8f8AAPH/AADwDwAA8A8AAPAPAADx/wAA8f8AAPAPAADwDwAA8A8AAP//AAD//wAA" />
     <title>{{ title }}</title>
     <script src="https://unpkg.com/lore-engine@1.1.10/dist/lore.min.js"></script>
-    <script src="https://unpkg.com/smiles-drawer@1.2.0/dist/smiles-drawer.min.js"></script>
+    <script src="https://unpkg.com/smiles-drawer@2.0.2/dist/smiles-drawer.min.js"></script>
     <link 
       rel="stylesheet" 
       href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.10.2/css/all.css" 
@@ -365,17 +365,6 @@
         text-decoration: none;
       }
 
-      #smiles-canvas {
-        position: absolute;
-        z-index: 9999;
-        left: -999px;
-        top: -999px;
-        width: {{thumbnail_width}}px;
-        height: {{thumbnail_width}}px;
-      }
-
-
-
       #overlay-structure-container {
         position: absolute;
         z-index: 9999;
@@ -429,7 +418,6 @@
   </head>
 
   <body>
-    <canvas id="smiles-canvas" data-bind="smilesCanvas"></canvas>
     {% if title %}
       <div id="title" data-bind="title">{{title}}</div>
     {% endif %}
@@ -510,11 +498,13 @@
       //status on whether to show or not the background canvas
       let FullMolinBkg = false;
 
-      let smilesDrawer = new SmilesDrawer.Drawer({
+      let molOpts = {
         width: {{thumbnail_width}} / window.devicePixelRatio,
         height: {{thumbnail_width}} / window.devicePixelRatio,
         experimental: true
-      });
+      }
+
+      let sd = new SmiDrawer(molOpts);
 
       class Faerun {
         constructor() {
@@ -767,7 +757,7 @@
 
                 if (overlayStruc_Width > overlayStruc_Height) {overlayStruc_Width = overlayStruc_Height}
 
-                smilesDrawer = new SmilesDrawer.Drawer({
+                sd = new SmiDrawer({
                   width: overlayStruc_Width / window.devicePixelRatio,
                   height: overlayStruc_Width / window.devicePixelRatio,
                   bondThickness: 1.4,
@@ -777,7 +767,7 @@
                 this.setTipContent();
 
 
-                smilesDrawer = new SmilesDrawer.Drawer({
+                sd = new SmiDrawer({
                   width: {{thumbnail_width}} / window.devicePixelRatio,
                   height: {{thumbnail_width}} / window.devicePixelRatio,
                   bondThickness: 1.4,
@@ -997,30 +987,26 @@
         }
 
         setTipContent__() {
-          SmilesDrawer.parse(this.currentPoint.label, tree => {
-            smilesDrawer.draw(tree, 'smiles-canvas', 'light', false);
-            let tipImage = Faerun.createElement('img');
-            tipImage.src = this.el.smilesCanvas.toDataURL();
+          sd.draw(this.currentPoint.label, "img", "light", img => {
             this.el.tipText.innerHTML = '';
             if (this.currentPoint.titleIndex !== this.currentPoint.labelIndex)
               this.el.tipText.innerHTML = `${this.currentPoint.fullLabel[this.currentPoint.titleIndex]}<br />`;
-            this.el.tipText.appendChild(tipImage);
+            this.el.tipText.appendChild(img);
             this.el.tip.style.borderColor = this.currentPoint.color;
-          }, err => { console.log(err); });
+            document.getElementById("tip").style.visibility = "visible";
+          });
         }
 
         setTipContent() {
-          SmilesDrawer.parse(this.currentPoint.label, tree => {
-            smilesDrawer.draw(tree, 'overlay-structure', 'dark', false);
-            document.getElementById("tip").style.visibility = "hidden";
-            //let tipImage = Faerun.createElement('img');
-            //tipImage.src = this.el.smilesCanvas.toDataURL();
-            //this.el.tipText.innerHTML = '';
-            //if (this.currentPoint.titleIndex !== this.currentPoint.labelIndex)
-            //  this.el.tipText.innerHTML = `${this.currentPoint.fullLabel[this.currentPoint.titleIndex]}<br />`;
-           // this.el.tipText.appendChild(tipImage);
-            //this.el.tip.style.borderColor = this.currentPoint.color;
-          }, err => { console.log(err); });
+          sd.draw(this.currentPoint.label, "#overlay-structure", "dark");
+          document.getElementById("tip").style.visibility = "hidden";
+          //let tipImage = Faerun.createElement('img');
+          //tipImage.src = this.el.smilesCanvas.toDataURL();
+          //this.el.tipText.innerHTML = '';
+          //if (this.currentPoint.titleIndex !== this.currentPoint.labelIndex)
+          //  this.el.tipText.innerHTML = `${this.currentPoint.fullLabel[this.currentPoint.titleIndex]}<br />`;
+          // this.el.tipText.appendChild(tipImage);
+          //this.el.tip.style.borderColor = this.currentPoint.color;
         }
 
         setSelectedContent(fullLabel, labelIndex, selectedLabels, img) {
@@ -1185,17 +1171,13 @@
           let titleIndex = meta.title_index[seriesState];
           let selectedLabels = meta.selected_labels[seriesState];
 
-          SmilesDrawer.parse(fullLabel[labelIndex], tree => {
-            smilesDrawer.draw(tree, 'smiles-canvas', 'dark', false);
-            let img = Faerun.createElement('img');
-            img.src = this.el.smilesCanvas.toDataURL();
-            
+          sd.draw(fullLabel[labelIndex], 'img', 'dark', img => {
             this.el.selectedCurrent.innerHTML = current + 1;
             this.el.selectedTotal.innerHTML = n;
             this.el.selectedTitle.innerHTML = fullLabel[titleIndex];
 
             this.setSelectedContent(fullLabel, labelIndex, selectedLabels, img);
-          }, err => { console.log(err); });
+          });
 
           // Remove all indicators
           this.selectedIndicators.forEach(indicator => {
