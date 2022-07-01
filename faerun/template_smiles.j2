@@ -70,6 +70,8 @@
       #tip {
         position: absolute;
         z-index: 9999;
+        left: 10px;
+        top: 10px;
         padding: 5px;
         font-family: 'Open Sans';
         background-color: rgba(255, 255, 255, 1.0);
@@ -88,7 +90,9 @@
 
       #tip-text {
         position: relative;
+        {% if thumbnail_fixed == 'false' %}
         max-width: {{thumbnail_width}}px;
+        {% endif %}
         font-size: 0.8em;
         font-weight: bold;
         white-space: normal;
@@ -498,14 +502,6 @@
       //status on whether to show or not the background canvas
       let FullMolinBkg = false;
 
-      let molOpts = {
-        width: {{thumbnail_width}} / window.devicePixelRatio,
-        height: {{thumbnail_width}} / window.devicePixelRatio,
-        experimental: true
-      }
-
-      let sd = new SmiDrawer(molOpts);
-
       class Faerun {
         constructor() {
           this.body = document.getElementsByTagName('body')[0];
@@ -527,6 +523,7 @@
           this.antiAliasing = {{anti_aliasing}};
           this.alphaBlending = {{alpha_blending}};
           this.thumbnailWidth = {{thumbnail_width}};
+          this.thumbnailFixed = {{thumbnail_fixed}};
 
           this.treeHelpers = [];
           this.pointHelpers = [];
@@ -557,6 +554,24 @@
             show: {{has_legend}},
             title: '{{legend_title}}'
           };
+
+          
+          this.sdMolOpts = {
+            width: this.thumbnailWidth / window.devicePixelRatio,
+            height: this.thumbnailWidth / window.devicePixelRatio,
+            experimental: true
+          }
+
+          this.sdSelected = new SmiDrawer(this.sdMolOpts);
+
+          if (this.thumbnailFixed) {
+            this.sdMolOpts = {
+              scale: 0.75,
+              experimental: true
+            }
+          }
+
+          this.sd = new SmiDrawer(this.sdMolOpts);
 
           this.el = Faerun.bindElements();
 
@@ -757,7 +772,7 @@
 
                 if (overlayStruc_Width > overlayStruc_Height) {overlayStruc_Width = overlayStruc_Height}
 
-                sd = new SmiDrawer({
+                this.sd = new SmiDrawer({
                   width: overlayStruc_Width / window.devicePixelRatio,
                   height: overlayStruc_Width / window.devicePixelRatio,
                   bondThickness: 1.4,
@@ -765,14 +780,7 @@
                 });
 
                 this.setTipContent();
-
-
-                sd = new SmiDrawer({
-                  width: {{thumbnail_width}} / window.devicePixelRatio,
-                  height: {{thumbnail_width}} / window.devicePixelRatio,
-                  bondThickness: 1.4,
-                  experimental: true
-                });
+                this.sd = new SmiDrawer(this.sdMolOpts);
               } else {
 
                 document.getElementById("overlay-structure-container").style.visibility = "hidden";
@@ -841,32 +849,31 @@
 
           document.addEventListener('mousemove', e => {
             if (FullMolinBkg == false) {
-
               document.getElementById("tip").style.visibility = "visible";
 
-              let x = e.clientX;
-              let y = e.clientY;
+              if (!this.thumbnailFixed) {
+                let x = e.clientX;
+                let y = e.clientY;
 
-              if (x > window.innerWidth - this.el.tip.offsetWidth - 20) {
-                x -= this.el.tip.offsetWidth;
-              } else {
-                x += 10;
-              }
+                if (x > window.innerWidth - this.el.tip.offsetWidth - 20) {
+                  x -= this.el.tip.offsetWidth;
+                } else {
+                  x += 10;
+                }
 
-              if (y > window.innerHeight - this.el.tip.offsetHeight - 20) {
-                y -= this.el.tip.offsetHeight;
-              } else {
-                y += 10;
-              }
+                if (y > window.innerHeight - this.el.tip.offsetHeight - 20) {
+                  y -= this.el.tip.offsetHeight;
+                } else {
+                  y += 10;
+                }
 
-              if (this.el.tip) {
-                this.el.tip.style.top = y + 'px';
-                this.el.tip.style.left = x + 'px';
+                if (this.el.tip) {
+                  this.el.tip.style.top = y + 'px';
+                  this.el.tip.style.left = x + 'px';
+                }
               }
             } else {
-              
               document.getElementById("tip").style.visibility = "hidden";
-
             }
           });
 
@@ -987,26 +994,19 @@
         }
 
         setTipContent__() {
-          sd.draw(this.currentPoint.label, "img", "light", img => {
+          this.sd.draw(this.currentPoint.label, this.thumbnailFixed ? 'svg' : 'img', "light", element => {
             this.el.tipText.innerHTML = '';
             if (this.currentPoint.titleIndex !== this.currentPoint.labelIndex)
               this.el.tipText.innerHTML = `${this.currentPoint.fullLabel[this.currentPoint.titleIndex]}<br />`;
-            this.el.tipText.appendChild(img);
+            this.el.tipText.appendChild(element);
             this.el.tip.style.borderColor = this.currentPoint.color;
             document.getElementById("tip").style.visibility = "visible";
           });
         }
 
         setTipContent() {
-          sd.draw(this.currentPoint.label, "#overlay-structure", "dark");
+          this.sd.draw(this.currentPoint.label, "#overlay-structure", "dark");
           document.getElementById("tip").style.visibility = "hidden";
-          //let tipImage = Faerun.createElement('img');
-          //tipImage.src = this.el.smilesCanvas.toDataURL();
-          //this.el.tipText.innerHTML = '';
-          //if (this.currentPoint.titleIndex !== this.currentPoint.labelIndex)
-          //  this.el.tipText.innerHTML = `${this.currentPoint.fullLabel[this.currentPoint.titleIndex]}<br />`;
-          // this.el.tipText.appendChild(tipImage);
-          //this.el.tip.style.borderColor = this.currentPoint.color;
         }
 
         setSelectedContent(fullLabel, labelIndex, selectedLabels, img) {
@@ -1171,7 +1171,7 @@
           let titleIndex = meta.title_index[seriesState];
           let selectedLabels = meta.selected_labels[seriesState];
 
-          sd.draw(fullLabel[labelIndex], 'img', 'dark', img => {
+          this.sdSelected.draw(fullLabel[labelIndex], 'img', 'dark', img => {
             this.el.selectedCurrent.innerHTML = current + 1;
             this.el.selectedTotal.innerHTML = n;
             this.el.selectedTitle.innerHTML = fullLabel[titleIndex];

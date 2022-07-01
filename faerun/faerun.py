@@ -25,7 +25,7 @@ except Exception:
 
 class Faerun(object):
     """Creates a faerun object which is an empty plotting surface where
-     layers such as scatter plots can be added."""
+    layers such as scatter plots can be added."""
 
     def __init__(
         self,
@@ -52,6 +52,7 @@ class Faerun(object):
         style: Dict[str, Dict[str, Any]] = {},
         impress: str = None,
         thumbnail_width: int = 250,
+        thumbnail_fixed: bool = False,
     ):
         """Constructor for Faerun.
 
@@ -78,7 +79,8 @@ class Faerun(object):
             anti_aliasing (:obj:`bool`, optional): Whether to activate anti-aliasing. Might improve quality at the cost of (substantial) rendering performance
             style (:obj:`Dict[str, Dict[str, Any]]`, optional): The css styles to apply to the HTML elements
             impress (:obj:`str`, optional): A short message that is shown on the HTML page
-            thumbnail_width (:obj: `int`, optional): The width of the thumbnail images. Defaults to 250.
+            thumbnail_width (:obj:`int`, optional): The width of the thumbnail images. Defaults to 250.
+            thumbnail_fixed (:obj:`bool`, optional): Whather to show the thumbnail on the top instead as next to the mouse Mainly used for reactions. Defaults to False.
         """
         self.title = title
         self.clear_color = clear_color
@@ -103,6 +105,7 @@ class Faerun(object):
         self.style = style
         self.impress = impress
         self.thumbnail_width = thumbnail_width
+        self.thumbnail_fixed = thumbnail_fixed
 
         self.trees = {}
         self.trees_data = {}
@@ -534,6 +537,7 @@ class Faerun(object):
             "impress": self.impress,
             "in_notebook": Faerun.in_notebook(),
             "thumbnail_width": self.thumbnail_width,
+            "thumbnail_fixed": str(self.thumbnail_fixed).lower(),
         }
 
         if Faerun.in_notebook():
@@ -552,10 +556,10 @@ class Faerun(object):
             display(FileLink(html_path))
 
     def get_min_max(self) -> tuple:
-        """ Get the minimum an maximum coordinates from this plotter instance
+        """Get the minimum an maximum coordinates from this plotter instance
 
-            Returns:
-                :obj:`tuple`: The minimum and maximum coordinates
+        Returns:
+            :obj:`tuple`: The minimum and maximum coordinates
         """
 
         minimum = float("inf")
@@ -1014,7 +1018,7 @@ class Faerun(object):
 
     @staticmethod
     def make_list(obj: Any, make_list_list: bool = False) -> List:
-        """ If an object isn't a list, it is added to one and returned,
+        """If an object isn't a list, it is added to one and returned,
         otherwise, the list is returned.
 
         Arguments:
@@ -1050,12 +1054,12 @@ class Faerun(object):
     def expand_list(
         l: List, length: int, with_value: Any = None, with_none: bool = False
     ) -> List:
-        """ Expands list to a given length by repeating the last element.
+        """Expands list to a given length by repeating the last element.
 
         Arguments:
             l (:obj:`List`): A list
             length (:obj:`int`): The new length of the list
-        
+
         Keyword Arguments:
             with_value (:obj:`Any`, optional): Whether to expand the list with a given value
             with_none (:obj:`bool`, optional): Whether to expand the list with None rather than the last element
@@ -1112,12 +1116,12 @@ class Faerun(object):
 
     @staticmethod
     def create_categories(values: List[str]) -> Tuple[List[Tuple[int, str]], List[int]]:
-        """ Creates a object which can be used as legend_labels and a list of
+        """Creates a object which can be used as legend_labels and a list of
         the values as integers (after mapping strings to integers).
 
             Arguments:
                 values (:obj:`List[str]`): A list of strings
-            
+
             Returns:
                 :obj:`Tuple[List[Tuple[int, str]], List[int]]`: A legend_labels object and a list of integers.
         """

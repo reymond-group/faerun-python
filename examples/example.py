@@ -49,7 +49,10 @@ for i, e in enumerate(coords):
 df = pd.DataFrame.from_dict(data)
 
 faerun = Faerun(
-    view="free", clear_color="#222222", impress='made with <a href="#">faerun</a>'
+    view="free",
+    clear_color="#222222",
+    impress='made with <a href="#">faerun</a>',
+    thumbnail_fixed=False,
 )
 faerun.add_scatter(
     "drugbank", df, shader="sphere", point_scale=5.0, colormap="jet", has_legend=True
