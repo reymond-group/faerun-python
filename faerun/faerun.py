@@ -282,6 +282,7 @@ class Faerun(object):
             label_index: (:obj:`int` or :obj:`List[int]`, optional): The index of the label value to use as the actual label (when __ is used to specify multiple values). A list when visualizing multiple series
             title_index: (:obj:`int` or :obj:`List[int]`, optional): The index of the label value to use as the selected title (when __ is used to specify multiple values). A list when visualizing multiple series
         """
+
         if mapping["z"] not in data:
             data[mapping["z"]] = [0] * len(data[mapping["x"]])
 
@@ -890,6 +891,7 @@ class Faerun(object):
                 output += "y: [" + ",".join(map(str, y_norm)) + "],\n"
 
                 z_norm = [round(s * (z - mini) / diff, 3) for z in data[mapping["z"]]]
+
                 output += "z: [" + ",".join(map(str, z_norm)) + "],\n"
 
             if mapping["c"] in data:

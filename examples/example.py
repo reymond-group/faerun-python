@@ -1,6 +1,7 @@
 import numpy as np
 import pandas as pd
-from faerun import Faerun
+import tmap as tm
+from faerun import Faerun, FaerunPlot
 from rdkit.Chem import AllChem
 from rdkit.Chem import rdMolDescriptors as Descriptors
 from sklearn.decomposition import PCA
@@ -35,6 +36,18 @@ def load():
     return result, mqns, smiles
 
 
+def load_tmap():
+    drugbank = []
+    with open("drugbank.smi") as f:
+        for line in f.readlines():
+            drugbank.append(line.split()[0].strip())
+
+    mqns, smiles = get_fingerprint(drugbank)
+    mqns = np.array(mqns)
+
+    return tm.embed(mqns)
+
+
 coords, mqns, smiles = load()
 smiles = [s + "__This is a Test" for s in smiles]
 
@@ -48,13 +61,12 @@ for i, e in enumerate(coords):
 
 df = pd.DataFrame.from_dict(data)
 
-faerun = Faerun(
-    view="free",
-    clear_color="#222222",
-    impress='made with <a href="#">faerun</a>',
-    thumbnail_fixed=False,
-)
-faerun.add_scatter(
-    "drugbank", df, shader="sphere", point_scale=5.0, colormap="jet", has_legend=True
-)
-faerun.plot(template="smiles")
+# plot = FaerunPlot()
+# plot.add_series(x=df.x, y=df.y, z=df.z, c=df.c, labels=df.labels)
+# plot.save("test", "smiles")
+
+te = load_tmap()
+
+plot = FaerunPlot(view="front")
+plot.add_tmap_series(te, c=df.c)
+plot.save("test", "smiles")
