@@ -1,7 +1,11 @@
 import os
 from faerun.faerun import Faerun
 from faerun.web import host
-from .plot import FaerunPlot
+
+try:
+    from .plot import FaerunPlot
+except:
+    ...
 
 _ROOT = os.path.abspath(os.path.dirname(__file__))
 
