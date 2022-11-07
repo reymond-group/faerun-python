@@ -168,7 +168,6 @@ class Faerun(object):
             },
             "color-box": {"width": "15px", "height": "15px", "border": "solid 0px"},
             "color-stripe": {"width": "15px", "height": "1px", "border": "solid 0px"},
-            "color-stripe": {"width": "15px", "height": "1px", "border": "solid 0px"},
             "crosshair": {"background-color": "#fff"},
         }
 
@@ -544,12 +543,12 @@ class Faerun(object):
         if Faerun.in_notebook():
             model["data"] = self.create_data()
         else:
-            with open(js_path, "w") as f:
+            with open(js_path, "w", encoding="utf-8") as f:
                 f.write(self.create_data())
 
         output_text = jenv.get_template(template).render(model)
 
-        with open(html_path, "w") as result_file:
+        with open(html_path, "w", encoding="utf-8") as result_file:
             result_file.write(output_text)
 
         if Faerun.in_notebook():
@@ -662,37 +661,37 @@ class Faerun(object):
             if mapping["s"] in data:
                 output[name]["s"] = np.array(data[mapping["s"]], dtype=np.float32)
 
-            output[name]["colors"] = [{}] * len(data[mapping["c"]])
-            for s in range(len(data[mapping["c"]])):
+            output[name]["colors"] = [{} for _ in range(len(data[mapping["c"]]))]
+            for series in range(len(data[mapping["c"]])):
                 if mapping["cs"] in data:
-                    colors = np.array([cmaps[s](x) for x in data[mapping["c"]][s]])
+                    colors = np.array([cmaps[series](x) for x in data[mapping["c"]][series]])
 
                     for i, c in enumerate(colors):
                         hsl = np.array(colour.rgb2hsl(c[:3]))
-                        hsl[1] = hsl[1] - hsl[1] * data[mapping["cs"]][s][i]
+                        hsl[1] = hsl[1] - hsl[1] * data[mapping["cs"]][series][i]
                         colors[i] = np.append(np.array(colour.hsl2rgb(hsl)), 1.0)
 
                     colors = np.round(colors * 255.0)
 
-                    output[name]["colors"][s]["r"] = np.array(
+                    output[name]["colors"][series]["r"] = np.array(
                         colors[:, 0], dtype=np.float32
                     )
-                    output[name]["colors"][s]["g"] = np.array(
+                    output[name]["colors"][series]["g"] = np.array(
                         colors[:, 1], dtype=np.float32
                     )
-                    output[name]["colors"][s]["b"] = np.array(
+                    output[name]["colors"][series]["b"] = np.array(
                         colors[:, 2], dtype=np.float32
                     )
                 else:
-                    colors = np.array([cmaps[s](x) for x in data[mapping["c"]][s]])
+                    colors = np.array([cmaps[series](x) for x in data[mapping["c"]][series]])
                     colors = np.round(colors * 255.0)
-                    output[name]["colors"][s]["r"] = np.array(
+                    output[name]["colors"][series]["r"] = np.array(
                         colors[:, 0], dtype=np.float32
                     )
-                    output[name]["colors"][s]["g"] = np.array(
+                    output[name]["colors"][series]["g"] = np.array(
                         colors[:, 1], dtype=np.float32
                     )
-                    output[name]["colors"][s]["b"] = np.array(
+                    output[name]["colors"][series]["b"] = np.array(
                         colors[:, 2], dtype=np.float32
                     )
 
