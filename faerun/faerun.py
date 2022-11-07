@@ -543,12 +543,12 @@ class Faerun(object):
         if Faerun.in_notebook():
             model["data"] = self.create_data()
         else:
-            with open(js_path, "w") as f:
+            with open(js_path, "w", encoding="utf-8") as f:
                 f.write(self.create_data())
 
         output_text = jenv.get_template(template).render(model)
 
-        with open(html_path, "w") as result_file:
+        with open(html_path, "w", encoding="utf-8") as result_file:
             result_file.write(output_text)
 
         if Faerun.in_notebook():
