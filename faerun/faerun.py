@@ -168,7 +168,6 @@ class Faerun(object):
             },
             "color-box": {"width": "15px", "height": "15px", "border": "solid 0px"},
             "color-stripe": {"width": "15px", "height": "1px", "border": "solid 0px"},
-            "color-stripe": {"width": "15px", "height": "1px", "border": "solid 0px"},
             "crosshair": {"background-color": "#fff"},
         }
 
