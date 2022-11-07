@@ -661,7 +661,7 @@ class Faerun(object):
             if mapping["s"] in data:
                 output[name]["s"] = np.array(data[mapping["s"]], dtype=np.float32)
 
-            output[name]["colors"] = [{}] * len(data[mapping["c"]])
+            output[name]["colors"] = [{} for _ in range(len(data[mapping["c"]]))]
             for series in range(len(data[mapping["c"]])):
                 if mapping["cs"] in data:
                     colors = np.array([cmaps[series](x) for x in data[mapping["c"]][series]])
